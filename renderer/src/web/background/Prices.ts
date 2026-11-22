@@ -485,7 +485,7 @@ export const usePoeninja = createGlobalState(() => {
       searchIndex.value = [];
       priceCache.clear();
       lastUpdateTime = 0;
-      void load(true);
+      load(true);
     },
   );
 

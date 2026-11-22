@@ -408,7 +408,7 @@ export default defineComponent({
     let previousItem = props.item;
     watch(
       () => {
-        const { trade, ...criteria } = itemFilters.value;
+        const criteria = { ...itemFilters.value, trade: undefined };
         return [itemStats.value, criteria];
       },
       () => {

@@ -35,7 +35,7 @@ async function applyGame(game: GameVersion) {
   config.game = game;
   saveConfig();
 
-  void useTradeData().load(true, game);
+  useTradeData().load(true, game);
   await useLeagues().load();
   return pendingGame === game;
 }

@@ -83,7 +83,8 @@
 
 <script lang="ts">
 import { getDetailsId } from "@/web/price-check/trends/getDetailsId";
-import { ref } from "vue";
+import { ref, computed } from "vue";
+import { AppConfig } from "@/web/Config";
 import type { GameVersion } from "@ipc/types";
 import { distance } from "fastest-levenshtein";
 import {
@@ -196,13 +197,12 @@ function fuzzyFindHeistGem(badStr: string) {
 </script>
 
 <script setup lang="ts">
-import { shallowRef, computed, nextTick, onMounted, onUnmounted } from "vue";
+import { shallowRef, nextTick, onMounted, onUnmounted } from "vue";
 import { useI18nNs } from "@/web/i18n";
 import { usePoeninja, formatChaosOrDivineAmount } from "@/web/background/Prices";
 import { Host } from "@/web/background/IPC";
 import { ItemRarity } from "@/parser/ParsedItem";
 import { ParsedItem } from "@/parser";
-import { AppConfig } from "@/web/Config";
 
 import UiItemImg from "@/web/ui/UiItemImg.vue";
 

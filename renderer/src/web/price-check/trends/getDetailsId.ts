@@ -147,7 +147,6 @@ function variant(props: Array<string | null>): string | undefined {
   return props.join(", ");
 }
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 function getUniqueVariant(item: ParsedItem) {
   function hasStat(item: ParsedItem, stat: string) {
     return item.statsByType.some((m) => m.stat.ref === stat);

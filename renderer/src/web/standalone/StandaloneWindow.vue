@@ -244,13 +244,13 @@ export default defineComponent({
 
     const showDestroyConfirm = ref(false);
 
-    Host.onEvent("MAIN->CLIENT::confirm-destroy-action" as any, () => {
+    Host.onEvent("MAIN->CLIENT::confirm-destroy-action", () => {
       showDestroyConfirm.value = true;
     });
 
     function respondDestroyConfirm(activate: boolean) {
       Host.sendEvent({
-        name: "CLIENT->MAIN::confirm-destroy-response" as any,
+        name: "CLIENT->MAIN::confirm-destroy-response",
         payload: { activate },
       });
       showDestroyConfirm.value = false;
@@ -258,7 +258,7 @@ export default defineComponent({
 
     const showDestroyWarning = ref(false);
 
-    Host.onEvent("MAIN->CLIENT::show-destroy-warning" as any, () => {
+    Host.onEvent("MAIN->CLIENT::show-destroy-warning", () => {
       showDestroyWarning.value = true;
     });
 
