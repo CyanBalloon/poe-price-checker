@@ -196,6 +196,7 @@ let tray: AppTray;
           }
         });
         uIOhook.start();
+        app.once("before-quit", () => uIOhook.stop());
         console.log("uIOhook started");
         const combinedDev = process.env.EXILE_TRADE_COMBINED_DEV;
         let port: number;
