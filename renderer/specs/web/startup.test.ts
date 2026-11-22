@@ -31,7 +31,12 @@ it("starts the market watcher before config loads and uses the saved game afterw
   const config = { ...defaultConfig(), game: "poe1", realm: "pc-garena" };
   vi.mocked(Host.getConfig).mockResolvedValueOnce(JSON.stringify(config));
   proxy.mockResolvedValueOnce(
-    new Response(JSON.stringify({ result: [{ id: "Standard", text: "Standard" }] })),
+    new Response(JSON.stringify({ result: [
+      { id: "Challenge", text: "Challenge", realm: "pc" },
+      { id: "Hardcore Challenge", text: "Hardcore Challenge", realm: "pc" },
+      { id: "Ruthless Challenge", text: "Ruthless Challenge", realm: "pc" },
+      { id: "Challenge", text: "Challenge", realm: "xbox" },
+    ] })),
   );
   vi.stubGlobal("document", { documentElement: { style: {} } });
   try {
@@ -40,7 +45,10 @@ it("starts the market watcher before config loads and uses the saved game afterw
     await nextTick();
 
     expect(proxy).toHaveBeenCalledWith("www.pathofexile.com/api/trade/data/leagues");
-    expect(leagues.selectedId.value).toBe("Standard");
+    expect(leagues.list.value.map((league) => league.id)).toEqual([
+      "Challenge", "Hardcore Challenge", "Ruthless Challenge",
+    ]);
+    expect(leagues.selectedId.value).toBe("Challenge");
     expect(leagues.selected.value?.realm).toBe("pc-garena");
     expect(market.isLoading.value).toBe(false);
   } finally {

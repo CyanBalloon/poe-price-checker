@@ -12,6 +12,7 @@ import { getTradeEndpointPath } from "@/web/price-check/trade/common";
 interface TradeLeague {
   id: string;
   text: string;
+  realm?: string;
 }
 
 interface League {
@@ -72,16 +73,20 @@ export const useLeagues = createGlobalState(() => {
       const leagues: { result: TradeLeague[] } = await response.json();
       const config = AppConfig();
       if (loadId !== request || config?.game !== game) return;
-      if (!leagues.result.length) throw new Error("The trade site returned no leagues");
+      const pcLeagues = game === "poe1"
+        ? leagues.result.filter((league) => !league.realm || league.realm === "pc")
+        : leagues.result;
+      if (!pcLeagues.length) throw new Error("The trade site returned no PC leagues");
 
-      tradeLeagues.value = leagues.result.map(({ id, text }) => ({
+      tradeLeagues.value = pcLeagues.map(({ id, text }) => ({
         id, isPopular: true, text,
       }));
       loadedGame.value = game;
 
       const chosen = config.leagueId;
       if (!tradeLeagues.value.some((league) => league.id === chosen) && !isPrivateLeague(chosen ?? "")) {
-        selectedId.value = (tradeLeagues.value[2] ?? tradeLeagues.value[0]).id;
+        const defaultLeague = game === "poe2" ? pcLeagues[2] : pcLeagues[0];
+        selectedId.value = (defaultLeague ?? pcLeagues[0]).id;
       }
     } catch (e) {
       if (loadId === request) error.value = (e as Error).message;
