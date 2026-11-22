@@ -15,6 +15,7 @@ export interface HostConfig {
   libraryOutputPath: string | null;
   autoUpdater: boolean;
   destroyHotkeyEnabled: boolean;
+  autoClickerEnabled: boolean;
 }
 
 export interface ShortcutAction {
@@ -68,6 +69,7 @@ export type UpdateInfo =
   };
 
 export interface HostState {
+  supportsAutoClicker: boolean;
   contents: string | null;
   version: string;
   updater: UpdateInfo;

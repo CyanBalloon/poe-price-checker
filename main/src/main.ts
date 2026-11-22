@@ -123,6 +123,7 @@ let tray: AppTray;
               cfg.restoreClipboard,
               cfg.language,
               cfg.destroyHotkeyEnabled,
+              cfg.autoClickerEnabled,
             );
             gameLogWatcher.restart(cfg.clientLog ?? "", cfg.readClientLog);
             gameConfig.readConfig(cfg.gameConfig ?? "");

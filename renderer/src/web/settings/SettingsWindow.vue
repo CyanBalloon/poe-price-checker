@@ -66,6 +66,10 @@
       <h2 id="settings-shortcuts-title">Shortcuts</h2>
       <div class="settings-rows">
         <settings-hotkey v-for="hotkey in hotkeys" :key="hotkey.translationKey" :schema="hotkey" class="settings-hotkey-row" />
+        <div v-if="supportsAutoClicker" class="settings-row">
+          <span><strong id="settings-auto-clicker-label">Auto-clicker</strong><small id="settings-auto-clicker-help">Hold Ctrl or Shift with the right mouse button to repeat left clicks in game.</small></span>
+          <button type="button" role="switch" class="settings-switch" aria-labelledby="settings-auto-clicker-label" aria-describedby="settings-auto-clicker-help" :aria-checked="autoClickerEnabled" @click="toggleAutoClicker"></button>
+        </div>
         <div class="settings-row">
           <span><strong id="settings-destroy-label">Destroy item hotkey</strong><small>Allow Ctrl + Alt + middle click after confirming for the session.</small></span>
           <button type="button" role="switch" class="settings-switch" aria-labelledby="settings-destroy-label" :aria-checked="destroyHotkeyEnabled" @click="destroyHotkeyEnabled = !destroyHotkeyEnabled"></button>
@@ -75,6 +79,15 @@
     <section v-if="$slots.application" class="settings-group">
       <h2>Application</h2><slot name="application" />
     </section>
+    <dialog ref="autoClickerDialog" class="trade-dialog" aria-labelledby="auto-clicker-title" aria-describedby="auto-clicker-warning">
+      <h2 id="auto-clicker-title">Enable the auto-clicker?</h2>
+      <p id="auto-clicker-warning">Repeating clicks from a single input may violate the Path of Exile Terms of Use and put your account at risk.</p>
+      <p><a href="https://www.pathofexile.com/legal/terms-of-use-and-privacy-policy" target="_blank" rel="noopener noreferrer">Read the Terms of Use</a></p>
+      <div class="trade-dialog-actions">
+        <button type="button" class="ui-button" autofocus @click="autoClickerDialog?.close()">Keep off</button>
+        <button type="button" class="ui-button ui-button--danger" @click="enableAutoClicker">Enable auto-clicker</button>
+      </div>
+    </dialog>
   </div>
 </template>
 
@@ -83,6 +96,7 @@ import { computed, defineComponent, inject, ref, type PropType } from "vue";
 import { useI18n } from "vue-i18n";
 import { POE1_LANGUAGES } from "@/assets/data";
 import { AppConfig, pushHostConfig, saveConfig } from "@/web/Config";
+import { Host } from "@/web/background/IPC";
 import { useLeagues } from "@/web/background/Leagues";
 import type { Widget, WidgetManager, WidgetSpec } from "@/web/overlay/interfaces";
 import type { PriceCheckWidget } from "@/web/overlay/widgets";
@@ -133,6 +147,17 @@ export default defineComponent({
       });
     }
 
+    const autoClickerEnabled = preference(() => AppConfig(), "autoClickerEnabled");
+    const autoClickerDialog = ref<HTMLDialogElement>();
+    function toggleAutoClicker() {
+      if (autoClickerEnabled.value) autoClickerEnabled.value = false;
+      else autoClickerDialog.value?.showModal();
+    }
+    function enableAutoClicker() {
+      autoClickerEnabled.value = true;
+      autoClickerDialog.value?.close();
+    }
+
     const hotkeys = computed<HotkeySchema[]>(() => {
       const out: HotkeySchema[] = [];
       const check = priceCheck.value;
@@ -168,6 +193,11 @@ export default defineComponent({
       language: preference(() => AppConfig(), "language"),
       autoUpdater: preference(() => AppConfig(), "autoUpdater"),
       destroyHotkeyEnabled: preference(() => AppConfig(), "destroyHotkeyEnabled"),
+      supportsAutoClicker: Host.supportsAutoClicker,
+      autoClickerEnabled,
+      autoClickerDialog,
+      toggleAutoClicker,
+      enableAutoClicker,
       isPoe1: computed(() => AppConfig().game === "poe1"),
       preferredCurrency: computed({
         get: () => priceCheck.value?.coreCurrency,

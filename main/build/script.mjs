@@ -28,6 +28,7 @@ if (process.platform === 'win32') {
     console.info('clicker.cs compiled successfully.')
   } catch (err) {
     console.error('Failed to compile clicker.cs:', err.toString())
+    process.exit(1)
   }
 }
 

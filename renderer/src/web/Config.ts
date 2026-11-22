@@ -156,10 +156,11 @@ export interface Config {
   readClientLog: boolean; // default to false, opt-in only
   autoUpdater: boolean;
   destroyHotkeyEnabled: boolean;
+  autoClickerEnabled: boolean;
 }
 
 export const defaultConfig = (): Config => ({
-  configVersion: 33,
+  configVersion: 34,
   restoreClipboard: false,
   showAttachNotification: true,
   commands: [
@@ -231,6 +232,7 @@ export const defaultConfig = (): Config => ({
   tipsFrequency: TipsFrequency.Normal,
   readClientLog: false, // default to false, opt-in only
   destroyHotkeyEnabled: false,
+  autoClickerEnabled: false,
 });
 
 function upgradeConfig(_config: Config): Config {
@@ -639,6 +641,11 @@ function upgradeConfig(_config: Config): Config {
     config.configVersion = 33;
   }
 
+  if (config.configVersion < 34) {
+    config.autoClickerEnabled = false;
+    config.configVersion = 34;
+  }
+
   if ((config as any).theme === "pastel") {
     config.theme = "default";
   }
@@ -792,5 +799,6 @@ function getConfigForHost(): HostConfig {
     libraryOutputPath: library.libraryOutputPath,
     autoUpdater: config.autoUpdater,
     destroyHotkeyEnabled: config.destroyHotkeyEnabled,
+    autoClickerEnabled: config.autoClickerEnabled === true,
   };
 }

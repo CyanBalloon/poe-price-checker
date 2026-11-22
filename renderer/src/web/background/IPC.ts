@@ -14,6 +14,7 @@ class HostTransport {
   version = shallowRef("0.0.00000");
   updateInfo = shallowRef<UpdateInfo>({ state: "initial" });
   isLoggedIn = shallowRef(false);
+  supportsAutoClicker = shallowRef(false);
 
   async init() {
     this.onEvent("MAIN->CLIENT::log-entry", (entry) => {
@@ -73,6 +74,7 @@ class HostTransport {
     this.version.value = config.version;
     this.updateInfo.value = config.updater;
     this.isLoggedIn.value = config.isLoggedIn;
+    this.supportsAutoClicker.value = config.supportsAutoClicker === true;
     return config.contents;
   }
 

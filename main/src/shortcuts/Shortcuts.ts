@@ -224,6 +224,7 @@ export class Shortcuts {
     restoreClipboard: boolean,
     language: string,
     destroyHotkeyEnabled: boolean,
+    autoClickerEnabled: boolean,
   ) {
 
     this.stashScroll = stashScroll;
@@ -233,6 +234,7 @@ export class Shortcuts {
 
     if (this.clickerProcess && this.clickerProcess.stdin.writable) {
       this.clickerProcess.stdin.write(destroyHotkeyEnabled ? "destroy-key-active 1\n" : "destroy-key-active 0\n");
+      this.clickerProcess.stdin.write(autoClickerEnabled === true ? "auto-clicker 1\n" : "auto-clicker 0\n");
     }
 
     const copyItemShortcut = mergeTwoHotkeys(

@@ -55,3 +55,22 @@ it("starts the market watcher before config loads and uses the saved game afterw
     vi.unstubAllGlobals();
   }
 });
+
+it("keeps the auto-clicker off on upgrade and restores an explicit opt-in on restart", async () => {
+  const current = defaultConfig();
+  expect(current.autoClickerEnabled).toBe(false);
+  vi.stubGlobal("document", { documentElement: { style: {} } });
+  try {
+    const old = { ...current, configVersion: 33, autoClickerEnabled: undefined };
+    vi.mocked(Host.getConfig).mockResolvedValueOnce(JSON.stringify(old));
+    await initConfig();
+    expect(AppConfig().autoClickerEnabled).toBe(false);
+    expect(AppConfig().configVersion).toBe(current.configVersion);
+
+    vi.mocked(Host.getConfig).mockResolvedValueOnce(JSON.stringify({ ...current, autoClickerEnabled: true }));
+    await initConfig();
+    expect(AppConfig().autoClickerEnabled).toBe(true);
+  } finally {
+    vi.unstubAllGlobals();
+  }
+});

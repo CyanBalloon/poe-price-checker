@@ -151,6 +151,7 @@ export async function startServer(
       res.setHeader("content-type", "application/json");
       const loggedIn = await checkLoginStatus();
       const resBody: HostState = {
+        supportsAutoClicker: process.platform === "win32",
         version: app.getVersion(),
         updater: appUpdater.info,
         contents: await configStore.load(),

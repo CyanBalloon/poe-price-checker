@@ -160,6 +160,7 @@ export const defaultConfigMock = (overrides: Partial<Config> = {}) => {
     readClientLog: false,
     autoUpdater: true,
     destroyHotkeyEnabled: false,
+    autoClickerEnabled: false,
   };
 
   mockConfig = { ...defaultConfig, ...overrides };

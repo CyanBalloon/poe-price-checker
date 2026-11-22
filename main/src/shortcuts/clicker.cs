@@ -108,11 +108,12 @@ class Clicker {
     private static IntPtr _hookID = IntPtr.Zero;
     private static LowLevelMouseProc _proc = HookCallback;
     private static uint mainThreadId;
-    private static bool shouldExit = false;
+    private static volatile bool shouldExit = false;
+    private static volatile bool autoClickerEnabled = false;
     private static bool destroyKeyActive = false;
 
     // Track the physical state of Right Mouse Button since we block its events from the OS key/mouse state cache
-    private static bool isRButtonHeld = false;
+    private static volatile bool isRButtonHeld = false;
 
     static void Main() {
         mainThreadId = GetCurrentThreadId();
@@ -171,12 +172,12 @@ class Clicker {
 
                 RECT rect;
                 rect.Left = 0; rect.Top = 0; rect.Right = 0; rect.Bottom = 0;
-                string dummyGame;
-                bool isGameActive = IsTargetWindowActive(ref rect, out dummyGame);
+                string foregroundGame;
+                bool isGameActive = IsTargetWindowActive(ref rect, out foregroundGame);
                 bool isTargetActive = active || isGameActive;
 
                 if (isTargetActive) {
-                    if (isRButtonMsg && (isCtrlPressed || isShiftPressed) && !isAltPressed) {
+                    if (isRButtonMsg && ShouldAutoClick(foregroundGame, isCtrlPressed, isShiftPressed, isAltPressed)) {
                         // Block the right click message from passing to the target window
                         return new IntPtr(1);
                     }
@@ -207,16 +208,22 @@ class Clicker {
                 destroyKeyActive = true;
             } else if (line == "destroy-key-active 0") {
                 destroyKeyActive = false;
+            } else if (line == "auto-clicker 1") {
+                autoClickerEnabled = true;
+            } else if (line == "auto-clicker 0") {
+                autoClickerEnabled = false;
             } else if (line == "click-left") {
                 mouse_event(MOUSEEVENTF_LEFTDOWN, 0, 0, 0, 0);
                 Thread.Sleep(20);
                 mouse_event(MOUSEEVENTF_LEFTUP, 0, 0, 0, 0);
             } else if (line == "exit") {
-                shouldExit = true;
-                PostThreadMessage(mainThreadId, WM_QUIT, IntPtr.Zero, IntPtr.Zero);
                 break;
             }
         }
+        // EOF also means the desktop app (which owns the input pipe) has exited.
+        autoClickerEnabled = false;
+        shouldExit = true;
+        PostThreadMessage(mainThreadId, WM_QUIT, IntPtr.Zero, IntPtr.Zero);
     }
 
     static void FocusOverlayWindow() {
@@ -263,6 +270,11 @@ class Clicker {
         return false;
     }
 
+    private static bool ShouldAutoClick(string foregroundGame, bool ctrl, bool shift, bool alt) {
+        return autoClickerEnabled && (foregroundGame == "poe1" || foregroundGame == "poe2")
+            && (ctrl || shift) && !alt;
+    }
+
     static void ClickLoop() {
         bool lastForegroundState = false;
         string lastGame = "-";
@@ -297,7 +309,7 @@ class Clicker {
                 Console.Out.Flush();
             }
 
-            if (isTargetActive && (isCtrlPressed || isShiftPressed) && isRButtonPressed && !isAltPressed) {
+            if (isRButtonPressed && ShouldAutoClick(activeGame, isCtrlPressed, isShiftPressed, isAltPressed)) {
                 // Send distinct Left Down and Left Up events with a short hold delay to ensure the game registers the click sequence
                 mouse_event(MOUSEEVENTF_LEFTDOWN, 0, 0, 0, 0);
                 Thread.Sleep(10); // Hold for 10ms

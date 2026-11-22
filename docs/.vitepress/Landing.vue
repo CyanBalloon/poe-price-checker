@@ -43,7 +43,7 @@ const screen = computed(() => screens[selected.value])
       <section class="hero" aria-labelledby="headline">
         <img class="coast" :src="coast" alt="" fetchpriority="high" />
         <div class="wrap hero-inner">
-          <p class="edition"><span aria-hidden="true"></span>New in v{{ version }} · PoE1 support</p>
+          <p class="edition"><span aria-hidden="true"></span>PoE1 support since v1.1</p>
           <h1 id="headline">Price check<br><em>Path of Exile</em> 1 &amp; 2.</h1>
           <p class="intro">Press <kbd>Ctrl</kbd> + <kbd>D</kbd> to check an item’s price against trade listings in your league. Free and open source for Windows.</p>
           <div id="download" class="download">
