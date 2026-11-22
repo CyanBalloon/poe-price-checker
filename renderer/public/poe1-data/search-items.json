@@ -829,19 +829,11 @@
   },
   {
     "namespace": "ITEM",
-    "name": "Adherent's Crown"
-  },
-  {
-    "namespace": "ITEM",
     "name": "Admiral Proclar's Pipe"
   },
   {
     "namespace": "ITEM",
     "name": "Aegis Tulgraft"
-  },
-  {
-    "namespace": "ITEM",
-    "name": "Al-Hezmin's Head"
   },
   {
     "namespace": "ITEM",
@@ -871,10 +863,6 @@
   },
   {
     "namespace": "ITEM",
-    "name": "Ancestor's Club"
-  },
-  {
-    "namespace": "ITEM",
     "name": "Ancient Seal"
   },
   {
@@ -887,30 +875,6 @@
   },
   {
     "namespace": "ITEM",
-    "name": "Arachnid Egg Sac"
-  },
-  {
-    "namespace": "ITEM",
-    "name": "Arachnid Fangs"
-  },
-  {
-    "namespace": "ITEM",
-    "name": "Arachnid Leg"
-  },
-  {
-    "namespace": "ITEM",
-    "name": "Aristocrat's Torso"
-  },
-  {
-    "namespace": "ITEM",
-    "name": "Armoured Leg"
-  },
-  {
-    "namespace": "ITEM",
-    "name": "Artificial Appendage"
-  },
-  {
-    "namespace": "ITEM",
     "name": "Augmentation Implant"
   },
   {
@@ -919,31 +883,7 @@
   },
   {
     "namespace": "ITEM",
-    "name": "Bandit Rogue's Head"
-  },
-  {
-    "namespace": "ITEM",
-    "name": "Bandit Warrior's Head"
-  },
-  {
-    "namespace": "ITEM",
-    "name": "Bandit Witch's Head"
-  },
-  {
-    "namespace": "ITEM",
-    "name": "Baran's Head"
-  },
-  {
-    "namespace": "ITEM",
-    "name": "Bat's Wings"
-  },
-  {
-    "namespace": "ITEM",
     "name": "Battering Uulgraft"
-  },
-  {
-    "namespace": "ITEM",
-    "name": "Bear Head"
   },
   {
     "namespace": "ITEM",
@@ -956,18 +896,6 @@
   {
     "namespace": "ITEM",
     "name": "Binding Shard"
-  },
-  {
-    "namespace": "ITEM",
-    "name": "Blackened Lungs"
-  },
-  {
-    "namespace": "ITEM",
-    "name": "Blackguard's Leg"
-  },
-  {
-    "namespace": "ITEM",
-    "name": "Blazing Skull"
   },
   {
     "namespace": "ITEM",
@@ -2140,19 +2068,7 @@
   },
   {
     "namespace": "ITEM",
-    "name": "Bloodied Arm"
-  },
-  {
-    "namespace": "ITEM",
     "name": "Bloodlines Leaguestone"
-  },
-  {
-    "namespace": "ITEM",
-    "name": "Boar Head"
-  },
-  {
-    "namespace": "ITEM",
-    "name": "Bonestalker's Ribcage"
   },
   {
     "namespace": "ITEM",
@@ -2164,27 +2080,11 @@
   },
   {
     "namespace": "ITEM",
-    "name": "Broken Bust"
-  },
-  {
-    "namespace": "ITEM",
     "name": "Broken Mirror of Kalandra"
   },
   {
     "namespace": "ITEM",
-    "name": "Brute's Arm"
-  },
-  {
-    "namespace": "ITEM",
     "name": "Bust of Emperor Caspiro"
-  },
-  {
-    "namespace": "ITEM",
-    "name": "Calcified Leg"
-  },
-  {
-    "namespace": "ITEM",
-    "name": "Captain's Leg"
   },
   {
     "namespace": "ITEM",
@@ -2194,10 +2094,6 @@
   {
     "namespace": "ITEM",
     "name": "Cartographer's Incubator"
-  },
-  {
-    "namespace": "ITEM",
-    "name": "Carved Haunches"
   },
   {
     "namespace": "ITEM",
@@ -2225,19 +2121,7 @@
   },
   {
     "namespace": "ITEM",
-    "name": "Champion's Banner"
-  },
-  {
-    "namespace": "ITEM",
-    "name": "Chaos Golem's Core"
-  },
-  {
-    "namespace": "ITEM",
     "name": "Charged Compass"
-  },
-  {
-    "namespace": "ITEM",
-    "name": "Charred Leg"
   },
   {
     "namespace": "ITEM",
@@ -2313,55 +2197,11 @@
   },
   {
     "namespace": "ITEM",
-    "name": "Chimera's Head"
-  },
-  {
-    "namespace": "ITEM",
-    "name": "Chimeral Eye"
-  },
-  {
-    "namespace": "ITEM",
-    "name": "Chitinous Leg"
-  },
-  {
-    "namespace": "ITEM",
-    "name": "Coagulated Essence"
-  },
-  {
-    "namespace": "ITEM",
-    "name": "Cobra Tail"
-  },
-  {
-    "namespace": "ITEM",
     "name": "Comprehensive Scouting Report"
   },
   {
     "namespace": "ITEM",
-    "name": "Conjoined Hound Head"
-  },
-  {
-    "namespace": "ITEM",
-    "name": "Constrictor's Head"
-  },
-  {
-    "namespace": "ITEM",
-    "name": "Construct's Head"
-  },
-  {
-    "namespace": "ITEM",
-    "name": "Corrupted Carapace"
-  },
-  {
-    "namespace": "ITEM",
-    "name": "Coven Queen's Crown"
-  },
-  {
-    "namespace": "ITEM",
     "name": "Craicic Lure"
-  },
-  {
-    "namespace": "ITEM",
-    "name": "Crescent Blade"
   },
   {
     "namespace": "ITEM",
@@ -2370,18 +2210,6 @@
   {
     "namespace": "ITEM",
     "name": "Crested Golden Idol"
-  },
-  {
-    "namespace": "ITEM",
-    "name": "Crustacean's Claw"
-  },
-  {
-    "namespace": "ITEM",
-    "name": "Cutthroat's Head"
-  },
-  {
-    "namespace": "ITEM",
-    "name": "Defaced Bust"
   },
   {
     "namespace": "ITEM",
@@ -2397,34 +2225,6 @@
   },
   {
     "namespace": "ITEM",
-    "name": "Desert Queen's Crown"
-  },
-  {
-    "namespace": "ITEM",
-    "name": "Desert Sword"
-  },
-  {
-    "namespace": "ITEM",
-    "name": "Despot's Fist"
-  },
-  {
-    "namespace": "ITEM",
-    "name": "Dessicated Head"
-  },
-  {
-    "namespace": "ITEM",
-    "name": "Devourer's Antenna"
-  },
-  {
-    "namespace": "ITEM",
-    "name": "Diseased Wing"
-  },
-  {
-    "namespace": "ITEM",
-    "name": "Distended Stomach"
-  },
-  {
-    "namespace": "ITEM",
     "name": "Diviner's Incubator"
   },
   {
@@ -2437,19 +2237,7 @@
   },
   {
     "namespace": "ITEM",
-    "name": "Drox's Head"
-  },
-  {
-    "namespace": "ITEM",
-    "name": "Eater of Worlds' Head"
-  },
-  {
-    "namespace": "ITEM",
     "name": "Eber's Key"
-  },
-  {
-    "namespace": "ITEM",
-    "name": "Elder's Head"
   },
   {
     "namespace": "ITEM",
@@ -2458,10 +2246,6 @@
   {
     "namespace": "ITEM",
     "name": "Electroshock Scroll"
-  },
-  {
-    "namespace": "ITEM",
-    "name": "Elemental Essence"
   },
   {
     "namespace": "ITEM",
@@ -2487,10 +2271,6 @@
   {
     "namespace": "ITEM",
     "name": "Engineer's Shard"
-  },
-  {
-    "namespace": "ITEM",
-    "name": "Engorged Eye"
   },
   {
     "namespace": "ITEM",
@@ -2531,14 +2311,6 @@
   {
     "namespace": "ITEM",
     "name": "Enshrouded Shield"
-  },
-  {
-    "namespace": "ITEM",
-    "name": "Enslaver's Head"
-  },
-  {
-    "namespace": "ITEM",
-    "name": "Eradicator's Head"
   },
   {
     "namespace": "ITEM",
@@ -2618,31 +2390,7 @@
   },
   {
     "namespace": "ITEM",
-    "name": "Flaming Furnace"
-  },
-  {
-    "namespace": "ITEM",
-    "name": "Flaming Goat Hoof"
-  },
-  {
-    "namespace": "ITEM",
-    "name": "Flaming Ribbon"
-  },
-  {
-    "namespace": "ITEM",
     "name": "Flask of Welakath"
-  },
-  {
-    "namespace": "ITEM",
-    "name": "Flayed Arm"
-  },
-  {
-    "namespace": "ITEM",
-    "name": "Flayed Visage"
-  },
-  {
-    "namespace": "ITEM",
-    "name": "Flesh-fused Lantern"
   },
   {
     "namespace": "ITEM",
@@ -2679,35 +2427,11 @@
   },
   {
     "namespace": "ITEM",
-    "name": "Galvanic Tentacle"
-  },
-  {
-    "namespace": "ITEM",
-    "name": "Gargantuan Claws"
-  },
-  {
-    "namespace": "ITEM",
-    "name": "Gelid Fangs"
-  },
-  {
-    "namespace": "ITEM",
     "name": "Gemcutter's Incubator"
   },
   {
     "namespace": "ITEM",
-    "name": "Gemling Torso"
-  },
-  {
-    "namespace": "ITEM",
-    "name": "General's Head"
-  },
-  {
-    "namespace": "ITEM",
     "name": "Geomancer's Incubator"
-  },
-  {
-    "namespace": "ITEM",
-    "name": "Ghostly Claw"
   },
   {
     "namespace": "ITEM",
@@ -2775,19 +2499,7 @@
   },
   {
     "namespace": "ITEM",
-    "name": "Gladiator's Heart"
-  },
-  {
-    "namespace": "ITEM",
-    "name": "Goatman's Horn"
-  },
-  {
-    "namespace": "ITEM",
     "name": "Gold"
-  },
-  {
-    "namespace": "ITEM",
-    "name": "Golden Ankh"
   },
   {
     "namespace": "ITEM",
@@ -2824,10 +2536,6 @@
   {
     "namespace": "ITEM",
     "name": "Golden Xoplotli Idol"
-  },
-  {
-    "namespace": "ITEM",
-    "name": "Golemic Stone"
   },
   {
     "namespace": "ITEM",
@@ -2871,18 +2579,6 @@
   },
   {
     "namespace": "ITEM",
-    "name": "Hag's Head"
-  },
-  {
-    "namespace": "ITEM",
-    "name": "Hag's Stomach"
-  },
-  {
-    "namespace": "ITEM",
-    "name": "Hallowed Descry"
-  },
-  {
-    "namespace": "ITEM",
     "name": "Hand of Arimor"
   },
   {
@@ -2920,23 +2616,11 @@
   },
   {
     "namespace": "ITEM",
-    "name": "Heretical Tome"
-  },
-  {
-    "namespace": "ITEM",
-    "name": "Hollowed Skull"
-  },
-  {
-    "namespace": "ITEM",
     "name": "Honoured Incubator"
   },
   {
     "namespace": "ITEM",
     "name": "Horizon Shard"
-  },
-  {
-    "namespace": "ITEM",
-    "name": "Hydra's Head"
   },
   {
     "namespace": "ITEM",
@@ -2952,27 +2636,7 @@
   },
   {
     "namespace": "ITEM",
-    "name": "Incarnation of Dread's Head"
-  },
-  {
-    "namespace": "ITEM",
-    "name": "Incarnation of Fear's Head"
-  },
-  {
-    "namespace": "ITEM",
-    "name": "Incarnation of Neglect's Cube"
-  },
-  {
-    "namespace": "ITEM",
     "name": "Incense of Keth"
-  },
-  {
-    "namespace": "ITEM",
-    "name": "Infected Leg"
-  },
-  {
-    "namespace": "ITEM",
-    "name": "Infested Torso"
   },
   {
     "namespace": "ITEM",
@@ -2986,14 +2650,6 @@
   {
     "namespace": "ITEM",
     "name": "Infused Incubator"
-  },
-  {
-    "namespace": "ITEM",
-    "name": "Inquisitor's Claw"
-  },
-  {
-    "namespace": "ITEM",
-    "name": "Inquisitor's Head"
   },
   {
     "namespace": "ITEM",
@@ -3013,15 +2669,7 @@
   },
   {
     "namespace": "ITEM",
-    "name": "Justicar's Helm"
-  },
-  {
-    "namespace": "ITEM",
     "name": "Kalguuran Incubator"
-  },
-  {
-    "namespace": "ITEM",
-    "name": "King Crab's Claw"
   },
   {
     "namespace": "ITEM",
@@ -3041,27 +2689,11 @@
   },
   {
     "namespace": "ITEM",
-    "name": "Lion's Claws"
-  },
-  {
-    "namespace": "ITEM",
-    "name": "Lithic Haunches"
-  },
-  {
-    "namespace": "ITEM",
     "name": "Living Ice"
   },
   {
     "namespace": "ITEM",
-    "name": "Lunar Bow"
-  },
-  {
-    "namespace": "ITEM",
     "name": "Maddening Incubator"
-  },
-  {
-    "namespace": "ITEM",
-    "name": "Mariner's Tricorne"
   },
   {
     "namespace": "ITEM",
@@ -3070,10 +2702,6 @@
   {
     "namespace": "ITEM",
     "name": "Maven's Invitation: The Atlas"
-  },
-  {
-    "namespace": "ITEM",
-    "name": "Maven's Orrery"
   },
   {
     "namespace": "ITEM",
@@ -3337,19 +2965,11 @@
   },
   {
     "namespace": "ITEM",
-    "name": "Minotaur's Head"
-  },
-  {
-    "namespace": "ITEM",
     "name": "Miraged Incubator"
   },
   {
     "namespace": "ITEM",
     "name": "Mirror of Teklatipitzi"
-  },
-  {
-    "namespace": "ITEM",
-    "name": "Molten Core"
   },
   {
     "namespace": "ITEM",
@@ -3361,39 +2981,11 @@
   },
   {
     "namespace": "ITEM",
-    "name": "Necromancer's Mask"
-  },
-  {
-    "namespace": "ITEM",
     "name": "Necromancy Net"
   },
   {
     "namespace": "ITEM",
     "name": "Nemesis Leaguestone"
-  },
-  {
-    "namespace": "ITEM",
-    "name": "Nightmarish Book of Depravity"
-  },
-  {
-    "namespace": "ITEM",
-    "name": "Nightmarish Core of the Unbreakable"
-  },
-  {
-    "namespace": "ITEM",
-    "name": "Nightmarish Head of Uhtred"
-  },
-  {
-    "namespace": "ITEM",
-    "name": "Nightmarish Wings of Catarina"
-  },
-  {
-    "namespace": "ITEM",
-    "name": "Nightmarish Wings of Lycia"
-  },
-  {
-    "namespace": "ITEM",
-    "name": "Noble's Head"
   },
   {
     "namespace": "ITEM",
@@ -3452,18 +3044,6 @@
   },
   {
     "namespace": "ITEM",
-    "name": "Ornate Torso"
-  },
-  {
-    "namespace": "ITEM",
-    "name": "Osseous Scythe"
-  },
-  {
-    "namespace": "ITEM",
-    "name": "Osseous Talon"
-  },
-  {
-    "namespace": "ITEM",
     "name": "Otherworldly Incubator"
   },
   {
@@ -3472,31 +3052,7 @@
   },
   {
     "namespace": "ITEM",
-    "name": "Overseer's Whip"
-  },
-  {
-    "namespace": "ITEM",
     "name": "Perandus Coin"
-  },
-  {
-    "namespace": "ITEM",
-    "name": "Phoenix's Head"
-  },
-  {
-    "namespace": "ITEM",
-    "name": "Pit Fighter's Helm"
-  },
-  {
-    "namespace": "ITEM",
-    "name": "Poacher's Leg"
-  },
-  {
-    "namespace": "ITEM",
-    "name": "Pocked Arm"
-  },
-  {
-    "namespace": "ITEM",
-    "name": "Pocked Leg"
   },
   {
     "namespace": "ITEM",
@@ -3568,10 +3124,6 @@
   },
   {
     "namespace": "ITEM",
-    "name": "Primate Foot"
-  },
-  {
-    "namespace": "ITEM",
     "name": "Primordial Exalted Orb",
     "icon": "https://web.poecdn.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvQ3VycmVuY3kvU3Ryb25naG9sZHMvUHJpbW9yZGlhbEV4YWx0ZWRPcmIiLCJzY2FsZSI6MX1d/e885112ad7/PrimordialExaltedOrb.png"
   },
@@ -3581,19 +3133,7 @@
   },
   {
     "namespace": "ITEM",
-    "name": "Prosthetic Leg"
-  },
-  {
-    "namespace": "ITEM",
-    "name": "Purifier's Head"
-  },
-  {
-    "namespace": "ITEM",
     "name": "Rampage Leaguestone"
-  },
-  {
-    "namespace": "ITEM",
-    "name": "Ravenous Skull"
   },
   {
     "namespace": "ITEM",
@@ -3618,10 +3158,6 @@
   {
     "namespace": "ITEM",
     "name": "Replicating Eshgraft"
-  },
-  {
-    "namespace": "ITEM",
-    "name": "Resplendent Sceptre"
   },
   {
     "namespace": "ITEM",
@@ -3710,30 +3246,6 @@
   {
     "namespace": "ITEM",
     "name": "Saqawine Lure"
-  },
-  {
-    "namespace": "ITEM",
-    "name": "Scarecrow's Pitchfork"
-  },
-  {
-    "namespace": "ITEM",
-    "name": "Scholar's Arm"
-  },
-  {
-    "namespace": "ITEM",
-    "name": "Scholar's Leg"
-  },
-  {
-    "namespace": "ITEM",
-    "name": "Scorched Arm"
-  },
-  {
-    "namespace": "ITEM",
-    "name": "Scorpion Stinger"
-  },
-  {
-    "namespace": "ITEM",
-    "name": "Scout's Bow"
   },
   {
     "namespace": "ITEM",
@@ -4265,35 +3777,11 @@
   },
   {
     "namespace": "ITEM",
-    "name": "Sea Witch's Tentacle"
-  },
-  {
-    "namespace": "ITEM",
     "name": "Seal of Lunaris"
   },
   {
     "namespace": "ITEM",
     "name": "Seal of Solaris"
-  },
-  {
-    "namespace": "ITEM",
-    "name": "Searing Exarch's Descry"
-  },
-  {
-    "namespace": "ITEM",
-    "name": "Severed Rhoa Head"
-  },
-  {
-    "namespace": "ITEM",
-    "name": "Severed Scythe-hand"
-  },
-  {
-    "namespace": "ITEM",
-    "name": "Severed Stinger"
-  },
-  {
-    "namespace": "ITEM",
-    "name": "Shaper's Head"
   },
   {
     "namespace": "ITEM",
@@ -4317,55 +3805,7 @@
   },
   {
     "namespace": "ITEM",
-    "name": "Siren's Tentacle"
-  },
-  {
-    "namespace": "ITEM",
-    "name": "Sirus' Head"
-  },
-  {
-    "namespace": "ITEM",
-    "name": "Skeletal Archer's Arm"
-  },
-  {
-    "namespace": "ITEM",
-    "name": "Skeletal Beast Leg"
-  },
-  {
-    "namespace": "ITEM",
-    "name": "Skeletal Tail"
-  },
-  {
-    "namespace": "ITEM",
-    "name": "Skeletal Warrior's Leg"
-  },
-  {
-    "namespace": "ITEM",
-    "name": "Skeleton Wheel"
-  },
-  {
-    "namespace": "ITEM",
     "name": "Skittering Incubator"
-  },
-  {
-    "namespace": "ITEM",
-    "name": "Smouldering Leg"
-  },
-  {
-    "namespace": "ITEM",
-    "name": "Smuggler's Hand"
-  },
-  {
-    "namespace": "ITEM",
-    "name": "Solar Shield"
-  },
-  {
-    "namespace": "ITEM",
-    "name": "Soldier's Head"
-  },
-  {
-    "namespace": "ITEM",
-    "name": "Spectral Hood"
   },
   {
     "namespace": "ITEM",
@@ -4373,19 +3813,7 @@
   },
   {
     "namespace": "ITEM",
-    "name": "Spider Queen's Head"
-  },
-  {
-    "namespace": "ITEM",
-    "name": "Spiked Carapace"
-  },
-  {
-    "namespace": "ITEM",
     "name": "Spiking Uulgraft"
-  },
-  {
-    "namespace": "ITEM",
-    "name": "Spined Claws"
   },
   {
     "namespace": "ITEM",
@@ -4417,14 +3845,6 @@
   },
   {
     "namespace": "ITEM",
-    "name": "Stag Head"
-  },
-  {
-    "namespace": "ITEM",
-    "name": "Statue Leg"
-  },
-  {
-    "namespace": "ITEM",
     "name": "Stoking Xophgraft"
   },
   {
@@ -4449,15 +3869,7 @@
   },
   {
     "namespace": "ITEM",
-    "name": "Sun-bleached Breastplate"
-  },
-  {
-    "namespace": "ITEM",
     "name": "Sword of the Inverse Relic"
-  },
-  {
-    "namespace": "ITEM",
-    "name": "Swordmaster's Blade"
   },
   {
     "namespace": "ITEM",
@@ -4466,22 +3878,6 @@
   {
     "namespace": "ITEM",
     "name": "Tempest Leaguestone"
-  },
-  {
-    "namespace": "ITEM",
-    "name": "Templar Banner"
-  },
-  {
-    "namespace": "ITEM",
-    "name": "Templar Skull"
-  },
-  {
-    "namespace": "ITEM",
-    "name": "Terrifying Maw"
-  },
-  {
-    "namespace": "ITEM",
-    "name": "Thaumaturge's Head"
   },
   {
     "namespace": "ITEM",
@@ -4514,10 +3910,6 @@
   {
     "namespace": "ITEM",
     "name": "Torment Leaguestone"
-  },
-  {
-    "namespace": "ITEM",
-    "name": "Totemic Visage"
   },
   {
     "namespace": "ITEM",
@@ -4578,19 +3970,11 @@
   },
   {
     "namespace": "ITEM",
-    "name": "Ursine Flesh"
-  },
-  {
-    "namespace": "ITEM",
     "name": "Uul-Netol's Breachstone"
   },
   {
     "namespace": "ITEM",
     "name": "Uul-Netol's Flawless Breachstone"
-  },
-  {
-    "namespace": "ITEM",
-    "name": "Vaal Appendage"
   },
   {
     "namespace": "ITEM",
@@ -4602,43 +3986,11 @@
   },
   {
     "namespace": "ITEM",
-    "name": "Venarius' Scripture"
-  },
-  {
-    "namespace": "ITEM",
-    "name": "Vendigo Claws"
-  },
-  {
-    "namespace": "ITEM",
-    "name": "Veritania's Head"
-  },
-  {
-    "namespace": "ITEM",
-    "name": "Voidbearer's Leg"
-  },
-  {
-    "namespace": "ITEM",
     "name": "Volkuur's Key"
   },
   {
     "namespace": "ITEM",
-    "name": "Voltaic Apparatus"
-  },
-  {
-    "namespace": "ITEM",
-    "name": "Voltaic Skull"
-  },
-  {
-    "namespace": "ITEM",
-    "name": "Vulture's Gut"
-  },
-  {
-    "namespace": "ITEM",
     "name": "Warbands Leaguestone"
-  },
-  {
-    "namespace": "ITEM",
-    "name": "Warden's Arm"
   },
   {
     "namespace": "ITEM",
@@ -4707,14 +4059,6 @@
   {
     "namespace": "ITEM",
     "name": "Winged Ultimatum Scarab"
-  },
-  {
-    "namespace": "ITEM",
-    "name": "Witch's Head"
-  },
-  {
-    "namespace": "ITEM",
-    "name": "Wraith Claws"
   },
   {
     "namespace": "ITEM",

@@ -1,4 +1,5 @@
 import { Host } from "./IPC";
+import type { VisceraImplicit } from "@/assets/data/interfaces";
 
 const STASH_CATEGORIES = [
   ["Currency", "ITEM", "currency"],
@@ -51,6 +52,7 @@ interface Sparkline {
 }
 
 interface StashLine {
+  implicitModifiers?: Array<{ text: string }>;
   name?: string;
   currencyTypeName?: string;
   detailsId: string;
@@ -128,6 +130,7 @@ export async function loadPoe1Prices(league: string, signal: AbortSignal) {
   const site = "https://poe.ninja/poe1/economy/" + leagueSlug + "/";
   const prices = new Map<string, StashPrice>();
   const names = new Map<string, PriceKey>();
+  const visceraImplicits = new Map<string, VisceraImplicit[]>();
   function add(entry: StashPrice) {
     const priceKey = poe1PriceKey(entry);
     if (!entry.cx && prices.get(priceKey)?.cx) return;
@@ -152,6 +155,13 @@ export async function loadPoe1Prices(league: string, signal: AbortSignal) {
         const name = line.name ?? line.currencyTypeName;
         const chaos = line.chaosValue ?? line.chaosEquivalent;
         if (!name || chaos == null || !Number.isFinite(chaos)) continue;
+        if (type === "Viscera" && line.variant && line.implicitModifiers?.length) {
+          const variants = visceraImplicits.get(name) ?? [];
+          if (!variants.some(implicit => implicit.variant === line.variant)) {
+            variants.push({ text: line.implicitModifiers.map(mod => mod.text).join("\n"), variant: line.variant });
+            visceraImplicits.set(name, variants);
+          }
+        }
         add({
           ns, name, chaos, cx: false, variant: stashVariant(type, line),
           detailsId: line.detailsId,
@@ -181,7 +191,7 @@ export async function loadPoe1Prices(league: string, signal: AbortSignal) {
 
   const batchSize = 4;
   for (let i = 0; i < tasks.length; i += batchSize) {
-    if (signal.aborted) return { prices, names };
+    if (signal.aborted) return { prices, names, visceraImplicits };
     const results = await Promise.allSettled(tasks.slice(i, i + batchSize).map((task) => task()));
     if (!signal.aborted) {
       for (const result of results) {
@@ -195,5 +205,5 @@ export async function loadPoe1Prices(league: string, signal: AbortSignal) {
       url: site + "currency/chaos-orb", sparkline: EMPTY_SPARKLINE,
     });
   }
-  return { prices, names };
+  return { prices, names, visceraImplicits };
 }

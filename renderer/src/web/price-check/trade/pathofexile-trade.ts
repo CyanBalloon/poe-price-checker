@@ -213,6 +213,7 @@ interface FilterRange {
 
 interface TradeRequest {
   query: {
+    term?: string;
     status: { option: "available" | "securable" | "online" | "any" };
     name?: string | { discriminator: string; option: string };
     type?: string | { discriminator: string; option: string };
@@ -569,6 +570,7 @@ export function createTradeRequest(
       ? filters.searchRelaxed
       : filters.searchExact;
 
+  if (activeSearch.term) query.term = activeSearch.term;
   if (activeSearch.nameTrade) {
     query.name = nameToQuery(activeSearch.nameTrade, filters);
   } else if (activeSearch.name) {

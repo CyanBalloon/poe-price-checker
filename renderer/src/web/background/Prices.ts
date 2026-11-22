@@ -492,6 +492,7 @@ export const usePoeninja = createGlobalState(() => {
     xchgRate: readonly(xchgRate),
     xchgRateCurrency: readonly(activeCoreCurrency),
     findPriceByQuery,
+    visceraImplicits: (name: string) => poe1Prices.value?.visceraImplicits.get(name) ?? [],
     findCataloguePrice: (query: DbQuery) => findPriceByQuery(
       poe1Prices.value?.names.get(poe1PriceKey(query)) ?? query,
     ),

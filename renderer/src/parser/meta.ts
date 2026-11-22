@@ -43,6 +43,7 @@ export enum ItemCategory {
   Currency = "Currency",
   DivinationCard = "Divination Card",
   Voidstone = "Voidstone",
+  Viscera = "Viscera",
   Sentinel = "Sentinel",
   MemoryLine = "Memory Line",
   SanctumRelic = "Sanctum Relic",

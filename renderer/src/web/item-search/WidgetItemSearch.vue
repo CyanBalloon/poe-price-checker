@@ -28,11 +28,21 @@
           </div>
           <div class="item-search-copy">
             <strong :class="{ 'item-search-unique': isUnique(item) }">{{ item.info.name }}</strong>
-            <small>{{ item.variant || itemKind(item.info) }}</small>
+            <template v-if="item.info.viscera">
+              <small>Viscera · {{ item.info.viscera.slot }}</small>
+              <select v-if="item.implicits.length > 1" class="ui-select viscera-select" :aria-label="'Implicit modifier for ' + item.info.name"
+                :value="item.implicit?.variant || ''" @change="selectImplicit(item.info, $event)">
+                <option value="" disabled>Choose an implicit modifier</option>
+                <option v-for="implicit in item.implicits" :key="implicit.variant" :value="implicit.variant">{{ implicit.text }}</option>
+              </select>
+              <small v-if="item.implicit" class="viscera-implicit"><span>Implicit · </span>{{ item.implicit.text }}</small>
+            </template>
+            <small v-else>{{ item.variant || itemKind(item.info) }}</small>
           </div>
           <div class="item-search-price">
             <strong v-if="item.display" class="ui-value">{{ formatPrice(item.display.primary) }}</strong>
             <small v-else-if="isMarketLoading">Loading price…</small>
+            <small v-else-if="item.implicits.length > 1 && !item.implicit">Varies by implicit</small>
             <small v-else>No estimate</small>
             <small v-if="item.display?.chaosEquivalent">≈ {{ formatPrice(item.display.chaosEquivalent) }}</small>
             <small v-if="item.price?.currency === 'div' && AppConfig().game === 'poe2' && exaltedRate">{{ Math.round(item.price.min * exaltedRate) }} ex</small>
@@ -66,7 +76,8 @@
           </span>
           <span class="item-search-copy">
             <strong :class="{ 'item-search-unique': item.unique }">{{ item.name }}</strong>
-            <small>{{ item.unique?.base || itemKind(item) }}</small>
+            <small v-if="item.viscera">Viscera · {{ item.viscera.slot }}</small>
+            <small v-else>{{ item.unique?.base || itemKind(item) }}</small>
           </span>
           <i class="fa-solid fa-plus" aria-hidden="true"></i>
         </button>
@@ -126,6 +137,7 @@ export default {
 };
 
 interface SelectedItem {
+  implicitVariant?: string;
   info: BaseType;
   rawItem?: ParsedItem;
 }
@@ -204,7 +216,7 @@ const props = defineProps<{
   config: ItemSearchWidget;
 }>();
 
-const { findPriceByQuery, findCataloguePrice, marketItems, autoCurrency, displayPrice, queuePricesFetch, exaltedRate, isLoading: isMarketLoading } = usePoeninja();
+const { findPriceByQuery, findCataloguePrice, marketItems, visceraImplicits, autoCurrency, displayPrice, queuePricesFetch, exaltedRate, isLoading: isMarketLoading } = usePoeninja();
 
 const showTimeout = shallowRef<{ reset: () => void } | null>(null);
 
@@ -217,19 +229,33 @@ const { items, addItem, clearItems } = useSelectedItems();
 const starred = computed(() => items.value.map(item => {
   const { info, rawItem } = item;
   const query = { ns: info.namespace, name: info.refName };
+  const implicits = [...(info.viscera?.implicits ?? [])];
+  if (info.viscera) {
+    for (const extra of visceraImplicits(info.refName)) {
+      if (!implicits.some(implicit => implicit.variant === extra.variant)) implicits.push(extra);
+    }
+  }
+  const implicit = implicits.length === 1 ? implicits[0] : implicits.find(option => option.variant === item.implicitVariant);
   let quote;
   if (AppConfig().game === "poe1" && rawItem) {
     const details = getDetailsId(rawItem);
     quote = details && findPriceByQuery(details);
+  } else if (info.viscera) {
+    quote = implicit && findPriceByQuery({ ...query, variant: implicit.variant });
   } else if (AppConfig().game === "poe2" && info.unique) {
     quote = findPriceByQuery({ ...query, variant: info.unique.base });
   } else {
     quote = findCataloguePrice(query);
   }
   const price = quote ? autoCurrency(quote.primaryValue) : undefined;
-  return { ...item, price, display: price && displayPrice(price), variant: quote?.variant,
+  return { ...item, implicits, implicit, price, display: price && displayPrice(price), variant: quote?.variant,
     ninjaUrl: quote?.url, value: quote?.primaryValue ?? 0 };
 }).sort((a, b) => b.value - a.value));
+
+function selectImplicit(info: BaseType, event: Event) {
+  const selected = items.value.find(item => item.info.refName === info.refName && item.info.namespace === info.namespace);
+  if (selected) selected.implicitVariant = (event.target as HTMLSelectElement).value;
+}
 
 function isUnique(item: SelectedItem) {
   const ns = item.info.namespace;
@@ -347,6 +373,9 @@ onMounted(() => {
 </script>
 
 <style scoped>
+.viscera-select { max-width: 100%; margin-top: 0.4rem; }
+.item-search-copy .viscera-implicit { color: var(--ink); white-space: pre-line; }
+.viscera-implicit span { color: var(--muted); }
 .item-search { max-width: 66rem; margin: 0 auto; }
 .item-search-field { display: flex; align-items: center; gap: 0.8rem; padding: 0 1rem; border-radius: 0.45rem; background: var(--surface); color: var(--muted); }
 .item-search-field:focus-within { outline: 2px solid var(--accent); outline-offset: 2px; }

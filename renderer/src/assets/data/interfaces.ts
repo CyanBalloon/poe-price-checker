@@ -65,6 +65,7 @@ export interface BaseType {
   h?: number;
   tradeTag?: string;
   exchangeable?: boolean;
+  viscera?: { base: string; slot: string; implicits: VisceraImplicit[] };
   tradeDisc?: string;
   disc?: {
     propAR?: true;
@@ -106,6 +107,11 @@ export interface BaseType {
     tradeId?: string[];
   }>;
   tags: string[];
+}
+
+export interface VisceraImplicit {
+  text: string;
+  variant: string;
 }
 
 export interface TranslationDict {

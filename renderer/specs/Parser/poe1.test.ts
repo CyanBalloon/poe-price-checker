@@ -1,8 +1,9 @@
 import { parseClipboard } from "@/parser";
 import { AppConfig } from "@/web/Config";
-import { init, switchGameData, itemCatalogue, ITEM_BY_REF, TRADE_TAG_TO_REF } from "@/assets/data/index";
+import { init, switchGameData, itemCatalogue, CLIENT_STRINGS, ITEM_BY_REF, TRADE_TAG_TO_REF } from "@/assets/data/index";
 import { indexCatalogue, searchCatalogue } from "@/assets/data/item-catalogue";
 import { exchangeItem } from "@/web/item-search/exchange-item";
+import { getDetailsId } from "@/web/price-check/trends/getDetailsId";
 import { UncutSkillGem } from "./items";
 import { describe, expect, it, beforeAll, vi } from "vitest";
 import { setupTests } from "@specs/vitest.setup";
@@ -65,6 +66,74 @@ describe("POE1 Parser", () => {
     exact: true,
     useEn: true,
   } as const;
+
+  function visceraClipboard(name: string, slot: string, mod: string, advanced = true) {
+    return [
+      "Item Class: Viscera\n" + name, slot, "Item Level: 83",
+      (advanced ? "{ Implicit Modifier }\n" : "") + mod,
+      "Take this to the Wickerman in a town or hideout to attach it.",
+    ].join("\n--------\n");
+  }
+
+  it.each([
+    ["Flaming Furnace", "Torso", "16(15-20)% chance to inflict Fire Exposure on Hit\n(Fire Exposure applies -10% to Fire Resistance for 4 seconds)", 16, 15, 20, "implicit.stat_3602667353", "Flaming Furnace"],
+    ["Greater Defaced Bust", "Head", "98(75-100)% chance to gain an Endurance Charge when you Stun an Enemy with a Melee Hit", 98, 75, 100, "implicit.stat_4067960074", "Defaced Bust"],
+  ] as const)("price checks the copied roll on %s", (name, slot, text, value, min, max, id, base) => {
+    const item = parseClipboard(visceraClipboard(name, slot, text))._unsafeUnwrap();
+    expect(item.category).toBe("Viscera");
+    expect(item.rarity).toBeUndefined();
+    expect(item.itemLevel).toBe(83);
+    expect(item.unknownModifiers).toEqual([]);
+    expect(item.newMods[0].stats[0].roll).toMatchObject({ value, min, max });
+    expect(getDetailsId(item)).toEqual({ ns: "ITEM", name, variant: item.info.viscera!.implicits[0].variant });
+    const stats = createExactStatFilters(item, item.statsByType, { searchStatRange: 0, defaultAllSelected: false });
+    expect(groupModifierFilters(stats, item.rarity).find(group => group.label === "Implicit")?.filters[0])
+      .toMatchObject({ tradeId: [id], disabled: false, roll: { value } });
+    const query = createTradeRequest(createFilters(item, options), stats, item).query;
+    expect(query.type).toBe(base);
+    expect(query.term).toBe(name === base ? undefined : name);
+    expect(query.stats[0].filters.some(filter => filter.id === id)).toBe(true);
+  });
+
+  it("recognizes every bundled Viscera and its implicit options with plain clipboard text", () => {
+    const catalogue = [...itemCatalogue.value.entries.values()].filter(item => item.viscera);
+    expect(new Set(catalogue.map(item => item.viscera!.base)).size).toBe(164);
+    expect(catalogue).toHaveLength(426);
+    const failures: string[] = [];
+    for (const entry of catalogue) {
+      for (const implicit of entry.viscera!.implicits) {
+        const rolled = implicit.text.replace(/\((-?\d+(?:\.\d+)?)–-?\d+(?:\.\d+)?\)/g, "$1");
+        const item = parseClipboard(visceraClipboard(entry.name, entry.viscera!.slot, rolled, false)).unwrapOr(null);
+        if (item?.info.refName !== entry.refName || item.unknownModifiers.length || !item.statsByType.length ||
+          item.statsByType.some(stat => stat.type !== "implicit" || !stat.stat.trade.ids.implicit?.length) ||
+          getDetailsId(item)?.variant !== implicit.variant) {
+          failures.push(entry.name + " / " + rolled);
+        }
+      }
+    }
+    expect(failures).toEqual([]);
+  });
+
+  it("resolves localized Viscera, including two heads with the same Russian name", async () => {
+    try {
+      for (const language of ["ru", "ko", "cmn-Hant"]) {
+        await switchGameData("poe1", language);
+        const names = language === "ru" ? ["Greater Defaced Bust", "Bandit Witch's Head", "Witch's Head"] : ["Greater Defaced Bust"];
+        for (const name of names) {
+          const entry = ITEM_BY_REF("ITEM", name)![0];
+          const { slot, implicits } = entry.viscera!;
+          const roll = implicits[0].text.replace(/\((-?\d+(?:\.\d+)?)[–~-]-?\d+(?:\.\d+)?\)/g, "$1");
+          const text = [CLIENT_STRINGS.ITEM_CLASS + "Viscera\n" + entry.name, slot, CLIENT_STRINGS.ITEM_LEVEL + "83", roll].join("\n--------\n");
+          const item = parseClipboard(text)._unsafeUnwrap();
+          expect(item.info.refName).toBe(name);
+          expect(item.unknownModifiers).toEqual([]);
+          expect(getDetailsId(item)?.variant).toBe(implicits[0].variant);
+        }
+      }
+    } finally {
+      await switchGameData("poe1", "en");
+    }
+  });
 
   it("searches the 3.30 catalogue before prices arrive and ranks exact names first", () => {
     const index = indexCatalogue(itemCatalogue.value.entries.values());

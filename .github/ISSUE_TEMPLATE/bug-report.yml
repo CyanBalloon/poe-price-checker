@@ -58,6 +58,7 @@ body:
       label: Version
       description: What version of PoE Price Checker are you running? You can see this in Settings -> About
       options:
+        - 1.1.6
         - 1.1.5
         - 1.1.4
         - 1.1.3

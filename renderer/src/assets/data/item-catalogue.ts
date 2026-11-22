@@ -11,9 +11,15 @@ export function catalogueItem({ namespace, name, icon }: CatalogueItem): BaseTyp
 export function buildCatalogue(local: Iterable<BaseType>, extra: CatalogueItem[], exchangeNames: string[]) {
   const entries = new Map<string, BaseType>();
   const exchange = new Set(exchangeNames);
+  const visceraByName = new Map<string, BaseType[]>();
   for (const item of local) {
     if (!searchableNamespaces.has(item.namespace)) continue;
     if (item.exchangeable) exchange.add(item.refName);
+    if (item.viscera) {
+      const equivalents = visceraByName.get(item.name) ?? [];
+      equivalents.push(item);
+      visceraByName.set(item.name, equivalents);
+    }
     const key = item.namespace + ":" + item.refName;
     if (!entries.has(key)) entries.set(key, item);
   }
@@ -26,7 +32,7 @@ export function buildCatalogue(local: Iterable<BaseType>, extra: CatalogueItem[]
   for (const name of exchangeNames) {
     if (!knownNames.has(name)) entries.set("ITEM:" + name, catalogueItem({ namespace: "ITEM", name }));
   }
-  return { entries, exchange };
+  return { entries, exchange, visceraByName };
 }
 
 function normalize(name: string) {

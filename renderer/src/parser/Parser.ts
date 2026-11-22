@@ -3,6 +3,7 @@ import {
   CLIENT_STRINGS as _$,
   CLIENT_STRINGS_REF as _$REF,
   ITEM_BY_REF,
+  itemCatalogue,
   STAT_BY_MATCH_STR,
   BaseType,
   ITEM_BY_TRANSLATED,
@@ -15,6 +16,7 @@ import {
   getRollOrMinmaxAvg,
 } from "./stat-translations";
 import { ItemCategory } from "./meta";
+import { matchVisceraImplicit } from "./viscera";
 import {
   IncursionRoom,
   ParsedItem,
@@ -234,6 +236,9 @@ function findInDatabase(item: ParserState) {
   } else {
     info = ITEM_BY_REF("ITEM", item.baseType ?? item.name);
   }
+  if (!info?.length && !item.rarity && !item.category) {
+    info = itemCatalogue.value.visceraByName.get(item.name);
+  }
   if (!info?.length) {
     // First attempt to find item in trade items data
     info = TRADE_ITEM_BY_REF({
@@ -280,6 +285,7 @@ function findInDatabase(item: ParserState) {
   item.infoVariants = info;
   // choose 1st variant, correct one will be picked at the end of parsing
   item.info = info[0];
+  if (item.info.viscera) item.category = ItemCategory.Viscera;
   // same for every variant
   if (!item.category || item.category === ItemCategory.Currency) {
     if (item.info.craftable) {
@@ -408,6 +414,11 @@ function parseFractured(item: ParserState) {
 
 function pickCorrectVariant(item: ParserState) {
   performance.mark("pickCorrectVariant");
+  if (item.info.viscera && item.infoVariants.length > 1) {
+    const stats = item.newMods.flatMap(mod => mod.stats);
+    const match = item.infoVariants.find(candidate => candidate.viscera && matchVisceraImplicit(candidate.viscera.implicits, stats));
+    if (match) item.info = match;
+  }
   if (!item.info.disc) return;
 
   for (const variant of item.infoVariants) {
@@ -1141,7 +1152,8 @@ function parseModifiers(section: string[], item: ParsedItem) {
     item.rarity !== ItemRarity.Normal &&
     item.rarity !== ItemRarity.Magic &&
     item.rarity !== ItemRarity.Rare &&
-    item.rarity !== ItemRarity.Unique
+    item.rarity !== ItemRarity.Unique &&
+    item.category !== ItemCategory.Viscera
   ) {
     return "PARSER_SKIPPED";
   }
@@ -1155,6 +1167,15 @@ function parseModifiers(section: string[], item: ParsedItem) {
   );
 
   if (!recognizedLine) {
+    if (item.category === ItemCategory.Viscera) {
+      const modifier: ParsedModifier = { info: { type: ModifierType.Implicit, tags: [] }, stats: [] };
+      const firstUnknown = item.unknownModifiers.length;
+      parseStatsFromMod(removeLinesEnding(section, IMPLICIT_LINE), item, modifier);
+      if (modifier.stats.length || section.some(line => line.endsWith(IMPLICIT_LINE))) return "SECTION_PARSED";
+      item.newMods.pop();
+      item.unknownModifiers.length = firstUnknown;
+      return "SECTION_SKIPPED";
+    }
     if (!(_$.MAP_TIER instanceof RegExp) ||
       section.some((line) => line.endsWith(SCOURGE_LINE) || line.endsWith(ADDED_AUGMENT_LINE))) {
       return parseModifiersPoe2(section, item);

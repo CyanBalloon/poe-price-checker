@@ -94,6 +94,15 @@ export function createFilters(
     };
     return filters;
   }
+  if (item.info.viscera) {
+    const base = ITEM_BY_REF("ITEM", item.info.viscera.base)?.[0] ?? item.info;
+    filters.searchExact = {
+      baseType: item.info.name,
+      baseTypeTrade: t(opts, base),
+      term: base.refName !== item.info.refName ? t(opts, item.info) : undefined,
+    };
+    return filters;
+  }
   if (item.category === ItemCategory.MetamorphSample) {
     filters.searchExact = {
       baseType: item.info.name,

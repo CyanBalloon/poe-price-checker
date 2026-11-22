@@ -10,6 +10,7 @@ export interface FilterPreset {
 }
 
 interface SearchFilter {
+  term?: string;
   name?: string;
   nameTrade?: string;
   baseType?: string;
