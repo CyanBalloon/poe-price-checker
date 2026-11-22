@@ -9,6 +9,7 @@ import {
   ModifierType,
   StatCalculated,
   StatRoll,
+  type StatSource,
   statSourcesTotal,
   translateStatWithRoll,
 } from "@/parser/modifiers";
@@ -93,7 +94,9 @@ export function createExactStatFilters(
     item,
     searchInRange,
     filters: [],
-    statsByType: statsByType.filter((calc) => keepByType.includes(calc.type)),
+    statsByType: statsByType.filter((calc) =>
+      keepByType.includes(calc.type) || hasTierOneAffix(calc.sources),
+    ),
   };
 
   // want to get "uses remaining" pseudo for tablets
@@ -215,6 +218,7 @@ export function createExactStatFilters(
     enableAllFilters(ctx.filters);
   }
 
+  selectTierOneAffixes(ctx.filters);
   return ctx.filters;
 }
 
@@ -258,9 +262,9 @@ export function initUiModFilters(
   }
 
   // The property and pseudo builders consume their component stats.
-  const consumedStats = opts.includeSourceModifiers
-    ? individualStats.filter(stat => !ctx.statsByType.includes(stat))
-    : [];
+  const consumedStats = individualStats.filter(stat =>
+    (opts.includeSourceModifiers || hasTierOneAffix(stat.sources)) && !ctx.statsByType.includes(stat),
+  );
 
   if (itemIsModifiable(item)) {
     ctx.statsByType = ctx.statsByType.filter(
@@ -305,13 +309,31 @@ export function initUiModFilters(
   for (const stat of consumedStats) {
     const filter = calculatedStatToFilter(stat, ctx.searchInRange, item);
     if (!filter.tradeId.length || filter.tradeId.some(id => usedIds.has(id))) continue;
-    // Offer the exact affix alongside its total without narrowing the initial search.
+    // Keep the individual modifier available alongside any calculated total.
     filter.disabled = true;
     ctx.filters.push(filter);
     for (const id of filter.tradeId) usedIds.add(id);
   }
 
+  selectTierOneAffixes(ctx.filters);
   return ctx.filters;
+}
+
+function hasTierOneAffix(sources: readonly StatSource[]) {
+  return sources.some(({ modifier: { info } }) =>
+    info.tier === 1 && (info.generation === "prefix" || info.generation === "suffix"),
+  );
+}
+
+function selectTierOneAffixes(filters: StatFilter[]) {
+  for (const filter of filters) {
+    if (!filter.tradeId.length || filter.tag === FilterTag.Pseudo || filter.tag === FilterTag.Property) continue;
+    // The unfractured equivalent is also offered in some presets. Select the actual roll.
+    if (filter.tag === FilterTag.Explicit && filter.sources.every(({ modifier }) =>
+      modifier.info.type === ModifierType.Fractured || modifier.info.type === ModifierType.Desecrated,
+    )) continue;
+    if (hasTierOneAffix(filter.sources)) filter.disabled = false;
+  }
 }
 
 export function shortRollToFilter(
@@ -518,7 +540,8 @@ export function calculatedStatToFilter(
   const nonAugmentSources = sources.filter(s => s.modifier.info.type !== ModifierType.Augment && s.modifier.info.type !== ModifierType.AddedAugment);
 
   if (nonAugmentSources.length > 1 && stat.trade.ids[ModifierType.Pseudo] &&
-      !([ModifierType.Crafted, ModifierType.Fractured].includes(type) && stat.trade.ids[type]?.length)) {
+      !(([ModifierType.Crafted, ModifierType.Fractured].includes(type) || hasTierOneAffix(sources)) &&
+        stat.trade.ids[type]?.length)) {
     type = ModifierType.Pseudo;
   }
 

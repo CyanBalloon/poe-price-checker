@@ -288,7 +288,7 @@ export function createFilters(
   if (item.gemSockets?.white) {
     filters.whiteSockets = {
       value: item.gemSockets.white,
-      disabled: false,
+      disabled: poe1,
     };
   }
 

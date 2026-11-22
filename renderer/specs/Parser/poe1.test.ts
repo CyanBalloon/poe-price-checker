@@ -238,6 +238,26 @@ describe("POE1 Parser", () => {
     expect(stats.some((stat) => stat.tradeId.includes("pseudo.pseudo_total_elemental_resistance"))).toBe(true);
   });
 
+  it("selects tier 1 prefixes and suffixes in both presets, including stats with pseudo totals", () => {
+    const gear = itemText
+      .replace('"Stout" (Tier: 5)', '"Stout" (Tier: 1)')
+      .replace('"of the Magma" (Tier: 2)', '"of the Magma" (Tier: 1)');
+    const item = parseClipboard(gear)._unsafeUnwrap();
+    const opts = { searchStatRange: 10, defaultAllSelected: false, includeSourceModifiers: true };
+    for (const stats of [initUiModFilters(item, opts), createExactStatFilters(item, item.statsByType, opts)]) {
+      const groups = groupModifierFilters(stats, item.rarity);
+      const life = groups.find(group => group.label === "Prefix")?.filters.find(filter => filter.statRef === "+# to maximum Life");
+      const fire = groups.find(group => group.label === "Suffix")?.filters.find(filter => filter.statRef === "+#% to Fire Resistance");
+      expect(life?.disabled).toBe(false);
+      expect(fire?.disabled).toBe(false);
+      const query = createTradeRequest(createFilters(item, options), stats, item).query;
+      const enabledIds = query.stats.filter(group => !group.disabled)
+        .flatMap(group => group.filters.filter(filter => !filter.disabled).map(filter => filter.id));
+      expect(enabledIds).toEqual(expect.arrayContaining([life!.tradeId[0], fire!.tradeId[0]]));
+      expect(stats.some(filter => !filter.disabled && filter.statRef === "+#% to Cold Resistance")).toBe(false);
+    }
+  });
+
   it("orders equipment properties and affixes while keeping the initial search intact", () => {
     const item = parseClipboard(itemText.replace('{ Prefix Modifier "Unworldly"',
       '21% increased Elemental Damage (implicit)\n--------\n{ Prefix Modifier "Unworldly"'))._unsafeUnwrap();
@@ -360,14 +380,20 @@ describe("POE1 Parser", () => {
     const item = parseClipboard(gear)._unsafeUnwrap();
     expect(item.gemSockets).toEqual({ number: 6, linked: 5, white: 1 });
     const filters = createFilters(item, options);
+    expect(filters.whiteSockets).toEqual({ value: 1, disabled: true });
     expect(filters.itemLevel).toBeDefined();
     filters.itemLevel = { value: item.itemLevel!, disabled: false };
     const request = createTradeRequest(filters, [], item);
     expect(request.query.filters).toMatchObject({
       misc_filters: { filters: { ilvl: { min: 85 } } },
-      socket_filters: { filters: { links: { min: 5 }, sockets: { w: 1 } } },
+      socket_filters: { filters: { links: { min: 5 } } },
     });
+    expect(request.query.filters).not.toHaveProperty("socket_filters.filters.sockets");
     expect(request.query.stats[0].filters.map(({ id }) => id)).toContain("pseudo.pseudo_has_shaper_influence");
+
+    filters.whiteSockets!.disabled = false;
+    expect(createTradeRequest(filters, [], item).query.filters)
+      .toHaveProperty("socket_filters.filters.sockets.w", 1);
   });
 
   it("parses map tiers in nameplates and adds PoE 1 map filters", () => {

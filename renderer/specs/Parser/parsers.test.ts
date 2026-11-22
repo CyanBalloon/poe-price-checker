@@ -15,7 +15,22 @@ import {
   WandRareItem,
 } from "./items";
 import { ParsedItem, parseClipboard } from "@/parser";
-import { createExactStatFilters } from "../../src/web/price-check/filters/create-stat-filters";
+import { createExactStatFilters, initUiModFilters } from "@/web/price-check/filters/create-stat-filters";
+import { groupModifierFilters } from "@/web/price-check/filters/modifier-groups";
+
+it("selects tier 1 prefixes and suffixes on a PoE2 item with six affixes", async () => {
+  setupTests({ game: "poe2" });
+  await init("en", "poe2");
+  const item = parseClipboard(ArmourHighValueRareItem.rawText)._unsafeUnwrap();
+  const opts = { searchStatRange: 10, defaultAllSelected: false, includeSourceModifiers: true };
+  for (const filters of [initUiModFilters(item, opts), createExactStatFilters(item, item.statsByType, opts)]) {
+    const groups = groupModifierFilters(filters.filter(filter => !filter.disabled), item.rarity);
+    expect(groups.find(group => group.label === "Prefix")?.filters.map(filter => filter.statRef))
+      .toContain("#% increased Armour");
+    expect(groups.find(group => group.label === "Suffix")?.filters.map(filter => filter.statRef))
+      .toContain("# to Strength");
+  }
+});
 
 describe("itemTextToSections", () => {
   beforeEach(async () => {
