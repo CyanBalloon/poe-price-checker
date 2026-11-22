@@ -5,7 +5,7 @@ import re
 
 
 def extract_version_from_readme():
-    with open("README.md", "r") as file:
+    with open("README.md", encoding="utf-8") as file:
         content = file.read()
     match = re.search(r"poe-price-checker-setup-(\d+\.\d+\.\d+)", content)
     if match:

@@ -1,53 +1,51 @@
-# <img src="./renderer/public/images/jeweler.png" width="48" align="top" /> Poe2 Price Checker (Trade Macro)
+# PoE Price Checker
 
-> [!IMPORTANT]
-> **ZERO FPS IMPACT:** This application is **NOT an overlay**. It operates entirely as an independent desktop window, guaranteeing that it will **NEVER affect your in-game FPS**.
+**Now supports Path of Exile 1 and Path of Exile 2.** Hover over an item and press **Ctrl+D** to compare its rolls with trade listings for your league. The price checker opens in its own Windows desktop window.
 
-Poe2 Price Checker is an advanced, standalone desktop **trade macro and price checking tool** for **Path of Exile 2 (PoE 2)**. Built to facilitate lightning-fast price checking, accurate item parsing, and live market analysis, it serves as a powerful alternative to Awakened PoE Trade for Path of exile 2. It operates entirely as an independent desktop window and does not use game-overlay hooks, ensuring maximum performance and safety.
+[**Download for Windows x64**](https://github.com/CyanBalloon/poe-price-checker/releases/download/v1.1.0/poe-price-checker-setup-1.1.0.exe) · [Portable edition](https://github.com/CyanBalloon/poe-price-checker/releases/download/v1.1.0/poe-price-checker-1.1.0.exe) · [Website](https://poe2pricechecker.com/) · [v1.1.0 release notes](https://github.com/CyanBalloon/poe-price-checker/releases/tag/v1.1.0)
 
-## Features
+[![Polaric Devastation in the Path of Exile 1 price checker, with Divine Orb and Chaos Orb values above its modifiers and trade listings](docs/public/images/poe1-price.webp)](docs/public/images/poe1-price.webp)
 
-### Instant Price Checking
-The application monitors window focus in the background. Hover over an item in Path of Exile 2 and press `Ctrl + D` to trigger a price check. The application window will populate with the parsed item details and live market prices.
+*Polaric Devastation in PoE1. Market values in these screenshots reflect the league at the time of capture.*
 
-### Intelligent Item Parsing
-- Parses copied items directly from the clipboard.
-- Supports advanced magic item parsing, including accurate recognition of specialized modifiers (e.g., `+3 to Level of all Projectile Skills` on Magic bows).
-- Displays clear modifier breakdowns.
+## Your first price check
 
-## Tool Showcase
+1. Run the installer, or open the portable executable directly. Choose **PoE 1** or **PoE 2** at the top right, then select your league.
+2. Hover over an item in game and press **Ctrl+D**. If you already have the item text, use **Paste item** in the app.
+3. Expand a modifier group, select the rolls you want to match, and apply the filters. Open **Trade** to see the search on the official trade site.
 
-| Base Types & Search | Item Pricing & Filters |
-| :---: | :---: |
-| [![Search](./docs/public/images/search.png)](./docs/public/images/search.png) | [![Price Check](./docs/public/images/price-check.png)](./docs/public/images/price-check.png) |
+## What changes when you switch games?
 
-## Installation
+| | Path of Exile 1 | Path of Exile 2 |
+| --- | --- | --- |
+| Prices | Estimates below one Divine Orb use chaos. At one Divine Orb or more, the divine price comes first with its chaos equivalent underneath. | Uses the PoE2 economy and exchange rates for the selected league. |
+| Items and artwork | PoE1 base types, uniques, currency icons and Lioneye’s Watch. | PoE2 item data, currency icons and The Lantern Crossing. |
+| Trade | Searches the PoE1 PC market. | Searches the PoE2 market. |
 
-You can choose between two versions of the application:
+Each game remembers its own league. In **Price Check**, collapsed modifier groups show how many stats you have selected. Crafted and fractured groups appear when the item has those modifiers. In **Item Search**, you can keep several items in view and open listings for any of them.
 
-### Option A: Setup Installer (Recommended)
-1. [Download the latest Windows Installer](https://github.com/CyanBalloon/Poe2-Price-Checker/releases/latest) from the Releases page.
-2. Run the installer to install the application on your computer.
-3. Once installed, it will automatically launch and check for updates in the background.
+| Item Search in PoE1 | The Lantern Crossing in PoE2 |
+| --- | --- |
+| [![Selected PoE1 uniques and currency with their league prices](docs/public/images/poe1-search.webp)](docs/public/images/poe1-search.webp) | [![PoE2 welcome page with the lantern-lit crossing](docs/public/images/poe2-welcome.webp)](docs/public/images/poe2-welcome.webp) |
 
-### Option B: Portable Version
-1. [Download the latest Portable Executable](https://github.com/CyanBalloon/Poe2-Price-Checker/releases/latest) from the Releases page.
-2. Run the `.exe` directly. It is completely self-contained.
-3. If an update is available, it will automatically open the GitHub Releases page in your default browser for you to download the new version.
+All three screenshots were captured from the packaged Windows build. Select one to open it at full size.
 
-After launching, hover over an item in **Path of Exile 2** and press `Ctrl+D` to perform a price check.
+## Language and settings
 
+PoE1 includes clipboard data for English, Russian, Traditional Chinese and Korean. Choose the matching client language in **Settings**. Other PoE1 language selections use the English data. Closing the window leaves the app in the system tray. Choose **Quit** from its tray menu to exit.
 
-## Usage & Settings
-- **Closing the Application**: To completely close the application, right-click the `Poe2 Price Checker` icon in the system tray and select **Quit**.
-- **Minimizing**: Clicking the `X` on the window will hide the application to the system tray. To show it again, double-click the tray icon or right-click and select "Show Window".
-- **Settings**: Configuration options are accessible via the gear icon within the application's interface.
+## Run from source
 
-## Credits & Origin
+With Node.js 24 installed, clone the repository and launch the development build from PowerShell.
 
-This project is a specialized fork of Exiled Exchange 2 (which itself is a fork of Awakened PoE Trade).
+```powershell
+git clone https://github.com/CyanBalloon/poe-price-checker.git
+cd poe-price-checker
+.\dev_standalone.bat
+```
 
-**Key modifications in this fork include:**
-- Completely rewritten as a standalone desktop application (removal of the overlay engine).
-- Support for parsing Magic items and explicitly identifying complex prefixes/suffixes.
-- Dedicated Tier filters for base types (e.g., Evasion-only boots).
+The launcher installs dependencies on first use. For production packaging and the website preview, see the [development guide](DEVELOPING.md).
+
+## Credits
+
+This project builds on [Exiled Exchange 2](https://github.com/Kvan7/Exiled-Exchange-2) and [Awakened PoE Trade](https://github.com/SnosMe/awakened-poe-trade). Trade listings come from the official Path of Exile trade service, and market estimates come from [poe.ninja](https://poe.ninja/). Path of Exile and its game artwork belong to Grinding Gear Games. The project code is available under the [MIT license](LICENSE).
