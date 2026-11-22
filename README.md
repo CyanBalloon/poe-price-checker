@@ -2,7 +2,7 @@
 
 **A free, open-source item price checker for Path of Exile 1 (PoE1) and Path of Exile 2 (PoE2).** Hover over an item and press **Ctrl+D** to compare its rolls with trade listings for your league. The price checker opens in its own Windows desktop window.
 
-[**Download for Windows x64**](https://github.com/CyanBalloon/poe-price-checker/releases/download/v1.1.1/poe-price-checker-setup-1.1.1.exe) · [Portable edition](https://github.com/CyanBalloon/poe-price-checker/releases/download/v1.1.1/poe-price-checker-1.1.1.exe) · [Website](https://poe2pricechecker.com/) · [v1.1.1 release notes](https://github.com/CyanBalloon/poe-price-checker/releases/tag/v1.1.1)
+[**Download for Windows x64**](https://github.com/CyanBalloon/poe-price-checker/releases/download/v1.1.2/poe-price-checker-setup-1.1.2.exe) · [Portable edition](https://github.com/CyanBalloon/poe-price-checker/releases/download/v1.1.2/poe-price-checker-1.1.2.exe) · [Website](https://poe2pricechecker.com/) · [v1.1.2 release notes](https://github.com/CyanBalloon/poe-price-checker/releases/tag/v1.1.2)
 
 [![Polaric Devastation in the Path of Exile 1 price checker, with Divine Orb and Chaos Orb values above its modifiers and trade listings](docs/public/images/poe1-price.webp)](docs/public/images/poe1-price.webp)
 
@@ -15,6 +15,8 @@
 3. Expand a modifier group, select the rolls you want to match, and apply the filters. Open **Trade** to see the search on the official trade site.
 
 For a worked example, follow the [PoE1 guide to chaos, divines and modifier filters](https://poe2pricechecker.com/poe1-price-checker/) or the [PoE2 guide to checking gear and looking up uniques](https://poe2pricechecker.com/poe2-price-checker/).
+
+Open **Settings → Application** to check for updates, download them, and restart. The installed and portable Windows editions both update in place. Turn off **Automatic updates** to choose when to download. Portable users on v1.1.1 or earlier need to replace their executable once to get the in-app updater.
 
 ## What changes when you switch games?
 

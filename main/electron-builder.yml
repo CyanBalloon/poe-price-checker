@@ -23,7 +23,11 @@ nsis:
   allowToChangeInstallationDirectory: true
 portable:
   artifactName: "poe-price-checker-${version}.${ext}"
+afterAllArtifactBuild: ./build/portable-manifest.cjs
 win:
+  extraResources:
+    - from: build/portable-update.yml
+      to: portable-update.yml
   target:
     - "nsis"
     - "portable"

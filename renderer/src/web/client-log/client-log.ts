@@ -9,7 +9,7 @@ import {
 } from "./client-log-parser";
 
 const LogRegex =
-  /^(?<datetime>\d{4}\/\d{2}\/\d{2} \d{2}:\d{2}:\d{2}) (?<millis>\d+) (?<source>[a-f0-9]+) \[\S+ \S+ \S+\] (?<text>.*)$/;
+  /^(?<datetime>\d{4}\/\d{2}\/\d{2} \d{2}:\d{2}:\d{2}) (?<millis>\d+) (?<source>[a-f0-9]+) \[\S+ \S+ \S+\] (?<text>.*)\r?$/;
 
 export const useClientLog = createGlobalState(() => {
   const areaLevel = shallowRef<number>(1);

@@ -1,0 +1,5 @@
+provider: github
+owner: CyanBalloon
+repo: poe-price-checker
+channel: portable
+updaterCacheDirName: poe-price-checker-portable-updater

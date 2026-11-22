@@ -1,7 +1,7 @@
 <template>
-  <div v-if="updateInfo" class="bg-gray-900 mt-2 mx-4 rounded py-1 px-2">
-    <p>{{ updateInfo.str1 }}</p>
-    <p class="text-gray-500">{{ updateInfo.str2 }}</p>
+  <div v-if="updateReady" class="bg-gray-900 mt-2 mx-4 rounded py-1 px-2">
+    <p>{{ control.status }}</p>
+    <button class="btn" @click="run">{{ control.label }}</button>
   </div>
   <div v-if="leagues.isLoading.value" class="pt-2 px-4">
     <i class="fas fa-info-circle text-gray-600"></i>
@@ -21,6 +21,7 @@
 import { computed, inject } from "vue";
 import { useI18n } from "vue-i18n";
 import { useLeagues } from "@/web/background/Leagues";
+import { useUpdateControl } from "@/web/settings/updates";
 import { Host } from "@/web/background/IPC";
 import { poeWebApi } from "@/web/Config";
 import { getTradeEndpointPath } from "./trade/common";
@@ -31,28 +32,8 @@ const showBrowser = inject<(url: string) => void>("builtin-browser")!;
 
 const { t } = useI18n();
 
-const updateInfo = computed(() => {
-  const rawInfo = Host.updateInfo.value;
-  switch (rawInfo.state) {
-    case "update-downloaded":
-      return {
-        str1: t("updates.available", [rawInfo.version]),
-        str2: t("updates.installed_on_exit"),
-      };
-    case "update-available":
-      return rawInfo.noDownloadReason
-        ? {
-            str1: t("updates.available", [rawInfo.version]),
-            str2:
-              rawInfo.noDownloadReason === "not-supported"
-                ? t("updates.download_manually")
-                : t("updates.download_disabled"),
-          }
-        : null;
-    default:
-      return null;
-  }
-});
+const { control, run } = useUpdateControl();
+const updateReady = computed(() => ["update-available", "update-downloaded"].includes(Host.updateInfo.value.state));
 
 const leagues = useLeagues();
 

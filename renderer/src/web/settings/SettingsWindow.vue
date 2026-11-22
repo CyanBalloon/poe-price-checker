@@ -31,7 +31,7 @@
         </label>
         <p v-if="poe1EnglishFallback" class="settings-note" role="status">PoE 1 uses English item data for this language.</p>
         <div class="settings-row">
-          <span><strong id="settings-updates-label">Automatic updates</strong><small>Download updates in the background when using the installer.</small></span>
+          <span><strong id="settings-updates-label">Automatic updates</strong><small>Check for updates and download them in the background. Restart when you’re ready.</small></span>
           <button type="button" role="switch" class="settings-switch" aria-labelledby="settings-updates-label" :aria-checked="autoUpdater" @click="autoUpdater = !autoUpdater"></button>
         </div>
       </div>

@@ -20,7 +20,6 @@ interface PseudoRule {
     multiplier?: number;
     required?: boolean;
   }>;
-  mutate?: (filter: StatFilter) => void;
 }
 
 const elementalResistances = ["Fire", "Cold", "Lightning"];
@@ -47,8 +46,172 @@ const poe1PseudoRules: PseudoRule[] = [
   },
 ];
 
+const RESISTANCES_INFO = [
+  {
+    ref: "#% to All Resistances",
+    elements: ["fire", "cold", "lightning"],
+    chaos: true,
+  },
+  {
+    ref: "#% to all Elemental Resistances",
+    elements: ["fire", "cold", "lightning"],
+  },
+  { ref: "#% to Fire Resistance", elements: ["fire"] },
+  { ref: "#% to Cold Resistance", elements: ["cold"] },
+  { ref: "#% to Lightning Resistance", elements: ["lightning"] },
+  {
+    ref: "#% to Fire and Lightning Resistances",
+    elements: ["fire", "lightning"],
+  },
+  { ref: "#% to Fire and Cold Resistances", elements: ["fire", "cold"] },
+  {
+    ref: "#% to Cold and Lightning Resistances",
+    elements: ["cold", "lightning"],
+  },
+  { ref: "#% to Chaos Resistance", elements: [], chaos: true },
+  {
+    ref: "#% to Fire and Chaos Resistances",
+    elements: ["fire"],
+    chaos: true,
+  },
+  {
+    ref: "#% to Cold and Chaos Resistances",
+    elements: ["cold"],
+    chaos: true,
+  },
+  {
+    ref: "#% to Lightning and Chaos Resistances",
+    elements: ["lightning"],
+    chaos: true,
+  },
+];
+
+const ATTRIBUTES_INFO = [
+  { ref: "# to all Attributes", attributes: ["str", "dex", "int"] },
+  { ref: "# to Strength", attributes: ["str"] },
+  { ref: "# to Dexterity", attributes: ["dex"] },
+  { ref: "# to Intelligence", attributes: ["int"] },
+  { ref: "# to Strength and Intelligence", attributes: ["str", "int"] },
+  { ref: "# to Strength and Dexterity", attributes: ["str", "dex"] },
+  { ref: "# to Dexterity and Intelligence", attributes: ["dex", "int"] },
+];
+
+const poe2PseudoRules: PseudoRule[] = [
+  {
+    pseudo: "#% total Elemental Resistance",
+    disabled: false,
+    stats: RESISTANCES_INFO.filter((info) => info.elements.length).map(
+      (info) => ({ ref: info.ref, multiplier: info.elements.length }),
+    ),
+  },
+  {
+    pseudo: "#% total to Fire Resistance",
+    group: "to_x_ele_res",
+    stats: RESISTANCES_INFO.filter((info) =>
+      info.elements.includes("fire"),
+    ).map((info) => ({ ref: info.ref })),
+  },
+  {
+    pseudo: "#% total to Cold Resistance",
+    group: "to_x_ele_res",
+    stats: RESISTANCES_INFO.filter((info) =>
+      info.elements.includes("cold"),
+    ).map((info) => ({ ref: info.ref })),
+  },
+  {
+    pseudo: "#% total to Lightning Resistance",
+    group: "to_x_ele_res",
+    stats: RESISTANCES_INFO.filter((info) =>
+      info.elements.includes("lightning"),
+    ).map((info) => ({ ref: info.ref })),
+  },
+  {
+    pseudo: "#% total to Chaos Resistance",
+    stats: RESISTANCES_INFO.filter((info) => info.chaos === true).map(
+      (info) => ({ ref: info.ref }),
+    ),
+    disabled: false,
+  },
+  {
+    pseudo: "+# total to all Attributes",
+    group: "to_all_attrs",
+    stats: [
+      { ref: "# to all Attributes" },
+    ],
+  },
+  {
+    pseudo: "+# total to Strength",
+    group: "to_x_attr",
+    stats: ATTRIBUTES_INFO.filter((info) =>
+      info.attributes.includes("str"),
+    ).map((info) => ({ ref: info.ref })),
+  },
+  {
+    pseudo: "+# total to Dexterity",
+    group: "to_x_attr",
+    stats: ATTRIBUTES_INFO.filter((info) =>
+      info.attributes.includes("dex"),
+    ).map((info) => ({ ref: info.ref })),
+  },
+  {
+    pseudo: "+# total to Intelligence",
+    group: "to_x_attr",
+    stats: ATTRIBUTES_INFO.filter((info) =>
+      info.attributes.includes("int"),
+    ).map((info) => ({ ref: info.ref })),
+  },
+  {
+    pseudo: "+# total maximum Life",
+    disabled: false,
+    stats: [
+      { ref: "# to maximum Life", required: true },
+      ...ATTRIBUTES_INFO.filter((info) => info.attributes.includes("str")).map(
+        (info) => ({ ref: info.ref, multiplier: 2 }),
+      ),
+    ],
+  },
+  {
+    pseudo: "+# total maximum Mana",
+    stats: [
+      { ref: "# to maximum Mana", required: true },
+      ...ATTRIBUTES_INFO.filter((info) => info.attributes.includes("int")).map(
+        (info) => ({ ref: info.ref, multiplier: 2 }),
+      ),
+    ],
+  },
+  {
+    pseudo: "#% total increased maximum Energy Shield",
+    stats: [{ ref: "#% increased maximum Energy Shield" }],
+  },
+  {
+    pseudo: "+# total maximum Energy Shield",
+    stats: [
+      { ref: "# to maximum Energy Shield" }, // global
+    ],
+  },
+  {
+    pseudo: "#% increased Movement Speed",
+    stats: [{ ref: "#% increased Movement Speed" }],
+    disabled: false,
+  },
+  {
+    pseudo: "# uses remaining",
+    disabled: false,
+    stats: [
+      { ref: "Adds Irradiated to a Map \n# use remaining" },
+      { ref: "Adds Ritual Altars to a Map \n# use remaining" },
+      { ref: "Adds a Kalguuran Expedition to a Map \n# use remaining" },
+      { ref: "Adds a Mirror of Delirium to a Map \n# use remaining" },
+      { ref: "Adds an Otherworldy Breach to a Map \n# use remaining" },
+      { ref: "Empowers the Map Boss of a Map \n# use remaining" },
+      { ref: "Adds Abysses to a Map \n# use remaining" },
+      { ref: "Adds Vaal Beacons to a Map \n# use remaining" },
+    ],
+  },
+];
+
 function activeRules() {
-  return AppConfig()?.game === "poe1" ? poe1PseudoRules : [];
+  return AppConfig()?.game === "poe1" ? poe1PseudoRules : poe2PseudoRules;
 }
 
 export function filterPseudo(ctx: FiltersCreationContext) {
@@ -96,10 +259,6 @@ export function filterPseudo(ctx: FiltersCreationContext) {
     );
 
     filter.disabled = rule.disabled ?? true;
-
-    if (rule.mutate) {
-      rule.mutate(filter);
-    }
 
     ctx.filters.push(filter);
     for (const { ref } of rule.stats) appliedRefs.add(ref);
@@ -199,19 +358,17 @@ function filterPseudoSources(
   }
   return out;
 }
-const PSEUDO_REF_SET = new Set([
-  ...poe1PseudoRules.flatMap((rule) => rule.stats.map((stat) => stat.ref)),
-  ...poe1PseudoRules.flatMap((rule) => rule.stats.map((stat) => stat.ref)).map(
-    (i) => i.replaceAll("+#", "#"),
-  ),
-  ...poe1PseudoRules.flatMap((rule) => rule.stats.map((stat) => stat.ref)).map(
-    (i) => i.replaceAll("-#", "#"),
-  ),
-]);
+function sourceRefs(rules: PseudoRule[]) {
+  const refs = rules.flatMap(rule => rule.stats.map(stat => stat.ref));
+  return new Set([...refs, ...refs.map(ref => ref.replace(/[+-]#/g, "#"))]);
+}
+const poe1SourceRefs = sourceRefs(poe1PseudoRules);
+const poe2SourceRefs = sourceRefs(poe2PseudoRules);
+
 export function refEffectsPseudos(ref: string): boolean {
-  // If it is in these pseudos
+  const refs = AppConfig()?.game === "poe1" ? poe1SourceRefs : poe2SourceRefs;
   return (
-    (AppConfig()?.game === "poe1" && PSEUDO_REF_SET.has(ref)) ||
+    refs.has(ref) ||
     ARMOUR_STATS.has(ref) ||
     WEAPON_STATS.has(ref) ||
     ref === "Adds # to # Chaos Damage"

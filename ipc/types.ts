@@ -51,22 +51,12 @@ export interface ShortcutAction {
 }
 
 export type UpdateInfo =
-  | {
-    state: "initial" | "checking-for-update";
-  }
-  | {
-    state: "update-available";
-    version: string;
-    noDownloadReason: "not-supported" | "disabled-by-flag" | null;
-  }
-  | {
-    state: "update-downloaded";
-    version: string;
-  }
-  | {
-    state: "update-not-available" | "error";
-    checkedAt: number;
-  };
+  | { state: "initial" | "checking-for-update" | "update-not-available" | "error" | "installing" }
+  | { state: "unavailable"; reason: "development" | "disabled" | "unsupported" }
+  | { state: "update-available" | "update-downloaded"; version: string }
+  | { state: "downloading"; version: string; percent: number };
+
+export type UpdateAction = "check-for-update" | "download-update" | "update-and-restart";
 
 export interface HostState {
   supportsAutoClicker: boolean;
@@ -176,7 +166,7 @@ type IpcUpdaterState = Event<"MAIN->CLIENT::updater-state", UpdateInfo>;
 type IpcUserAction = Event<
   "CLIENT->MAIN::user-action",
   | {
-    action: "check-for-update" | "update-and-restart" | "quit" | "poe-login" | "poe-logout";
+    action: UpdateAction | "quit" | "poe-login" | "poe-logout";
   }
   | {
     action: "stash-search";

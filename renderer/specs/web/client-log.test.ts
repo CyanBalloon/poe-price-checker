@@ -785,7 +785,7 @@ describe("clientLog", () => {
     const { handleLine } = useClientLog();
 
     const filePath = path.join(__dirname, "FullCampaign.txt");
-    const lines = fs.readFileSync(filePath, "utf-8").split("\n");
+    const lines = fs.readFileSync(filePath, "utf-8").replace(/\r?\n/g, "\r\n").split("\n");
 
     for (const line of lines) {
       handleLine(line);
@@ -1155,17 +1155,17 @@ describe("clientLog", () => {
   });
 });
 
-describe("local performance tests", () => {
+describe("campaign log line formats", () => {
   let lines: string[] = [];
 
   beforeEach(() => {
     const blob = fs.readFileSync(
-      "C:/Program Files (x86)/Steam/steamapps/common/Path of Exile 2/logs/Client.txt",
+      path.join(__dirname, "FullCampaign.txt"),
     );
-    lines = blob.toString().split("\n");
+    lines = blob.toString().split(/\r?\n/);
   });
 
-  it("slice", { timeout: 0, skip: true }, () => {
+  it("slice", () => {
     for (const line of lines) {
       const splat1 = line.split("] ");
       const splat2 = splat1.shift()?.split(" ");
@@ -1180,7 +1180,7 @@ describe("local performance tests", () => {
   });
   const logRegex =
     /^(?<date>\d{4}\/\d{2}\/\d{2}) (?<time>\d{2}:\d{2}:\d{2}) (?<millis>\d+) .*\] (?<message>.*)$/;
-  it("regex", { timeout: 0, skip: true }, () => {
+  it("regex", () => {
     for (const line of lines) {
       const match = line.match(logRegex);
       if (!match) {

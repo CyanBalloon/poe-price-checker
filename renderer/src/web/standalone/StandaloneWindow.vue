@@ -125,7 +125,8 @@
             <template #application>
               <div class="application-actions">
                 <span>PoE Price Checker v{{ version }}</span>
-                <button type="button" class="ui-button" :disabled="!updateButton.action" @click="updateButton.action?.()">{{ updateButton.text }}</button>
+                <span role="status">{{ updateControl.status }}</span>
+                <button v-if="updateControl.action" type="button" class="ui-button" @click="runUpdate">{{ updateControl.label }}</button>
               </div>
             </template>
           </component>
@@ -162,6 +163,7 @@ import { registry } from "../overlay/widget-registry.js";
 import { ItemCategory, ItemRarity, parseClipboard } from "@/parser";
 import { selectGame } from "@/web/background/Game";
 import type { GameVersion } from "@ipc/types";
+import { useUpdateControl } from "@/web/settings/updates";
 import { AppConfig, saveConfig, pushHostConfig } from "@/web/Config";
 import { Host } from "@/web/background/IPC";
 import { useLeagues } from "@/web/background/Leagues";
@@ -319,57 +321,7 @@ export default defineComponent({
     ];
 
     const version = Host.version;
-    const checkForUpdates = () => Host.sendEvent({
-      name: "CLIENT->MAIN::user-action",
-      payload: { action: "check-for-update" },
-    });
-
-    const showUpToDate = ref(false);
-    let upToDateTimeout: ReturnType<typeof setTimeout> | null = null;
-
-    watch(() => Host.updateInfo.value.state, (newState) => {
-      if (newState === "update-not-available") {
-        showUpToDate.value = true;
-        if (upToDateTimeout) clearTimeout(upToDateTimeout);
-        upToDateTimeout = setTimeout(() => {
-          showUpToDate.value = false;
-        }, 5000);
-      }
-    });
-
-    const updateButton = computed(() => {
-      const info = Host.updateInfo.value;
-      switch (info.state) {
-        case "checking-for-update":
-          return { text: "Checking for updates…", icon: "fa-solid fa-rotate-right fa-spin" };
-        case "update-downloaded":
-          return {
-            text: "Restart to update",
-            icon: "fa-solid fa-circle-arrow-up",
-            action: () => Host.sendEvent({
-              name: "CLIENT->MAIN::user-action",
-              payload: { action: "update-and-restart" },
-            }),
-          };
-        case "update-available":
-          if (info.noDownloadReason) {
-            return {
-              text: "Update available",
-              icon: "fa-solid fa-download",
-              action: () => window.open("https://github.com/CyanBalloon/poe-price-checker/releases"),
-            };
-          }
-          return { text: "Downloading update…", icon: "fa-solid fa-download" };
-        case "error":
-          return { text: "Retry update check", icon: "fa-solid fa-rotate-right", action: checkForUpdates };
-        default:
-          return {
-            text: showUpToDate.value ? "Up to date" : "Check for updates",
-            icon: showUpToDate.value ? "fa-solid fa-check" : "fa-solid fa-download",
-            action: checkForUpdates,
-          };
-      }
-    });
+    const { control: updateControl, run: runUpdate } = useUpdateControl();
 
     // Manual input parsing
     const manualItemText = ref("");
@@ -562,7 +514,8 @@ export default defineComponent({
       changeGame,
       clipboardField,
       openClipboard,
-      updateButton,
+      updateControl,
+      runUpdate,
       priceCheckHotkey,
       isLoggedIn,
       isElectron,
