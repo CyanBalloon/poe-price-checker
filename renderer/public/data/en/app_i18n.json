@@ -41,6 +41,8 @@
   "Divergent": "Divergent",
   "Phantasmal": "Phantasmal",
   "item": {
+    "choose_unique": "Choose the unique to open in Item Search.",
+    "no_matching_uniques": "No known uniques match this base in the current game catalogue.",
     "prop_quality": "Q {0}%",
     "base_percentile": "Base Percentile: {0}%",
     "armour": "Armour: {0}",

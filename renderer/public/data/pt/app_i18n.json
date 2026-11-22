@@ -37,6 +37,8 @@
   "Divergent": "Divergente",
   "Phantasmal": "Fantasmal",
   "item": {
+    "choose_unique": "Escolha o item único para abrir na busca de itens.",
+    "no_matching_uniques": "O catálogo não contém itens únicos com esta base.",
     "prop_quality": "Q {0}%",
     "base_percentile": "Percentil base: {0}%",
     "armour": "Armadura: {0}",

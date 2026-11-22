@@ -22,7 +22,8 @@
         <button type="button" class="ui-button" @click="clearSelectedItems">Clear</button>
       </header>
       <div class="item-search-list">
-        <div v-for="item in starred" :key="item.info.namespace + ':' + item.info.refName" class="item-search-row">
+        <div v-for="item in starred" :key="item.info.namespace + ':' + item.info.refName" ref="selectedRows"
+          :data-name="item.info.refName" :data-namespace="item.info.namespace" class="item-search-row" tabindex="-1">
           <div class="item-search-art">
             <ui-item-img :icon="item.info.icon || '%NOT_FOUND%'" :item-name="item.info.refName" :namespace="item.info.namespace" />
           </div>
@@ -37,6 +38,7 @@
               </select>
               <small v-if="item.implicit" class="viscera-implicit"><span>Implicit · </span>{{ item.implicit.text }}</small>
             </template>
+            <small v-else-if="item.rawItem?.isUnidentified && item.info.unique">{{ t("item.unidentified") }} · {{ ITEM_BY_REF("ITEM", item.info.unique.base)?.[0]?.name || item.info.unique.base }}</small>
             <small v-else>{{ item.variant || itemKind(item.info) }}</small>
           </div>
           <div class="item-search-price">
@@ -49,7 +51,7 @@
           </div>
           <div class="item-search-actions">
             <button v-if="isUnique(item) && (item.rawItem || item.info.unique)" class="ui-button" type="button" @click="triggerPriceCheck(item)">
-              {{ item.rawItem ? 'Check rolls' : 'Check listings' }}
+              {{ item.rawItem && !item.rawItem.isUnidentified ? 'Check rolls' : 'Check listings' }}
             </button>
             <a v-if="item.ninjaUrl" :href="item.ninjaUrl" target="_blank" rel="noopener noreferrer" class="ui-icon-button" aria-label="Open on poe.ninja" title="Open on poe.ninja">
               <i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i>
@@ -206,6 +208,7 @@ function fuzzyFindHeistGem(badStr: string) {
 
 <script setup lang="ts">
 import { shallowRef, nextTick, onMounted, onUnmounted } from "vue";
+import { useI18n } from "vue-i18n";
 import { usePoeninja, formatChaosOrDivineAmount } from "@/web/background/Prices";
 import { Host } from "@/web/background/IPC";
 import { ParsedItem } from "@/parser";
@@ -215,6 +218,7 @@ import UiItemImg from "@/web/ui/UiItemImg.vue";
 const props = defineProps<{
   config: ItemSearchWidget;
 }>();
+const { t } = useI18n();
 
 const { findPriceByQuery, findCataloguePrice, marketItems, visceraImplicits, autoCurrency, displayPrice, queuePricesFetch, exaltedRate, isLoading: isMarketLoading } = usePoeninja();
 
@@ -226,6 +230,7 @@ nextTick(() => {
 
 const searchValue = shallowRef("");
 const { items, addItem, clearItems } = useSelectedItems();
+const selectedRows = ref<HTMLElement[]>([]);
 const starred = computed(() => items.value.map(item => {
   const { info, rawItem } = item;
   const query = { ns: info.namespace, name: info.refName };
@@ -365,6 +370,10 @@ onMounted(() => {
     const parsedItem = (e as CustomEvent).detail as ParsedItem;
     if (!parsedItem) return;
     selectItem(exchangeItem(parsedItem) ?? parsedItem.info, { rawItem: parsedItem });
+    if (parsedItem.isUnidentified && parsedItem.info.unique) {
+      nextTick(() => selectedRows.value.find(row => row.dataset.namespace === "UNIQUE" &&
+        row.dataset.name === parsedItem.info.refName)?.focus());
+    }
   };
   window.addEventListener("add-search-item", handleAddSearchItem);
   onUnmounted(() => {

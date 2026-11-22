@@ -1,88 +1,44 @@
 <template>
-  <div v-if="show" class="flex flex-col shrink-0">
-    <div class="m-4 py-1 px-2 bg-gray-900 rounded">
-      {{ t("item.identification", [baseType]) }}
+  <section class="unique-picker" aria-labelledby="unique-base-title">
+    <header>
+      <small>{{ t("item.unidentified") }}</small>
+      <h1 id="unique-base-title">{{ item.info.name }}</h1>
+      <p>{{ candidates.length ? t("item.choose_unique") : t("item.no_matching_uniques") }}</p>
+    </header>
+    <div class="unique-options">
+      <button v-for="candidate in candidates" :key="candidate.refName" type="button"
+        class="unique-option" @click="$emit('identify', { ...item, info: candidate })">
+        <ui-item-img :icon="candidate.icon" :item-name="candidate.refName" :namespace="candidate.namespace" />
+        <span>{{ candidate.name }}<small v-if="candidate.tradeDisc === 'legacy'"> · Legacy</small></span>
+        <i class="fa-solid fa-chevron-right" aria-hidden="true"></i>
+      </button>
     </div>
-    <div class="grid grid-cols-2 gap-2 overflow-auto pb-4 px-4">
-      <div v-for="item in identifiedVariants" :key="item.name" class="flex">
-        <button
-          @click="select(item)"
-          class="bg-gray-700 rounded flex gap-x-3 items-center p-2 w-full"
-        >
-          <img
-            :src="
-              (item.icon !== '%NOT_FOUND%' && item.icon !== ''
-                ? item.icon
-                : '/images/404.png')
-            "
-            alt=""
-          />
-          <div class="leading-tight text-left">{{ item.name }}</div>
-        </button>
-      </div>
-    </div>
-  </div>
+  </section>
 </template>
 
-<script lang="ts">
-import { defineComponent, PropType, computed } from "vue";
+<script setup lang="ts">
+import { computed } from "vue";
 import { useI18n } from "vue-i18n";
-import { BaseType, ITEMS_ITERATOR } from "@/assets/data";
-import { ItemRarity, ParsedItem } from "@/parser";
+import { itemCatalogue } from "@/assets/data";
+import type { ParsedItem } from "@/parser";
+import UiItemImg from "@/web/ui/UiItemImg.vue";
 
-export default defineComponent({
-  emits: ["identify"],
-  props: {
-    item: {
-      type: Object as PropType<ParsedItem | null>,
-      default: null,
-    },
-  },
-  setup(props, ctx) {
-    const identifiedVariants = computed(() => {
-      if (!props.item) return [];
-      const baseType = props.item.info.refName;
-      const possible: BaseType[] = [];
-      for (const match of ITEMS_ITERATOR(JSON.stringify(baseType))) {
-        if (match.namespace === "UNIQUE" && match.unique!.base === baseType) {
-          // TODO currently ignoring variants
-          if (!possible.some((unique) => unique.refName === match.refName)) {
-            possible.push(match);
-          }
-        }
-      }
-      return possible;
-    });
-
-    const show = computed(() => {
-      if (!props.item) return false;
-
-      return (
-        props.item.rarity === ItemRarity.Unique &&
-        props.item.isUnidentified &&
-        !props.item.info.unique
-      );
-    });
-
-    function select(info: BaseType) {
-      const newItem: ParsedItem = {
-        ...props.item!,
-        isUnidentified: true, // Keep it unidentified so the trade search filters appropriately
-        info,
-      };
-      ctx.emit("identify", newItem);
-    }
-
-
-    const { t } = useI18n();
-
-    return {
-      t,
-      identifiedVariants,
-      show,
-      baseType: computed(() => props.item!.info.name),
-      select,
-    };
-  },
-});
+const props = defineProps<{ item: ParsedItem }>();
+defineEmits<{ (event: "identify", item: ParsedItem): void }>();
+const { t } = useI18n();
+const candidates = computed(() => Array.from(
+  itemCatalogue.value.uniquesByBase.get(props.item.info.refName)?.values() ?? [],
+).sort((a, b) => a.name.localeCompare(b.name)));
 </script>
+
+<style scoped>
+.unique-picker { padding-block: 1.5rem; min-height: 0; overflow: auto; }
+.unique-picker header { margin-bottom: 1.25rem; }
+.unique-picker small, .unique-picker p, .unique-option i { color: var(--muted, #aaa39b); }
+.unique-picker h1 { font-family: Georgia, serif; font-size: 2rem; line-height: 1.25; }
+.unique-options { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 16rem), 1fr)); gap: 0.5rem; }
+.unique-option { display: flex; align-items: center; gap: 1rem; padding: 0.75rem 1rem; border-radius: 0.5rem; background: var(--surface, #232220); text-align: left; }
+.unique-option span { flex: 1; color: var(--unique, #edaa75); overflow-wrap: anywhere; }
+.unique-option:hover, .unique-option:focus-visible { background: var(--hover, #39342e); }
+.unique-option:focus-visible { outline: 2px solid var(--accent, #e8b77a); outline-offset: -2px; }
+</style>

@@ -232,7 +232,15 @@ function findInDatabase(item: ParserState) {
   } else if (item.category === ItemCategory.Voidstone) {
     info = ITEM_BY_REF("ITEM", "Charged Compass");
   } else if (item.rarity === ItemRarity.Unique && !item.isUnidentified) {
-    info = ITEM_BY_REF("UNIQUE", item.name);
+    info = ITEM_BY_REF("UNIQUE", item.name) ?? ITEM_BY_TRANSLATED("UNIQUE", item.name);
+    if (item.baseType) {
+      const base = ITEM_BY_TRANSLATED("ITEM", item.baseType)?.[0].refName ?? item.baseType;
+      if (!info?.some(variant => variant.unique?.base === base)) {
+        const candidates = itemCatalogue.value.uniquesByBase.get(base);
+        const match = candidates?.get(item.name) ?? Array.from(candidates?.values() ?? []).find(candidate => candidate.name === item.name);
+        if (match) info = [match];
+      }
+    }
   } else {
     info = ITEM_BY_REF("ITEM", item.baseType ?? item.name);
   }
@@ -596,15 +604,16 @@ function parseFoil(section: string[], item: ParsedItem) {
 
 function parseUnidentified(section: string[], item: ParsedItem) {
   performance.mark("parseUnidentified");
-  const match = section[0].match(_$.UNIDENTIFIED);
-  if (match) {
-    item.isUnidentified = true;
-    if (match.groups!.tier) {
-      item.unidentifiedTier = Number(match.groups!.tier);
-    }
-    return "SECTION_PARSED";
+  const marker = _$.UNIDENTIFIED;
+  if (typeof marker === "string") {
+    if (section[0] !== marker) return "SECTION_SKIPPED";
+  } else {
+    const match = marker.exec(section[0]);
+    if (!match) return "SECTION_SKIPPED";
+    if (match.groups?.tier) item.unidentifiedTier = Number(match.groups.tier);
   }
-  return "SECTION_SKIPPED";
+  item.isUnidentified = true;
+  return "SECTION_PARSED";
 }
 
 function parseItemLevel(section: string[], item: ParsedItem) {
@@ -1442,6 +1451,8 @@ function parseExceptional(item: ParserState) {
 
 function parseRuneforged(item: ParserState) {
   performance.mark("parseRuneforged");
+  if (item.rarity === ItemRarity.Unique && item.isUnidentified &&
+      itemCatalogue.value.uniquesByBase.has(item.name)) return;
   if (
     item.rarity === ItemRarity.Normal ||
     item.rarity === ItemRarity.Magic ||

@@ -36,6 +36,8 @@
   "Divergent": "상이한",
   "Phantasmal": "몽환적인",
   "item": {
+    "choose_unique": "아이템 검색에서 열 고유 아이템을 선택하세요.",
+    "no_matching_uniques": "목록에 이 베이스에 해당하는 고유 아이템이 없습니다.",
     "prop_quality": "{0}% 퀄리티",
     "base_percentile": "기본 백분위수: {0}%",
     "armour": "방어도: {0}",

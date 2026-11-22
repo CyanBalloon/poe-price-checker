@@ -67,6 +67,46 @@ describe("POE1 Parser", () => {
     useEn: true,
   } as const;
 
+  it("offers both Marble Amulet uniques and checks the selected unidentified Bonemeld", () => {
+    const rawText = [
+      "Item Class: Amulets", "Rarity: Unique", "Marble Amulet", "--------",
+      "Item Level: 85", "--------", "{ Implicit Modifier — Life }",
+      "Regenerate 1.78(1.4-2)% of Life per second", "--------", "Unidentified",
+    ].join("\r\n");
+    const parsed = parseClipboard(rawText)._unsafeUnwrap();
+    expect(parsed).toMatchObject({ isUnidentified: true, itemLevel: 85, info: { namespace: "ITEM", refName: "Marble Amulet" } });
+    expect(parsed.newMods[0].stats[0].roll?.value).toBe(1.78);
+    const matches = itemCatalogue.value.uniquesByBase.get(parsed.info.refName)!;
+    expect([...matches.keys()].sort()).toEqual(["Bloodgrip", "Bonemeld"]);
+    expect(matches.get("Bloodgrip")!.icon).not.toBe(matches.get("Bonemeld")!.icon);
+    const selected = { ...parsed, info: matches.get("Bonemeld")! };
+    expect(getDetailsId(selected)).toEqual({ ns: "UNIQUE", name: "Bonemeld", variant: "Marble Amulet" });
+    const query = createTradeRequest(createFilters(selected, options), [], selected).query;
+    expect(query.name).toBe("Bonemeld");
+    expect(query.filters.misc_filters?.filters.identified?.option).toBe("false");
+  });
+
+  it("indexes alternate bases separately and includes uniques from the trade catalogue", () => {
+    const lookup = itemCatalogue.value.uniquesByBase;
+    expect(lookup.get("Coral Amulet")?.get("Bloodgrip")?.unique?.base).toBe("Coral Amulet");
+    expect(lookup.get("Unset Ring")?.get("Angler's Plait")?.unique?.base).toBe("Unset Ring");
+    expect(lookup.get("Marble Amulet")?.has("Angler's Plait")).toBe(false);
+  });
+
+  it("recognizes the localized PoE1 unidentified marker and resolves the translated base", async () => {
+    await switchGameData("poe1", "ru");
+    try {
+      const base = ITEM_BY_REF("ITEM", "Marble Amulet")![0];
+      const text = [CLIENT_STRINGS.ITEM_CLASS + "Амулеты", CLIENT_STRINGS.RARITY + CLIENT_STRINGS.RARITY_UNIQUE,
+        base.name, "--------", String(CLIENT_STRINGS.UNIDENTIFIED)].join("\n");
+      const item = parseClipboard(text)._unsafeUnwrap();
+      expect(item.isUnidentified).toBe(true);
+      expect(itemCatalogue.value.uniquesByBase.get(item.info.refName)?.get("Bonemeld")?.name).toBe(ITEM_BY_REF("UNIQUE", "Bonemeld")![0].name);
+    } finally {
+      await switchGameData("poe1", "en");
+    }
+  });
+
   function visceraClipboard(name: string, slot: string, mod: string, advanced = true) {
     return [
       "Item Class: Viscera\n" + name, slot, "Item Level: 83",

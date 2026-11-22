@@ -38,6 +38,8 @@
   "Divergent": "相違の",
   "Phantasmal": "幻想の",
   "item": {
+    "choose_unique": "アイテム検索で開くユニークアイテムを選んでください。",
+    "no_matching_uniques": "カタログにこのベースのユニークアイテムはありません。",
     "prop_quality": "品質 {0}%",
     "base_percentile": "基礎割合: {0}%",
     "armour": "アーマー: {0}",

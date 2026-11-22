@@ -41,6 +41,8 @@
   "Divergent": "Abweichend",
   "Phantasmal": "Phantasmagorisch",
   "item": {
+    "choose_unique": "Wähle den einzigartigen Gegenstand für die Gegenstandssuche aus.",
+    "no_matching_uniques": "Der Katalog enthält keine einzigartigen Gegenstände für diesen Basistyp.",
     "prop_quality": "Q {0}%",
     "base_percentile": "Basisprozentrang: {0}%",
     "armour": "Rüstung: {0}",

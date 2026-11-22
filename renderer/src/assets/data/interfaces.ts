@@ -143,7 +143,7 @@ export interface TranslationDict {
   RUNIC_WARD: string;
   BLOCK_CHANCE: string;
   CORRUPTED: string;
-  UNIDENTIFIED: RegExp;
+  UNIDENTIFIED: string | RegExp;
   ITEM_SUPERIOR: RegExp;
   ITEM_EXCEPTIONAL: RegExp;
   ITEM_RUNEFORGED: RegExp;

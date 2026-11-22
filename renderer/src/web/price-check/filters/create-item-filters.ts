@@ -217,6 +217,7 @@ export function createFilters(
       nameTrade: t(opts, item.info),
       baseTypeTrade: t(opts, ITEM_BY_REF("ITEM", item.info.unique.base)![0]),
     };
+    if (item.info.tradeDisc) filters.discriminator = { trade: item.info.tradeDisc };
   } else {
     filters.searchExact = {
       baseType: item.info.name,

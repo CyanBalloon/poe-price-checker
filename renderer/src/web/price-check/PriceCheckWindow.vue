@@ -17,12 +17,13 @@
       </template>
       <template v-else-if="item?.isOk()">
         <unidentified-resolver
+          v-if="showUnidentifiedResolver"
           :item="item.value"
           @identify="handleIdentification($event)"
         />
-        <background-info v-if="!isLeagueSelected" />
+        <background-info v-else-if="!isLeagueSelected" />
         <checked-item
-          v-else-if="!showUnidentifiedResolver"
+          v-else
           :key="leagueId"
           :item="item.value"
           :advanced-check="advancedCheck"
@@ -166,6 +167,7 @@
         </template>
         <template v-else-if="item?.isOk()">
           <unidentified-resolver
+            v-if="showUnidentifiedResolver"
             :item="item.value"
             @identify="handleIdentification($event)"
           />
@@ -432,7 +434,18 @@ export default defineComponent({
     }
 
     function handleIdentification(identified: ParsedItem) {
-      item.value = ok(identified);
+      const search = wm.widgets.value.find(widget => widget.wmType === "item-search");
+      if (!search) {
+        item.value = ok(identified);
+        return;
+      }
+      wm.show(search.wmId);
+      if (isStandalone.value) {
+        window.dispatchEvent(new CustomEvent("change-tab", { detail: "search" }));
+      } else {
+        wm.hide(props.config.wmId);
+      }
+      nextTick(() => window.dispatchEvent(new CustomEvent("add-search-item", { detail: identified })));
     }
 
     watch(

@@ -39,6 +39,8 @@
   "Divergent": "分歧",
   "Phantasmal": "幻影",
   "item": {
+    "choose_unique": "選擇要在物品搜尋中開啟的傳奇物品。",
+    "no_matching_uniques": "目錄中沒有符合此基底的傳奇物品。",
     "prop_quality": "品質 {0}%",
     "base_percentile": "基礎百分位：{0}%",
     "armour": "護甲：{0}",

@@ -16,7 +16,7 @@ import { ItemCategory } from "@/parser/meta";
 import { ItemRarity } from "@/parser/ParsedItem";
 import { Host } from "@/web/background/IPC";
 import { reactive, shallowRef } from "vue";
-import { buildCatalogue, type CatalogueItem } from "./item-catalogue";
+import { buildCatalogue, type CatalogueItem, type UniqueBaseEntry } from "./item-catalogue";
 
 export * from "./interfaces";
 
@@ -388,7 +388,7 @@ async function loadGameData(game: GameVersion, language: string) {
     const base = await loadClientStrings(lang);
     return game === "poe1" ? { ...base, ...await loadPoe1ClientStrings(lang) } : base;
   }
-  const [strings, refStrings, items, stats, drops, extra, exchangeNames] = await Promise.all([
+  const [strings, refStrings, items, stats, drops, extra, exchangeNames, uniqueExtras] = await Promise.all([
     clientStrings(language),
     clientStrings("en"),
     loadItems(directory, game),
@@ -397,8 +397,9 @@ async function loadGameData(game: GameVersion, language: string) {
     game === "poe1" ? fetchData(root + "/search-items.json").then(r => r.json() as Promise<CatalogueItem[]>) : [],
     fetchData(root + (game === "poe1" ? "/exchange-extra.json" : "/exchange-items.json"))
       .then(r => r.json() as Promise<string[]>),
+    fetchData(root + "/unique-items.json").then(r => r.json() as Promise<UniqueBaseEntry[]>),
   ]);
-  const catalogue = buildCatalogue(items.items('"namespace"'), extra, exchangeNames);
+  const catalogue = buildCatalogue(items.items('"namespace"'), extra, exchangeNames, uniqueExtras);
   return { strings, refStrings, items, stats, drops, catalogue };
 }
 
@@ -422,8 +423,10 @@ export async function switchGameData(game: GameVersion, lang: string) {
 
   CLIENT_STRINGS = strings;
   CLIENT_STRINGS_REF = refStrings;
-  ITEM_BY_TRANSLATED = items.itemByTranslated;
-  ITEM_BY_REF = items.itemByRef;
+  ITEM_BY_TRANSLATED = (ns, name) => items.itemByTranslated(ns, name) ??
+    (ns === "ITEM" ? catalogue.supplementalBases.get(name) : undefined);
+  ITEM_BY_REF = (ns, name) => items.itemByRef(ns, name) ??
+    (ns === "ITEM" ? catalogue.supplementalBases.get(name) : undefined);
   ITEMS_ITERATOR = items.items;
   GEM_NS_NAMES = items.gemNames;
   UNIQUE_NS_NAMES = items.uniqueNames;

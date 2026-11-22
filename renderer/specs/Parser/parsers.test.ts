@@ -1,4 +1,4 @@
-import { CLIENT_STRINGS as _$, init } from "@/assets/data";
+import { CLIENT_STRINGS as _$, init, itemCatalogue } from "@/assets/data";
 import { __testExports } from "@/parser/Parser";
 import { beforeEach, describe, expect, it } from "vitest";
 import { setupTests } from "@specs/vitest.setup";
@@ -312,6 +312,17 @@ describe("Unidentified Unique Parsing", () => {
   beforeEach(async () => {
     setupTests();
     await init("en");
+  });
+
+  it.each([
+    ["Runeforged Fur Plate", "Blackbraid"],
+    ["Runemastered Plumed Focus", "Rathpith Globe"],
+    ["Tethering Bands", "The Master's Reach"],
+  ])("shows the unique on the exact PoE2 base %s", (base, name) => {
+    const item = parseClipboard(["Item Class: Equipment", "Rarity: Unique", base, "--------", "Unidentified (Tier 4)"].join("\n"))._unsafeUnwrap();
+    expect(item.info.refName).toBe(base);
+    expect(item.unidentifiedTier).toBe(4);
+    expect(itemCatalogue.value.uniquesByBase.get(base)?.get(name)?.unique?.base).toBe(base);
   });
 
   it("should parse unidentified unique item successfully", () => {
