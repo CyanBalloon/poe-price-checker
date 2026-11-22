@@ -32,7 +32,7 @@ const screen = computed(() => screens[selected.value])
     <a class="skip" href="#main">Skip to content</a>
     <header class="mast">
       <div class="wrap mast-inner">
-        <a class="brand" href="#main"><img src="/images/jeweler.png" width="34" height="34" alt="">PoE Price Checker</a>
+        <a class="brand" href="#main"><img src="/images/poe-price-checker.png" width="52" height="26" alt="">PoE Price Checker</a>
         <nav aria-label="Main navigation">
           <a href="#screens">Screenshots</a><a href="#start">Quick start</a>
           <a :href="repository">GitHub <span aria-hidden="true">↗︎</span></a>
@@ -174,7 +174,7 @@ kbd { padding:1px 5px; border-radius:4px; background:#3e3930; font:600 .81em var
   .mast nav { gap:14px; font-size:13px; }
   .mast nav a[href^="#"] { display:none; }
   .brand { gap:6px; font-size:21px; }
-  .brand img { width:25px; height:25px; }
+  .brand img { width:38px; height:auto; }
   .hero-inner { padding-block:78px 54px; }
   .edition { font-size:10px; }
   h1 { font-size:clamp(42px,10.5vw,54px); }

@@ -25,6 +25,7 @@ portable:
   artifactName: "poe-price-checker-${version}.${ext}"
 afterAllArtifactBuild: ./build/portable-manifest.cjs
 win:
+  icon: "../renderer/public/icon.ico"
   extraResources:
     - from: dist/portable-updater.exe
       to: portable-updater.exe
@@ -34,9 +35,11 @@ win:
     - "nsis"
     - "portable"
 linux:
+  icon: "../renderer/public/icon.png"
   target:
     - "AppImage"
 mac:
+  icon: "../renderer/public/icon.png"
   target:
     - target: "dmg"
       arch:

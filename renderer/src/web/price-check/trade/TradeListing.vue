@@ -23,7 +23,8 @@
           :filters="filters"
           :quality="filters.quality"
           :show-seller="showSeller"
-          @open-link="openExactTradeLink(res)"
+          :opening="openingListings.has(res.id)"
+          @open-link="openExactTradeLink"
         />
       </template>
     </div>
@@ -164,7 +165,8 @@ import { useI18nNs } from "@/web/i18n";
 import { Host } from "@/web/background/IPC";
 import UiPopover from "@/web/ui/Popover.vue";
 import UiErrorBox from "@/web/ui/UiErrorBox.vue";
-import { createTradeRequest, type PricingResult } from "./pathofexile-trade";
+import { createTradeRequest, requestTradeResultList, type PricingResult, type TradeRequest } from "./pathofexile-trade";
+import { listingModifierFilters } from "./listing-modifiers";
 import { getTradeEndpoint, getTradeEndpointPath, getTradeUrlSegment } from "./common";
 import { AppConfig } from "@/web/Config";
 import { PriceCheckWidget } from "@/web/overlay/interfaces";
@@ -217,10 +219,15 @@ export default defineComponent({
 
     const { t } = useI18nNs("trade_result");
 
+    const openingListings = ref(new Set<string>());
+    function tradeSearchUrl() {
+      return `https://${getTradeEndpoint()}/${getTradeEndpointPath()}/search/${getTradeUrlSegment()}${encodeURIComponent(props.filters.trade.league)}`;
+    }
+
     function makeTradeLink() {
       return searchResult.value
-        ? `https://${getTradeEndpoint()}/${getTradeEndpointPath()}/search/${getTradeUrlSegment()}${encodeURIComponent(props.filters.trade.league)}/${searchResult.value.id}`
-        : `https://${getTradeEndpoint()}/${getTradeEndpointPath()}/search/${getTradeUrlSegment()}${encodeURIComponent(props.filters.trade.league)}?q=${encodeURIComponent(JSON.stringify(createTradeRequest(props.filters, props.stats, props.item)))}`;
+        ? `${tradeSearchUrl()}/${searchResult.value.id}`
+        : `${tradeSearchUrl()}?q=${encodeURIComponent(JSON.stringify(createTradeRequest(props.filters, props.stats, props.item)))}`;
     }
 
     // Shift Key Detection
@@ -297,45 +304,15 @@ export default defineComponent({
       openTradeLink() {
         showBrowser(makeTradeLink());
       },
-      openExactTradeLink(res: PricingResult & { listedTimes: number }) {
+      openingListings,
+      async openExactTradeLink(res: PricingResult) {
         const raw = res.rawResult;
-        if (!raw) return;
+        if (!raw) return showBrowser(makeTradeLink());
         const poe1 = AppConfig().game === "poe1";
 
-        const query: {
-          status: { option: string };
-          stats: Array<{
-            type: string;
-            value?: { min?: number; max?: number };
-            filters: Array<{ id: string; value?: { min?: number; max?: number } }>;
-          }>;
-          filters: {
-            type_filters?: {
-              filters: {
-                rarity?: { option: string };
-                ilvl?: { min?: number; max?: number };
-              };
-            };
-            misc_filters?: {
-              filters: {
-                corrupted?: { option: string };
-                gem_sockets?: { min?: number };
-                ilvl?: { min?: number; max?: number };
-              };
-            };
-            socket_filters?: {
-              filters: {
-                links?: { min: number };
-                sockets?: { min: number; w?: number };
-              };
-            };
-          };
-          name?: string;
-          type?: string;
-        } = {
-          status: {
-            option: props.filters.trade.listingType || "securable"
-          },
+        const listingType = props.filters.trade.listingType;
+        const query: TradeRequest["query"] = {
+          status: { option: listingType === "onlineleague" ? (poe1 ? "available" : "securable") : listingType },
           stats: [{ type: "and", filters: [] }],
           filters: {}
         };
@@ -343,7 +320,8 @@ export default defineComponent({
         const frameType = raw.item.frameType;
 
         // Name and Type
-        if (frameType === 3) { // Unique
+        const isUnique = frameType === 3 || raw.item.rarity === "Unique";
+        if (isUnique) {
           if (raw.item.name) query.name = raw.item.name;
           if (raw.item.typeLine) query.type = raw.item.typeLine;
         } else { // Normal, Magic, Rare
@@ -351,7 +329,7 @@ export default defineComponent({
         }
 
         // Rarity Filter
-        const rarityMap: Record<number, string> = {
+        const rarityMap: Record<number, "normal" | "magic" | "rare" | "unique"> = {
           0: "normal",
           1: "magic",
           2: "rare",
@@ -378,7 +356,7 @@ export default defineComponent({
             query.filters.misc_filters = { filters: {} };
           }
           query.filters.misc_filters!.filters.corrupted = {
-            option: String(raw.item.corrupted)
+            option: raw.item.corrupted ? "true" : "false"
           };
         }
 
@@ -401,81 +379,7 @@ export default defineComponent({
           query.filters.misc_filters.filters.gem_sockets = { min: raw.item.gemSockets.length };
         }
 
-        // Exact mods values (min/max rolls matching the item exactly)
-        const qAnd = query.stats[0];
-        const addedIds = new Set<string>();
-
-        const isUnique = frameType === 3;
-
-        const parseModValues = (text: string): number[] => {
-          const matches = text.match(/-?\d+(?:\.\d+)?/g);
-          return matches ? matches.map(Number) : [];
-        };
-
-        if (raw.item.extended) {
-          if (raw.item.extended.hashes) {
-            const hashes = raw.item.extended.hashes;
-            for (const key in hashes) {
-              if (Array.isArray(hashes[key])) {
-                const modsArray = (raw.item as unknown as Record<string, unknown>)[`${key}Mods`];
-                const hashList = hashes[key];
-                for (let i = 0; i < hashList.length; i++) {
-                  const entry = hashList[i];
-                  const statId = entry[0];
-                  if (typeof statId !== "string" || !statId) continue;
-
-                  const filterEntry: { id: string; value?: { min?: number; max?: number } } = { id: statId };
-
-                  if (Array.isArray(modsArray) && modsArray[i]) {
-                    const modText = modsArray[i] as string;
-                    const rolls = parseModValues(modText);
-                    if (rolls.length === 1) {
-                      filterEntry.value = isUnique
-                        ? { min: rolls[0] }
-                        : { min: rolls[0], max: rolls[0] };
-                    } else if (rolls.length >= 2) {
-                      filterEntry.value = isUnique
-                        ? { min: rolls[0] }
-                        : { min: rolls[0], max: rolls[1] };
-                    }
-                  }
-
-                  qAnd.filters.push(filterEntry);
-                  addedIds.add(statId);
-                }
-              }
-            }
-          }
-
-          if (raw.item.extended.mods) {
-            const mods = raw.item.extended.mods;
-            for (const key in mods) {
-              if (Array.isArray(mods[key])) {
-                for (const mod of mods[key]) {
-                  if (mod.magnitudes) {
-                    for (const mag of mod.magnitudes) {
-                      if (mag.hash && !addedIds.has(mag.hash)) {
-                        const filterEntry: { id: string; value?: { min?: number; max?: number } } = { id: mag.hash };
-                        const minVal = parseFloat(mag.min);
-                        const maxVal = parseFloat(mag.max);
-                        if (!isNaN(minVal) || !isNaN(maxVal)) {
-                          filterEntry.value = isUnique
-                            ? { min: !isNaN(minVal) ? minVal : undefined }
-                            : {
-                                min: !isNaN(minVal) ? minVal : undefined,
-                                max: !isNaN(maxVal) ? maxVal : undefined
-                              };
-                        }
-                        qAnd.filters.push(filterEntry);
-                        addedIds.add(mag.hash);
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
+        query.stats[0].filters = listingModifierFilters(raw.item, isUnique);
 
         // If there's an enabled "item.has_empty_modifier" in props.stats, add it to query.stats
         const emptyMod = props.stats.find(s => s.tradeId[0] === "item.has_empty_modifier" && !s.disabled);
@@ -505,13 +409,26 @@ export default defineComponent({
           });
         }
 
-        const body = {
+        const body: TradeRequest = {
           query,
           sort: { price: "asc" }
         };
 
-        const exactUrl = `https://${getTradeEndpoint()}/${getTradeEndpointPath()}/search/${getTradeUrlSegment()}${encodeURIComponent(props.filters.trade.league)}?q=${encodeURIComponent(JSON.stringify(body))}`;
-        showBrowser(exactUrl);
+        const baseUrl = tradeSearchUrl();
+        const exactUrl = `${baseUrl}?q=${encodeURIComponent(JSON.stringify(body))}`;
+        // Electron's shell.openExternal accepts up to 2081 characters on Windows.
+        if (!Host.isElectron || exactUrl.length <= 2081) return showBrowser(exactUrl);
+        if (openingListings.value.has(res.id)) return;
+        const fallback = makeTradeLink();
+        openingListings.value.add(res.id);
+        try {
+          const result = await requestTradeResultList(body, props.filters.trade.league, { waitForRateLimit: true });
+          showBrowser(result.id ? `${baseUrl}/${result.id}` : fallback);
+        } catch {
+          showBrowser(fallback);
+        } finally {
+          openingListings.value.delete(res.id);
+        }
       },
       // Shift key state and methods
       isShiftPressed,

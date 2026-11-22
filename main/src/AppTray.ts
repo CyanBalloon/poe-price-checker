@@ -1,5 +1,6 @@
 import path from "path";
 import { app, Tray, Menu, shell, nativeImage, dialog } from "electron";
+import { appIconPath } from "./app-icon";
 import type { ServerEvents } from "./server";
 
 export class AppTray {
@@ -8,13 +9,7 @@ export class AppTray {
   serverPort = 0;
 
   constructor(server: ServerEvents) {
-    let trayImage = nativeImage.createFromPath(
-      path.join(
-        __dirname,
-        process.env.STATIC!,
-        process.platform === "win32" ? "icon.ico" : "icon.png",
-      ),
-    );
+    let trayImage = nativeImage.createFromPath(appIconPath);
 
     if (process.platform === "darwin") {
       // Mac image size needs to be smaller, or else it looks huge. Size

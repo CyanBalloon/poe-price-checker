@@ -1,6 +1,7 @@
 import path from "path";
 import { BrowserWindow, dialog, shell, Menu, app, screen } from "electron";
 import fs from "fs";
+import { appIconPath } from "../app-icon";
 
 import type { ServerEvents } from "../server";
 import type { Logger } from "../RemoteLogger";
@@ -62,7 +63,7 @@ export class AppWindow {
     }
 
     this.window = new BrowserWindow({
-      icon: path.join(__dirname, process.env.STATIC!, "icon.png"),
+      icon: appIconPath,
       width: isStandalone ? windowState.width : 800,
       height: isStandalone ? windowState.height : 600,
       x: isStandalone ? windowState.x : undefined,

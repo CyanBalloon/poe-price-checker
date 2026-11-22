@@ -213,7 +213,7 @@ interface FilterRange {
   max?: number;
 }
 
-interface TradeRequest {
+export interface TradeRequest {
   query: {
     term?: string;
     status: { option: "available" | "securable" | "online" | "any" };
@@ -238,7 +238,7 @@ interface TradeRequest {
       type_filters?: {
         filters: {
           rarity?: {
-            option?: "nonunique" | "uniquefoil";
+            option?: "normal" | "magic" | "rare" | "unique" | "nonunique" | "uniquefoil";
           };
           category?: {
             option?: string;
@@ -285,6 +285,7 @@ interface TradeRequest {
           str?: FilterRange;
         };
       };
+      socket_filters?: { filters: { links?: FilterRange; sockets?: FilterRange & { w?: number } } };
       map_filters?: {
         filters: {
           map_tier?: FilterRange;
@@ -303,6 +304,7 @@ interface TradeRequest {
       };
       misc_filters?: {
         filters: {
+          ilvl?: FilterRange;
           alternate_art?: FilterBoolean;
           area_level?: FilterRange;
           corrupted?: FilterBoolean;
@@ -369,6 +371,8 @@ interface TradeDataRichLine {
   icon?: string;
 }
 
+export type TradeModLine = string | { description: string; hash?: string };
+
 interface FetchResult {
   id: string;
   item: {
@@ -408,12 +412,12 @@ interface FetchResult {
     properties?: TradeDataRichLine[];
     requirements?: TradeDataRichLine[];
     grantedSkills?: TradeDataRichLine[];
-    implicitMods?: string[];
-    explicitMods?: string[];
-    craftedMods?: string[];
-    mutatedMods?: string[];
-    enchantMods?: string[];
-    runeMods?: string[];
+    implicitMods?: TradeModLine[];
+    explicitMods?: TradeModLine[];
+    craftedMods?: TradeModLine[];
+    mutatedMods?: TradeModLine[];
+    enchantMods?: TradeModLine[];
+    runeMods?: TradeModLine[];
     extended?: {
       dps?: number;
       pdps?: number;
@@ -432,9 +436,9 @@ interface FetchResult {
       mods?: Record<string, TradeModMetadata[]>;
       hashes?: Record<string, Array<Array<string | number[] | null>>>;
     };
-    pseudoMods?: string[];
-    desecratedMods?: string[];
-    fracturedMods?: string[];
+    pseudoMods?: TradeModLine[];
+    desecratedMods?: TradeModLine[];
+    fracturedMods?: TradeModLine[];
   };
   listing: {
     indexed: string;
@@ -1275,6 +1279,7 @@ const cache = new Cache();
 export async function requestTradeResultList(
   body: TradeRequest,
   leagueId: string,
+  { waitForRateLimit = false } = {},
 ): Promise<SearchResult> {
   const endpoint = getTradeEndpoint();
   const tradePath = getTradeEndpointPath();
@@ -1282,10 +1287,12 @@ export async function requestTradeResultList(
   let data = cache.get<SearchResult>(cacheKey);
 
   if (!data) {
-    preventQueueCreation([
-      { count: 1, limiters: RATE_LIMIT_RULES.SEARCH },
-      { count: 1, limiters: RATE_LIMIT_RULES.FETCH },
-    ]);
+    if (!waitForRateLimit) {
+      preventQueueCreation([
+        { count: 1, limiters: RATE_LIMIT_RULES.SEARCH },
+        { count: 1, limiters: RATE_LIMIT_RULES.FETCH },
+      ]);
+    }
 
     await RateLimiter.waitMulti(RATE_LIMIT_RULES.SEARCH);
 
@@ -1616,7 +1623,7 @@ function parseMods(result: FetchResult): {
 }
 
 function parseModBlock(
-  translated: string[] | undefined,
+  translated: TradeModLine[] | undefined,
   color: TradeNumberColors = TradeNumberColors.Augmented,
   // mods: TradeModMetadata[] | undefined,
   // hashes: Array<Array<string | number[] | null>> | undefined,

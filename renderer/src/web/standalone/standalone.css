@@ -44,6 +44,7 @@
 }
 .trade-toolbar :is(button, select, .toolbar-quote), .trade-context select::picker(select) { -webkit-app-region: no-drag; }
 .trade-brand { grid-area: brand; font: 600 clamp(1.3rem, 2vw, 1.75rem)/1 var(--display); white-space: nowrap; }
+.trade-brand img { display: inline-block; width: 1.9em; height: auto; margin-inline-end: 0.35em; vertical-align: -0.12em; }
 .trade-navigation, .toolbar-market, .toolbar-actions, .trade-context { display: flex; align-items: center; gap: var(--tool-gap); }
 .trade-navigation { grid-area: nav; justify-self: start; margin-left: var(--tool-gap); }
 .toolbar-market { grid-area: market; justify-self: end; min-width: 0; }

@@ -62,7 +62,7 @@ const mainContext = await esbuild.context({
   external: ['electron', 'uiohook-napi', 'electron-overlay-window'],
   outfile: 'dist/main.js',
   define: {
-    'process.env.STATIC': (isDev) ? '"../build/icons"' : '"."',
+    'process.env.STATIC': (isDev) ? '"../../renderer/public"' : '"."',
     'process.env.VITE_DEV_SERVER_URL': (isDev) ? '"http://localhost:5176"' : 'null',
     'process.env.EXILE_TRADE_COMBINED_DEV': JSON.stringify(withRenderer)
   },

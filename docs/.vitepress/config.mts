@@ -16,7 +16,7 @@ export default defineConfig({
   appearance: 'force-dark',
   sitemap: { hostname: site },
   themeConfig: {
-    logo: '/images/jeweler.png',
+    logo: '/images/poe-price-checker.png',
     nav: [
       { text: 'PoE1 guide', link: '/poe1-price-checker/' },
       { text: 'PoE2 guide', link: '/poe2-price-checker/' },
@@ -25,7 +25,7 @@ export default defineConfig({
     socialLinks: [{ icon: 'github', link: repo }]
   },
   head: [
-    ['link', { rel: 'icon', href: '/images/jeweler.png' }],
+    ['link', { rel: 'icon', href: '/favicon.ico' }],
     ['meta', { name: 'theme-color', content: '#161511' }]
   ],
   transformPageData(page) {

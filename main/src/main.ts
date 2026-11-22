@@ -13,6 +13,7 @@ import { GameConfig } from "./host-files/GameConfig";
 import { Shortcuts } from "./shortcuts/Shortcuts";
 import { AppUpdater } from "./AppUpdater";
 import { AppTray } from "./AppTray";
+import { appIconPath } from "./app-icon";
 
 import { GameLogWatcher } from "./host-files/GameLogWatcher";
 import { HttpProxy } from "./proxy";
@@ -154,6 +155,7 @@ let tray: AppTray;
               return;
             }
             loginWindow = new BrowserWindow({
+              icon: appIconPath,
               width: 700,
               height: 750,
               title: "Log in to Path of Exile",

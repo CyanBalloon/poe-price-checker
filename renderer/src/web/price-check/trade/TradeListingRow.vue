@@ -35,8 +35,8 @@
       </small>
     </div>
 
-    <button type="button" class="ui-button listing-link" title="Open listing search" aria-label="Open listing search" @click.stop="openTradeLink">
-      <span>Open trade</span><i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i>
+    <button type="button" class="ui-button listing-link" title="Open listing search" aria-label="Open listing search" :disabled="opening" :aria-busy="opening" @click.stop="openTradeLink">
+      <span>{{ opening ? "Opening…" : "Open trade" }}</span><i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i>
     </button>
   </div>
 </template>
@@ -59,6 +59,7 @@ export default defineComponent({
   name: "TradeListingRow",
   components: { CoreCurrencyImg },
   props: {
+    opening: Boolean,
     res: {
       type: Object as PropType<PricingResult & { listedTimes: number }>,
       required: true,
