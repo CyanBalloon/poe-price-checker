@@ -2,7 +2,10 @@
   <div class="trade-app trade-shell" :data-game="gameMode" :class="{ 'trade-app--ember': emberTheme }">
     <div class="trade-workspace">
       <header class="trade-toolbar">
-        <div class="trade-brand"><img src="/images/mageblood.png" width="48" height="24" alt="" /><span>PoE </span>Price Checker</div>
+        <div class="trade-brand">
+          <img class="app-logo" src="/images/mageblood.png" width="156" height="78" alt="" />
+          <span>PoE Price Checker</span>
+        </div>
         <nav class="trade-navigation" aria-label="Workspace">
           <button v-for="tab in tabs" :key="tab.id" type="button" class="trade-nav-button"
             :aria-current="activeTab === tab.id ? 'page' : undefined" :aria-label="tab.name" @click="activeTab = tab.id">{{ tab.name }}</button>

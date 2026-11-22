@@ -27,11 +27,11 @@
   --toolbar-inset: clamp(0.75rem, 2vw, 2rem);
   --tool-gap: 0.75rem;
   --control-height: 2.5rem;
-  --caption-height: env(titlebar-area-height, 56px);
+  --caption-height: max(90px, env(titlebar-area-height, 0px));
   --window-inset: max(var(--toolbar-inset), calc(100vw - env(titlebar-area-x, 0px) - env(titlebar-area-width, 100vw) + var(--tool-gap)));
-  display: grid;
+  display: grid; flex-shrink: 0;
   grid-template-areas: "brand nav market actions";
-  grid-template-columns: auto minmax(max-content, 1fr) auto auto;
+  grid-template-columns: max-content max-content minmax(0, 1fr) max-content;
   grid-template-rows: var(--caption-height);
   align-items: center;
   column-gap: var(--tool-gap);
@@ -43,11 +43,14 @@
   user-select: none;
 }
 .trade-toolbar :is(button, select, .toolbar-quote), .trade-context select::picker(select) { -webkit-app-region: no-drag; }
-.trade-brand { grid-area: brand; font: 600 clamp(1.3rem, 2vw, 1.75rem)/1 var(--display); white-space: nowrap; }
-.trade-brand img { display: inline-block; width: 1.9em; height: auto; margin-inline-end: 0.35em; vertical-align: -0.12em; }
+.trade-brand {
+  grid-area: brand; display: inline-flex; align-items: center; gap: 0.5rem;
+  font: 600 clamp(1.3rem, 2vw, 1.75rem)/1 var(--display); white-space: nowrap;
+}
+.trade-brand .app-logo { flex: none; max-width: none; }
 .trade-navigation, .toolbar-market, .toolbar-actions, .trade-context { display: flex; align-items: center; gap: var(--tool-gap); }
-.trade-navigation { grid-area: nav; justify-self: start; margin-left: var(--tool-gap); }
-.toolbar-market { grid-area: market; justify-self: end; min-width: 0; }
+.trade-navigation { grid-area: nav; justify-self: start; }
+.toolbar-market { grid-area: market; justify-self: end; min-width: 0; max-width: 100%; }
 .toolbar-actions { grid-area: actions; }
 .trade-nav-button, .trade-account, .trade-settings-button, .trade-context select {
   display: inline-flex; align-items: center; justify-content: center;
@@ -152,7 +155,7 @@
 .trade-rate { color: var(--muted); font-variant-numeric: tabular-nums; }
 .trade-rate strong { color: var(--ink); }
 .application-actions { color: var(--muted); }
-@media (max-width: 65rem) {
+@media (max-width: 76rem) {
   .trade-toolbar {
     padding-right: 0;
     grid-template-columns: auto minmax(0, 1fr) auto var(--window-inset);
@@ -160,13 +163,19 @@
     grid-template-rows: var(--caption-height) auto;
     column-gap: 0;
   }
-  .trade-navigation { margin-left: 0; }
   .trade-nav-button[aria-current]::after { bottom: 0; }
   .toolbar-market { max-width: calc(100% - var(--toolbar-inset) - var(--tool-gap)); margin-right: var(--toolbar-inset); }
 }
 @media (max-width: 43rem) {
   .trade-main:is(.trade-main--price-check, .trade-main--item-search) { background-position: 75% 58%; }
-  .trade-toolbar { --tool-gap: 0.45rem; }
+  .trade-toolbar {
+    --tool-gap: 0.45rem; grid-template-columns: minmax(0, 1fr) auto var(--window-inset);
+    grid-template-areas: "brand brand ." "nav actions actions" "market market market";
+    grid-template-rows: var(--caption-height) auto auto;
+  }
+  .trade-brand { min-width: 0; white-space: normal; line-height: 1.08; }
+  .toolbar-actions { justify-self: end; margin-inline-end: var(--toolbar-inset); }
+  .toolbar-market { justify-self: stretch; justify-content: space-between; }
   .trade-context select { max-width: 8rem; padding-inline: 0.4rem; }
 }
 @media (min-width: 30rem) and (max-width: 36rem) {
@@ -175,10 +184,6 @@
   .trade-context select[aria-label="League"] { max-width: 6.5rem; }
 }
 @media (max-width: 30rem) {
-  .trade-brand span { display: none; }
-  .trade-toolbar { grid-template-areas: "brand . actions ." "market market market market" "nav nav nav nav"; }
-  .toolbar-market { justify-self: stretch; justify-content: space-between; }
-  .trade-navigation { justify-self: start; }
   .trade-account i { display: none; }
 }
 .trade-dialog {

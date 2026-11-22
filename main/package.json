@@ -1,12 +1,13 @@
 {
   "name": "poe-price-checker",
   "description": "Standalone Windows price checker for Path of Exile 1 and Path of Exile 2",
-  "version": "1.1.11",
+  "version": "1.1.12",
   "private": true,
   "scripts": {
     "dev": "node build/script.mjs",
     "build": "node build/script.mjs --prod",
     "package": "electron-builder build",
+    "check:toolbar": "node build/check-toolbar.mjs",
     "lint": "eslint src",
     "fix": "eslint src --fix",
     "check-types": "tsc --noemit",
@@ -35,8 +36,9 @@
     "electron-devtools-installer": "^4.0.0",
     "electron-updater": "^6.8.3",
     "esbuild": "^0.28.0",
-    "ini": "^6.0.0",
     "eslint-config-prettier": "^9.1.0",
+    "ini": "^6.0.0",
+    "playwright-core": "1.65.1",
     "prettier": "3.4.2",
     "typescript": "5.9.x",
     "ws": "^8.16.0"

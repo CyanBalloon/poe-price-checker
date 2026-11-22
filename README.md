@@ -2,7 +2,7 @@
 
 **A free, open-source item price checker for Path of Exile 1 (PoE1) and Path of Exile 2 (PoE2).** Hover over an item and press **Ctrl+D** to compare its rolls with trade listings for your league. The price checker opens in its own Windows desktop window.
 
-[**Download for Windows x64**](https://github.com/CyanBalloon/poe-price-checker/releases/download/v1.1.11/poe-price-checker-setup-1.1.11.exe) · [Portable edition](https://github.com/CyanBalloon/poe-price-checker/releases/download/v1.1.11/poe-price-checker-1.1.11.exe) · [Website](https://poe2pricechecker.com/) · [v1.1.11 release notes](https://github.com/CyanBalloon/poe-price-checker/releases/tag/v1.1.11)
+[**Download for Windows x64**](https://github.com/CyanBalloon/poe-price-checker/releases/download/v1.1.12/poe-price-checker-setup-1.1.12.exe) · [Portable edition](https://github.com/CyanBalloon/poe-price-checker/releases/download/v1.1.12/poe-price-checker-1.1.12.exe) · [Website](https://poe2pricechecker.com/) · [v1.1.12 release notes](https://github.com/CyanBalloon/poe-price-checker/releases/tag/v1.1.12)
 
 [![Polaric Devastation in the Path of Exile 1 price checker, with Divine Orb and Chaos Orb values above its modifiers and trade listings](docs/public/images/poe1-price.webp)](docs/public/images/poe1-price.webp)
 
@@ -56,4 +56,4 @@ The launcher installs dependencies on first use. For production packaging and th
 
 This project builds on [Exiled Exchange 2](https://github.com/Kvan7/Exiled-Exchange-2) and [Awakened PoE Trade](https://github.com/SnosMe/awakened-poe-trade). Trade listings come from the official Path of Exile trade service, and market estimates come from [poe.ninja](https://poe.ninja/). Path of Exile and its game artwork belong to Grinding Gear Games. The project code is available under the [MIT license](LICENSE).
 
-The app logo uses Grinding Gear Games’ [Mageblood inventory artwork](https://web.poecdn.com/image/Art/2DItems/Belts/InjectorBelt.png).
+The Windows icon is a gold loupe with a red gem. Beside the app title, the belt is Grinding Gear Games’ [Mageblood inventory artwork](https://web.poecdn.com/image/Art/2DItems/Belts/InjectorBelt.png).

@@ -1,7 +1,7 @@
 <template>
   <div class="p-2 flex flex-col h-full items-center">
     <div class="flex flex-col items-center p-2 mb-4">
-      <img src="/images/mageblood.png" width="80" height="40" alt="" />
+      <img class="app-logo" src="/images/mageblood.png" width="156" height="78" alt="" />
       <p class="text-base">PoE Price Checker</p>
       <p class="">{{ t("app.version", [version]) }}</p>
       <div class="flex gap-2">

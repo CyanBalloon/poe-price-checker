@@ -71,7 +71,7 @@ export class AppWindow {
       skipTaskbar: false,
       ...(process.platform === "win32" && {
         titleBarStyle: "hidden",
-        titleBarOverlay: { color: "#00000000", symbolColor: "#c6cad0", height: 56 },
+        titleBarOverlay: { color: "#00000000", symbolColor: "#c6cad0", height: 90 },
       }),
       title: "PoE Price Checker",
       show: true,
