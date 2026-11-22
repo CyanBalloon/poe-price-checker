@@ -9,7 +9,7 @@ const downloads = repository + '/releases/download/v' + version + '/poe-price-ch
 const screens = [
   {
     label: 'PoE1 price check', image: 'poe1-price', title: 'Price a Polaric Devastation',
-    caption: 'Compare the Opal Ring’s rolls with asking prices in the same league. Above one Divine Orb, the chaos equivalent appears underneath.',
+    caption: 'Compare the Opal Ring’s rolls with asking prices in the same league. At one Divine Orb or more, the chaos equivalent appears underneath.',
     alt: 'Polaric Devastation in the Path of Exile 1 price checker, with its market estimate, modifiers and trade results.'
   },
   {
@@ -45,8 +45,8 @@ const screen = computed(() => screens[selected.value])
         <div class="wrap hero-inner">
           <p class="edition"><span aria-hidden="true"></span>New in v{{ version }} · PoE1 support</p>
           <h1 id="headline">Price check<br><em>Path of Exile</em> 1 &amp; 2.</h1>
-          <p class="intro">Check the item under your cursor, compare its rolls with trade listings, and see what it’s worth in your league.</p>
-          <div class="download">
+          <p class="intro">Press <kbd>Ctrl</kbd> + <kbd>D</kbd> to check an item’s price against trade listings in your league. Free and open source for Windows.</p>
+          <div id="download" class="download">
             <a class="install" :href="downloads + 'setup-' + version + '.exe'"><span aria-hidden="true">↓</span> Download for Windows</a>
             <a class="portable" :href="downloads + version + '.exe'">Portable edition <span aria-hidden="true">↗︎</span></a>
           </div>
@@ -75,7 +75,13 @@ const screen = computed(() => screens[selected.value])
 
       <section id="start" class="guide" aria-labelledby="start-title">
         <div class="wrap guide-inner">
-          <h2 id="start-title">Your first<br><em>price check.</em></h2>
+          <div>
+            <h2 id="start-title">Your first<br><em>price check.</em></h2>
+            <nav class="game-guides" aria-label="Price check guides">
+              <a href="/poe1-price-checker/">PoE1 guide · Chaos, divines and item modifiers <span aria-hidden="true">→</span></a>
+              <a href="/poe2-price-checker/">PoE2 guide · Gear, uniques and currency <span aria-hidden="true">→</span></a>
+            </nav>
+          </div>
           <ol>
             <li><h3>Choose your game and league</h3><p>Open PoE Price Checker and use the selectors at the top right. You can switch between PoE1 and PoE2 at any time.</p></li>
             <li><h3>Hover over an item and press <kbd>Ctrl</kbd> + <kbd>D</kbd></h3><p>PoE Price Checker opens the item in its own window. You can also choose Paste item and enter copied item text.</p></li>
@@ -143,6 +149,8 @@ figcaption p { max-width:680px; }
 figcaption a { color:var(--amber); font-size:14px; white-space:nowrap; margin-top:5px; }
 .guide { background:#201e18; padding-block:clamp(48px,7vw,96px); }
 .guide-inner { display:grid; grid-template-columns:.9fr 1.3fr; gap:48px; }
+.game-guides { margin-top:24px; display:grid; justify-items:start; gap:8px; color:var(--amber); }
+.game-guides a { white-space:normal; }
 .guide ol { list-style:decimal-leading-zero; padding-left:34px; }
 .guide li { padding-left:12px; }
 .guide li + li { margin-top:24px; padding-top:22px; border-top:1px solid #ffffff16; }

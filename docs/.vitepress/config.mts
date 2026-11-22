@@ -1,51 +1,84 @@
-import { defineConfig } from 'vitepress'
+import { defineConfig, type HeadConfig } from 'vitepress'
 import app from '../../main/package.json'
 
 const repo = 'https://github.com/CyanBalloon/poe-price-checker'
 const site = 'https://poe2pricechecker.com/'
-const title = 'PoE Price Checker · Price checker for Path of Exile 1 & 2'
-const description = 'Now with Path of Exile 1 support. Compare trade listings, filter item modifiers and check league prices in a standalone Windows app for PoE1 and PoE2.'
+const name = 'PoE Price Checker'
+const release = repo + '/releases/tag/v' + app.version
+const installer = repo + '/releases/download/v' + app.version + '/poe-price-checker-setup-' + app.version + '.exe'
+const cover = '/images/poe-price-checker-cover.jpg'
 
 export default defineConfig({
-  title: 'PoE Price Checker',
-  titleTemplate: ':title · PoE Price Checker',
-  description,
+  title: name,
+  titleTemplate: false,
+  description: 'A free Windows item price checker for Path of Exile 1 and Path of Exile 2.',
   cleanUrls: true,
   appearance: 'force-dark',
   sitemap: { hostname: site },
   themeConfig: {
     logo: '/images/jeweler.png',
+    nav: [
+      { text: 'PoE1 guide', link: '/poe1-price-checker/' },
+      { text: 'PoE2 guide', link: '/poe2-price-checker/' },
+      { text: 'Download', link: '/#download' }
+    ],
     socialLinks: [{ icon: 'github', link: repo }]
   },
   head: [
     ['link', { rel: 'icon', href: '/images/jeweler.png' }],
     ['meta', { name: 'theme-color', content: '#161511' }]
   ],
-  transformHead({ pageData }) {
-    if (pageData.relativePath !== 'index.md') return []
-    return [
-      ['link', { rel: 'canonical', href: site }],
-      ['meta', { property: 'og:title', content: title }],
-      ['meta', { property: 'og:description', content: description }],
-      ['meta', { property: 'og:type', content: 'website' }],
-      ['meta', { property: 'og:url', content: site }],
-      ['meta', { property: 'og:image', content: site + 'images/poe1-price.webp' }],
-      ['meta', { property: 'og:image:alt', content: 'A Path of Exile 1 ring in PoE Price Checker' }],
+  transformPageData(page) {
+    if (page.isNotFound) {
+      page.frontmatter.head = [['meta', { name: 'robots', content: 'noindex' }]]
+      return
+    }
+
+    const home = page.relativePath === 'index.md'
+    const path = page.relativePath.replace(/(^|\/)index\.md$/, '$1').replace(/\.md$/, '')
+    const canonical = new URL(path, site).href
+    const image = new URL(page.frontmatter.socialImage ?? cover, site)
+    const isCover = image.pathname === cover
+    const alt = page.frontmatter.socialImageAlt ?? name
+    const head: HeadConfig[] = [
+      ['link', { rel: 'canonical', href: canonical }],
+      ['meta', { name: 'robots', content: 'max-image-preview:large' }],
+      ['meta', { property: 'og:site_name', content: name }],
+      ['meta', { property: 'og:type', content: home ? 'website' : 'article' }],
+      ['meta', { property: 'og:url', content: canonical }],
+      ['meta', { property: 'og:title', content: page.title }],
+      ['meta', { property: 'og:description', content: page.description }],
+      ['meta', { property: 'og:image', content: image.href }],
+      ['meta', { property: 'og:image:alt', content: alt }],
+      ['meta', { property: 'og:image:width', content: isCover ? '1200' : '1280' }],
+      ['meta', { property: 'og:image:height', content: isCover ? '630' : '800' }],
       ['meta', { name: 'twitter:card', content: 'summary_large_image' }],
-      ['script', { type: 'application/ld+json' }, JSON.stringify({
-        '@context': 'https://schema.org',
-        '@type': 'SoftwareApplication',
-        name: 'PoE Price Checker',
-        alternateName: 'Poe2 Price Checker',
-        url: site,
-        operatingSystem: 'Windows',
-        applicationCategory: 'UtilitiesApplication',
-        softwareVersion: app.version,
-        description,
-        screenshot: site + 'images/poe1-price.webp',
-        downloadUrl: repo + '/releases/tag/v' + app.version,
-        offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' }
-      })]
+      ['meta', { name: 'twitter:title', content: page.title }],
+      ['meta', { name: 'twitter:description', content: page.description }],
+      ['meta', { name: 'twitter:image', content: image.href }],
+      ['meta', { name: 'twitter:image:alt', content: alt }]
     ]
+
+    if (home) {
+      head.push(['script', { type: 'application/ld+json' }, JSON.stringify({
+        '@context': 'https://schema.org',
+        '@graph': [
+          {
+            '@type': 'WebSite', '@id': site + '#website',
+            name, url: site, about: { '@id': site + '#app' }
+          },
+          {
+            '@type': 'SoftwareApplication', '@id': site + '#app',
+            name, alternateName: 'Poe2 Price Checker', url: site, sameAs: repo,
+            description: page.description, operatingSystem: 'Windows',
+            applicationCategory: 'UtilitiesApplication', softwareVersion: app.version,
+            license: repo + '/blob/main/LICENSE', downloadUrl: installer, releaseNotes: release,
+            screenshot: ['poe1-price', 'poe1-search', 'poe2-welcome'].map(file => site + 'images/' + file + '.webp'),
+            offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD', url: release }
+          }
+        ]
+      })])
+    }
+    page.frontmatter.head = [...(page.frontmatter.head ?? []), ...head]
   }
 })

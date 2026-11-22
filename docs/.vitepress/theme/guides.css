@@ -1,0 +1,19 @@
+.dark {
+  --vp-c-bg: #161511;
+  --vp-c-bg-alt: #201e18;
+  --vp-c-bg-soft: #26231e;
+  --vp-c-text-1: #f5efe5;
+  --vp-c-text-2: #c7bfb2;
+  --vp-c-brand-1: #efc98e;
+  --vp-c-brand-2: #e3ae72;
+}
+
+.vp-doc h1, .vp-doc h2 {
+  font-family: Georgia, serif;
+  font-weight: 500;
+}
+
+.vp-doc img {
+  height: auto;
+  border-radius: 8px;
+}
