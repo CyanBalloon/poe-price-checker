@@ -79,9 +79,9 @@ export async function initConfig() {
 
     // TODO
     // dialog.showErrorBox(
-    //   'Poe2 Price Checker - Incompatible configuration',
+    //   'PoE Price Checker - Incompatible configuration',
     //   // ----------------------
-    //   'You are trying to use an older version of Poe2 Price Checker with a newer incompatible configuration file.\n' +
+    //   'You are trying to use an older version of PoE Price Checker with a newer incompatible configuration file.\n' +
     //   'You need to install the latest version to continue using it.'
     // )
   }

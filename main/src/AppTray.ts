@@ -23,7 +23,7 @@ export class AppTray {
     }
 
     this.tray = new Tray(trayImage);
-    this.tray.setToolTip(`Poe2 Price Checker v${app.getVersion()}`);
+    this.tray.setToolTip(`PoE Price Checker v${app.getVersion()}`);
     this.rebuildMenu();
 
     server.onEventAnyClient("CLIENT->MAIN::user-action", ({ action }) => {

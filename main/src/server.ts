@@ -42,8 +42,6 @@ export async function checkLoginStatus(): Promise<boolean> {
   });
 }
 
-addFileUploadRoutes(server);
-
 if (!process.env.VITE_DEV_SERVER_URL) {
   server.addListener("request", (req, res) => {
     if (
@@ -123,6 +121,7 @@ export async function startServer(
   logger: Logger,
   port = process.env.VITE_DEV_SERVER_URL ? 8584 : 0,
 ): Promise<number> {
+  addFileUploadRoutes(server);
   const configStore = new ConfigStore(eventPipe);
   const customIconsStore = new CustomIconsStore(eventPipe);
 

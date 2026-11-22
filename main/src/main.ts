@@ -3,6 +3,8 @@
 import { app, systemPreferences, BrowserWindow, session } from "electron";
 import { uIOhook } from "uiohook-napi";
 import os from "node:os";
+import path from "node:path";
+import { existsSync } from "node:fs";
 import { startServer, eventPipe, server } from "./server";
 import { Logger } from "./RemoteLogger";
 import { GameWindow } from "./windowing/GameWindow";
@@ -17,6 +19,15 @@ import { HttpProxy } from "./proxy";
 import { installExtension, VUEJS_DEVTOOLS } from "electron-devtools-installer";
 import { FileWriter } from "./host-files/FileWriter";
 import { startDevRenderer } from "./dev-renderer";
+
+// Existing installations keep their settings, saved window position and sign-in session.
+if (app.isPackaged && !app.commandLine.hasSwitch("user-data-dir")) {
+  const previousProfile = path.join(app.getPath("appData"), "poe2-price-checker");
+  if (existsSync(previousProfile)) {
+    app.setPath("userData", previousProfile);
+    app.setPath("sessionData", previousProfile);
+  }
+}
 
 if (!app.requestSingleInstanceLock()) {
   app.exit();
@@ -194,7 +205,7 @@ let tray: AppTray;
             rendererUrl = await startDevRenderer(port);
           }
         } catch (error) {
-          console.error("Could not start Exile Trade:", error);
+          console.error("Could not start PoE Price Checker:", error);
           app.exit(1);
           return;
         }

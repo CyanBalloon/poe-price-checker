@@ -1,7 +1,7 @@
 @echo off
 setlocal
 cd /d "%~dp0"
-echo Starting Exile Trade from "%CD%"
+echo Starting PoE Price Checker from "%CD%"
 
 if not exist "renderer\node_modules\vite\package.json" goto install
 if not exist "main\node_modules\electron\package.json" goto install

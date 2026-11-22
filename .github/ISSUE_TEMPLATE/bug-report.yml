@@ -26,9 +26,9 @@ body:
     id: existing-issues
     attributes:
       label: Existing Issues
-      description: Please check the [pinned issues and existing issues](https://github.com/CyanBalloon/Modern-Exiled-Exchange-2/issues?q=is%3Aissue) before submitting an issue
+      description: Please check the [pinned issues and existing issues](https://github.com/CyanBalloon/Poe2-Price-Checker/issues?q=is%3Aissue) before submitting an issue
       options:
-        - label: I have checked the [pinned issues and existing issues](https://github.com/CyanBalloon/Modern-Exiled-Exchange-2/issues?q=is%3Aissue) and my problem was not there
+        - label: I have checked the [pinned issues and existing issues](https://github.com/CyanBalloon/Poe2-Price-Checker/issues?q=is%3Aissue) and my problem was not there
           required: true
   - type: dropdown
     id: common-bug
@@ -56,8 +56,10 @@ body:
     id: version
     attributes:
       label: Version
-      description: What version of EE2 are you running? You can see this in Settings -> About
+      description: What version of PoE Price Checker are you running? You can see this in Settings -> About
       options:
+        - 1.1.0
+        - 1.0.6
         - 1.0.3
         - 1.0.1
         - 1.0.0

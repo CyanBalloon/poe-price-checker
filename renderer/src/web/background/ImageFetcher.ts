@@ -121,7 +121,7 @@ async function fetchIconFromTradeApi({ game, itemName, namespace }: FetchRequest
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      "User-Agent": "Poe2PriceChecker/1.0"
+      "User-Agent": "PoePriceChecker/1.1"
     },
     body: JSON.stringify(payload)
   });
@@ -146,7 +146,7 @@ async function fetchIconFromTradeApi({ game, itemName, namespace }: FetchRequest
   const fetchRes = await Host.proxy(`${tradeApi}/fetch/${fetchIds}?query=${queryId}`, {
     method: "GET",
     headers: {
-      "User-Agent": "Poe2PriceChecker/1.0"
+      "User-Agent": "PoePriceChecker/1.1"
     }
   });
 

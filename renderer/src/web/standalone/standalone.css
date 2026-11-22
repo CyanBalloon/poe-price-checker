@@ -151,6 +151,7 @@
   .trade-context select[aria-label="League"] { max-width: 6.5rem; }
 }
 @media (max-width: 30rem) {
+  .trade-brand span { display: none; }
   .trade-toolbar { grid-template-areas: "brand . actions ." "market market market market" "nav nav nav nav"; }
   .toolbar-market { justify-self: stretch; justify-content: space-between; }
   .trade-navigation { justify-self: start; }

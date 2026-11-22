@@ -2,7 +2,7 @@
   <div class="trade-app trade-shell" :data-game="gameMode" :class="{ 'trade-app--ember': emberTheme }">
     <div class="trade-workspace">
       <header class="trade-toolbar">
-        <div class="trade-brand">Exile Trade</div>
+        <div class="trade-brand"><span>PoE </span>Price Checker</div>
         <nav class="trade-navigation" aria-label="Workspace">
           <button v-for="tab in tabs" :key="tab.id" type="button" class="trade-nav-button"
             :aria-current="activeTab === tab.id ? 'page' : undefined" :aria-label="tab.name" @click="activeTab = tab.id">{{ tab.name }}</button>
@@ -124,7 +124,7 @@
             </template>
             <template #application>
               <div class="application-actions">
-                <span>Exile Trade v{{ version }}</span>
+                <span>PoE Price Checker v{{ version }}</span>
                 <button type="button" class="ui-button" :disabled="!updateButton.action" @click="updateButton.action?.()">{{ updateButton.text }}</button>
               </div>
             </template>

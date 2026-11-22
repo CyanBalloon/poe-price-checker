@@ -452,7 +452,7 @@ export default defineComponent({
 
     const leagues = useLeagues();
     const title = computed(
-      () => leagues.selectedId.value || "Poe2 Price Checker",
+      () => leagues.selectedId.value || "PoE Price Checker",
     );
     const stableOrbCost = computed(() =>
       xchgRate.value ? Math.round(xchgRate.value) : null,

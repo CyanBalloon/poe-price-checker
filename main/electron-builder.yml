@@ -1,6 +1,7 @@
 publish:
   - "github"
-productName: "Poe2 Price Checker"
+appId: "com.electron.poe2-price-checker"
+productName: "PoE Price Checker"
 npmRebuild: true
 compression: normal
 files:
@@ -17,8 +18,11 @@ asarUnpack:
 extraMetadata:
   main: "main.js"
 nsis:
+  artifactName: "poe-price-checker-setup-${version}.${ext}"
   oneClick: false
   allowToChangeInstallationDirectory: true
+portable:
+  artifactName: "poe-price-checker-${version}.${ext}"
 win:
   target:
     - "nsis"

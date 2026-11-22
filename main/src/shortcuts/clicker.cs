@@ -220,7 +220,7 @@ class Clicker {
     }
 
     static void FocusOverlayWindow() {
-        IntPtr targetWindow = FindWindow(null, "Poe2 Price Checker");
+        IntPtr targetWindow = FindWindow(null, "PoE Price Checker");
         if (targetWindow == IntPtr.Zero) return;
 
         IntPtr foregroundWindow = GetForegroundWindow();
@@ -250,7 +250,7 @@ class Clicker {
         StringBuilder sb = new StringBuilder(256);
         if (GetWindowText(handle, sb, 256) > 0) {
             string title = sb.ToString();
-            if (title == "Path of Exile" || title == "Path of Exile 2" || title.Contains("Poe2 Price Checker")) {
+            if (title == "Path of Exile" || title == "Path of Exile 2" || title.Contains("PoE Price Checker")) {
                 if (title == "Path of Exile 2") {
                     activeGame = "poe2";
                 } else if (title == "Path of Exile") {

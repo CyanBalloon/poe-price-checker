@@ -72,7 +72,7 @@ export class AppWindow {
         titleBarStyle: "hidden",
         titleBarOverlay: { color: "#00000000", symbolColor: "#c6cad0", height: 56 },
       }),
-      title: "Poe2 Price Checker",
+      title: "PoE Price Checker",
       show: true,
       webPreferences: {
         allowRunningInsecureContent: false,
@@ -233,7 +233,7 @@ export class AppWindow {
         // ----------------------
         "Path of Exile 2 is running with administrator rights.\n" +
           "\n" +
-          "You need to restart Poe2 Price Checker with administrator rights.",
+          "You need to restart PoE Price Checker with administrator rights.",
       );
     }
   };

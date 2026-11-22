@@ -1,5 +1,6 @@
 {
-  "name": "poe2-price-checker",
+  "name": "poe-price-checker",
+  "description": "Standalone Windows price checker for Path of Exile 1 and Path of Exile 2",
   "version": "1.1.0",
   "private": true,
   "scripts": {
