@@ -142,7 +142,7 @@ export const usePoeninja = createGlobalState(() => {
     availableCoreCurrencies.value.find((currency) => currency.id === xchgRateCurrency.value),
   );
   const isLoading = shallowRef(false);
-  let PRICES_DB: PriceDatabase = [];
+  const priceDatabase = shallowRef<PriceDatabase>([]);
   let lastUpdateTime = 0;
   let downloadController: AbortController | undefined;
   let lastInterestTime = 0;
@@ -195,7 +195,7 @@ export const usePoeninja = createGlobalState(() => {
 
         const ninjaXchg = parseXchg(jsonBlob);
 
-        PRICES_DB = splitJsonBlob(jsonBlob, ninjaSchema);
+        priceDatabase.value = splitJsonBlob(jsonBlob, ninjaSchema);
 
         // Build SEARCH_INDEX
         try {
@@ -311,7 +311,6 @@ export const usePoeninja = createGlobalState(() => {
       if (!entry) return null;
       return {
         ...entry,
-        cx: false as const,
         primaryValue: entry.chaos,
       };
     }
@@ -324,7 +323,7 @@ export const usePoeninja = createGlobalState(() => {
     }).replace(":0}", ":");
     const endSearchString = "}}";
 
-    for (const { ns, cx, url, lines } of PRICES_DB) {
+    for (const { ns, cx, url, lines } of priceDatabase.value) {
       if (ns !== query.ns) continue;
 
       const startPos = lines.indexOf(searchString);
@@ -480,7 +479,7 @@ export const usePoeninja = createGlobalState(() => {
       annulToExalt.value = undefined;
       chaosToDivine.value = undefined;
       annulInChaos.value = undefined;
-      PRICES_DB = [];
+      priceDatabase.value = [];
       poe1Prices.value = undefined;
       searchIndex.value = [];
       priceCache.clear();
@@ -493,6 +492,10 @@ export const usePoeninja = createGlobalState(() => {
     xchgRate: readonly(xchgRate),
     xchgRateCurrency: readonly(activeCoreCurrency),
     findPriceByQuery,
+    findCataloguePrice: (query: DbQuery) => findPriceByQuery(
+      poe1Prices.value?.names.get(poe1PriceKey(query)) ?? query,
+    ),
+    marketItems: computed(() => searchIndex.value),
     searchNinjaItems,
     autoCurrency,
     displayPrice,
@@ -500,7 +503,7 @@ export const usePoeninja = createGlobalState(() => {
     forceLoad: () => load(true),
     cachedCurrencyByQuery,
     isLoading: readonly(isLoading),
-    initialLoading: () => isLoading.value && !PRICES_DB.length,
+    initialLoading: () => isLoading.value && !priceDatabase.value.length && !poe1Prices.value,
     availableCoreCurrencies: readonly(availableCoreCurrencies),
     chaosToExalt: readonly(chaosToExalt),
     annulToExalt: readonly(annulToExalt),

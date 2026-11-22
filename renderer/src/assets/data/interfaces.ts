@@ -64,6 +64,7 @@ export interface BaseType {
   w?: number;
   h?: number;
   tradeTag?: string;
+  exchangeable?: boolean;
   tradeDisc?: string;
   disc?: {
     propAR?: true;

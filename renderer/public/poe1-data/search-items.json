@@ -1,0 +1,5807 @@
+[
+  {
+    "namespace": "CAPTURED_BEAST",
+    "name": "Aboriginal Chieftain"
+  },
+  {
+    "namespace": "CAPTURED_BEAST",
+    "name": "Aidan the Frenzied"
+  },
+  {
+    "namespace": "CAPTURED_BEAST",
+    "name": "Albino Rhoa"
+  },
+  {
+    "namespace": "CAPTURED_BEAST",
+    "name": "Alpha Paradisae"
+  },
+  {
+    "namespace": "CAPTURED_BEAST",
+    "name": "Amarissa, Daughter of Merveil"
+  },
+  {
+    "namespace": "CAPTURED_BEAST",
+    "name": "Ambrosia, Daughter of Merveil"
+  },
+  {
+    "namespace": "CAPTURED_BEAST",
+    "name": "Ancient Devourer"
+  },
+  {
+    "namespace": "CAPTURED_BEAST",
+    "name": "Balah, Duke"
+  },
+  {
+    "namespace": "CAPTURED_BEAST",
+    "name": "Bestial Maw"
+  },
+  {
+    "namespace": "CAPTURED_BEAST",
+    "name": "Black Death"
+  },
+  {
+    "namespace": "CAPTURED_BEAST",
+    "name": "Bladeback Guardian"
+  },
+  {
+    "namespace": "CAPTURED_BEAST",
+    "name": "Bladetooth"
+  },
+  {
+    "namespace": "CAPTURED_BEAST",
+    "name": "Bleached Crustacean"
+  },
+  {
+    "namespace": "CAPTURED_BEAST",
+    "name": "Blood Morpher"
+  },
+  {
+    "namespace": "CAPTURED_BEAST",
+    "name": "Blood Stasis "
+  },
+  {
+    "namespace": "CAPTURED_BEAST",
+    "name": "Blue Frog"
+  },
+  {
+    "namespace": "CAPTURED_BEAST",
+    "name": "Boulderback"
+  },
+  {
+    "namespace": "CAPTURED_BEAST",
+    "name": "Brinecrack"
+  },
+  {
+    "namespace": "CAPTURED_BEAST",
+    "name": "Brood Princess"
+  },
+  {
+    "namespace": "CAPTURED_BEAST",
+    "name": "Buried Tarantula"
+  },
+  {
+    "namespace": "CAPTURED_BEAST",
+    "name": "Carrion Minion"
+  },
+  {
+    "namespace": "CAPTURED_BEAST",
+    "name": "Cave Crustacean"
+  },
+  {
+    "namespace": "CAPTURED_BEAST",
+    "name": "Cintiq, the Inescapable"
+  },
+  {
+    "namespace": "CAPTURED_BEAST",
+    "name": "Common Frog"
+  },
+  {
+    "namespace": "CAPTURED_BEAST",
+    "name": "Crazed Chieftain"
+  },
+  {
+    "namespace": "CAPTURED_BEAST",
+    "name": "Crazed Flamebeast"
+  },
+  {
+    "namespace": "CAPTURED_BEAST",
+    "name": "Crustacean Pelter"
+  },
+  {
+    "namespace": "CAPTURED_BEAST",
+    "name": "Dire Wolf"
+  },
+  {
+    "namespace": "CAPTURED_BEAST",
+    "name": "Diseased Arachnid"
+  },
+  {
+    "namespace": "CAPTURED_BEAST",
+    "name": "Drifting Eye"
+  },
+  {
+    "namespace": "CAPTURED_BEAST",
+    "name": "Echo of the Verdant"
+  },
+  {
+    "namespace": "CAPTURED_BEAST",
+    "name": "Elder-Blessed Cobra"
+  },
+  {
+    "namespace": "CAPTURED_BEAST",
+    "name": "Elder-Blessed Goatman"
+  },
+  {
+    "namespace": "CAPTURED_BEAST",
+    "name": "Elder-Blessed Hellion"
+  },
+  {
+    "namespace": "CAPTURED_BEAST",
+    "name": "Elder-Blessed Retch"
+  },
+  {
+    "namespace": "CAPTURED_BEAST",
+    "name": "Elder-Blessed Rhoa"
+  },
+  {
+    "namespace": "CAPTURED_BEAST",
+    "name": "Eyepecker"
+  },
+  {
+    "namespace": "CAPTURED_BEAST",
+    "name": "Fated Siren"
+  },
+  {
+    "namespace": "CAPTURED_BEAST",
+    "name": "Fathom Screamer"
+  },
+  {
+    "namespace": "CAPTURED_BEAST",
+    "name": "Foreseen Spawn"
+  },
+  {
+    "namespace": "CAPTURED_BEAST",
+    "name": "Fossil Eater"
+  },
+  {
+    "namespace": "CAPTURED_BEAST",
+    "name": "Fused Crawler"
+  },
+  {
+    "namespace": "CAPTURED_BEAST",
+    "name": "Genesis Paradisae"
+  },
+  {
+    "namespace": "CAPTURED_BEAST",
+    "name": "Guardian of the Mound"
+  },
+  {
+    "namespace": "CAPTURED_BEAST",
+    "name": "Hollowskull, the Willing Host"
+  },
+  {
+    "namespace": "CAPTURED_BEAST",
+    "name": "Infected Adder"
+  },
+  {
+    "namespace": "CAPTURED_BEAST",
+    "name": "Infected Ambusher"
+  },
+  {
+    "namespace": "CAPTURED_BEAST",
+    "name": "Infected Beast"
+  },
+  {
+    "namespace": "CAPTURED_BEAST",
+    "name": "Infected Spiker"
+  },
+  {
+    "namespace": "CAPTURED_BEAST",
+    "name": "Infected Watcher"
+  },
+  {
+    "namespace": "CAPTURED_BEAST",
+    "name": "Infested Crustacean"
+  },
+  {
+    "namespace": "CAPTURED_BEAST",
+    "name": "Infested Sniper"
+  },
+  {
+    "namespace": "CAPTURED_BEAST",
+    "name": "Inti of the Blood Moon"
+  },
+  {
+    "namespace": "CAPTURED_BEAST",
+    "name": "Invading Crustacean"
+  },
+  {
+    "namespace": "CAPTURED_BEAST",
+    "name": "Junglemare"
+  },
+  {
+    "namespace": "CAPTURED_BEAST",
+    "name": "Kamaq, Soilmaker"
+  },
+  {
+    "namespace": "CAPTURED_BEAST",
+    "name": "Konu, Maker of Wind"
+  },
+  {
+    "namespace": "CAPTURED_BEAST",
+    "name": "Lola, the Fierce"
+  },
+  {
+    "namespace": "CAPTURED_BEAST",
+    "name": "Maligaro's Inspiration"
+  },
+  {
+    "namespace": "CAPTURED_BEAST",
+    "name": "Maligaro's Muse"
+  },
+  {
+    "namespace": "CAPTURED_BEAST",
+    "name": "Maze Hatchling"
+  },
+  {
+    "namespace": "CAPTURED_BEAST",
+    "name": "Maze Needleback"
+  },
+  {
+    "namespace": "CAPTURED_BEAST",
+    "name": "Maze Slitherer"
+  },
+  {
+    "namespace": "CAPTURED_BEAST",
+    "name": "Maze Webspinner"
+  },
+  {
+    "namespace": "CAPTURED_BEAST",
+    "name": "Mother of the Hive"
+  },
+  {
+    "namespace": "CAPTURED_BEAST",
+    "name": "Mother of the Swarm"
+  },
+  {
+    "namespace": "CAPTURED_BEAST",
+    "name": "Mutated Adder"
+  },
+  {
+    "namespace": "CAPTURED_BEAST",
+    "name": "Mutated Arachnid"
+  },
+  {
+    "namespace": "CAPTURED_BEAST",
+    "name": "Mutated Broodqueen"
+  },
+  {
+    "namespace": "CAPTURED_BEAST",
+    "name": "Mutated Chieftain"
+  },
+  {
+    "namespace": "CAPTURED_BEAST",
+    "name": "Mutated Croaker"
+  },
+  {
+    "namespace": "CAPTURED_BEAST",
+    "name": "Mutated Flamebeast"
+  },
+  {
+    "namespace": "CAPTURED_BEAST",
+    "name": "Mutated Maw"
+  },
+  {
+    "namespace": "CAPTURED_BEAST",
+    "name": "Mutated Rhoa"
+  },
+  {
+    "namespace": "CAPTURED_BEAST",
+    "name": "Mutated Ursa"
+  },
+  {
+    "namespace": "CAPTURED_BEAST",
+    "name": "Mutated Watcher"
+  },
+  {
+    "namespace": "CAPTURED_BEAST",
+    "name": "Mutated Winterclaw"
+  },
+  {
+    "namespace": "CAPTURED_BEAST",
+    "name": "Mutewind Lynx"
+  },
+  {
+    "namespace": "CAPTURED_BEAST",
+    "name": "Mystic Devourer"
+  },
+  {
+    "namespace": "CAPTURED_BEAST",
+    "name": "Nadia the Soothing"
+  },
+  {
+    "namespace": "CAPTURED_BEAST",
+    "name": "Nightmarish Carrion"
+  },
+  {
+    "namespace": "CAPTURED_BEAST",
+    "name": "Oozeback Bloom"
+  },
+  {
+    "namespace": "CAPTURED_BEAST",
+    "name": "Paradisae Venenum"
+  },
+  {
+    "namespace": "CAPTURED_BEAST",
+    "name": "Pewterfang"
+  },
+  {
+    "namespace": "CAPTURED_BEAST",
+    "name": "Poisonous Parasite"
+  },
+  {
+    "namespace": "CAPTURED_BEAST",
+    "name": "Primal Beast"
+  },
+  {
+    "namespace": "CAPTURED_BEAST",
+    "name": "Primitive Ape"
+  },
+  {
+    "namespace": "CAPTURED_BEAST",
+    "name": "Primordial Rhoa"
+  },
+  {
+    "namespace": "CAPTURED_BEAST",
+    "name": "Putrid Chimeral"
+  },
+  {
+    "namespace": "CAPTURED_BEAST",
+    "name": "Putrid Serpent"
+  },
+  {
+    "namespace": "CAPTURED_BEAST",
+    "name": "Putrid Weaver"
+  },
+  {
+    "namespace": "CAPTURED_BEAST",
+    "name": "Q'uru"
+  },
+  {
+    "namespace": "CAPTURED_BEAST",
+    "name": "Quetzerxi"
+  },
+  {
+    "namespace": "CAPTURED_BEAST",
+    "name": "Rabid Broodqueen"
+  },
+  {
+    "namespace": "CAPTURED_BEAST",
+    "name": "Rabid Maw"
+  },
+  {
+    "namespace": "CAPTURED_BEAST",
+    "name": "Rabid Minion"
+  },
+  {
+    "namespace": "CAPTURED_BEAST",
+    "name": "Rabid Rhoa"
+  },
+  {
+    "namespace": "CAPTURED_BEAST",
+    "name": "Raihara, Tukohama's Loyal"
+  },
+  {
+    "namespace": "CAPTURED_BEAST",
+    "name": "Rima, Deep Temptress"
+  },
+  {
+    "namespace": "CAPTURED_BEAST",
+    "name": "Risen Infested Beast"
+  },
+  {
+    "namespace": "CAPTURED_BEAST",
+    "name": "Rocco, the Bloodthirsty"
+  },
+  {
+    "namespace": "CAPTURED_BEAST",
+    "name": "Rooster Demon"
+  },
+  {
+    "namespace": "CAPTURED_BEAST",
+    "name": "Scrabbling Menace"
+  },
+  {
+    "namespace": "CAPTURED_BEAST",
+    "name": "Scrabbling Spitter"
+  },
+  {
+    "namespace": "CAPTURED_BEAST",
+    "name": "Sheaq, Maker of Floods"
+  },
+  {
+    "namespace": "CAPTURED_BEAST",
+    "name": "Shield Crab"
+  },
+  {
+    "namespace": "CAPTURED_BEAST",
+    "name": "Shivershell"
+  },
+  {
+    "namespace": "CAPTURED_BEAST",
+    "name": "Sickly Spinner"
+  },
+  {
+    "namespace": "CAPTURED_BEAST",
+    "name": "Simi, the Nature Touched"
+  },
+  {
+    "namespace": "CAPTURED_BEAST",
+    "name": "Siren's Spawn"
+  },
+  {
+    "namespace": "CAPTURED_BEAST",
+    "name": "Slimy Bloodsucker"
+  },
+  {
+    "namespace": "CAPTURED_BEAST",
+    "name": "Spinesnap"
+  },
+  {
+    "namespace": "CAPTURED_BEAST",
+    "name": "Spirit of Aidan"
+  },
+  {
+    "namespace": "CAPTURED_BEAST",
+    "name": "Spirit of Nadia"
+  },
+  {
+    "namespace": "CAPTURED_BEAST",
+    "name": "Steelchaw"
+  },
+  {
+    "namespace": "CAPTURED_BEAST",
+    "name": "Strangledrift"
+  },
+  {
+    "namespace": "CAPTURED_BEAST",
+    "name": "Tamipin"
+  },
+  {
+    "namespace": "CAPTURED_BEAST",
+    "name": "Tamulus"
+  },
+  {
+    "namespace": "CAPTURED_BEAST",
+    "name": "The All-seeing Eye"
+  },
+  {
+    "namespace": "CAPTURED_BEAST",
+    "name": "The Basilisk"
+  },
+  {
+    "namespace": "CAPTURED_BEAST",
+    "name": "The Burning Menace"
+  },
+  {
+    "namespace": "CAPTURED_BEAST",
+    "name": "The Cadaver Bull"
+  },
+  {
+    "namespace": "CAPTURED_BEAST",
+    "name": "The Conqueror Wurm"
+  },
+  {
+    "namespace": "CAPTURED_BEAST",
+    "name": "The Duchess"
+  },
+  {
+    "namespace": "CAPTURED_BEAST",
+    "name": "The Dweller of the Deep"
+  },
+  {
+    "namespace": "CAPTURED_BEAST",
+    "name": "The Encephalophage"
+  },
+  {
+    "namespace": "CAPTURED_BEAST",
+    "name": "The Faun"
+  },
+  {
+    "namespace": "CAPTURED_BEAST",
+    "name": "The Great White Beast"
+  },
+  {
+    "namespace": "CAPTURED_BEAST",
+    "name": "The Great White Bones"
+  },
+  {
+    "namespace": "CAPTURED_BEAST",
+    "name": "The Hundred Foot Shadow"
+  },
+  {
+    "namespace": "CAPTURED_BEAST",
+    "name": "The Sunburst Queen"
+  },
+  {
+    "namespace": "CAPTURED_BEAST",
+    "name": "The Weaver"
+  },
+  {
+    "namespace": "CAPTURED_BEAST",
+    "name": "Thistlesage"
+  },
+  {
+    "namespace": "CAPTURED_BEAST",
+    "name": "Thornrunner"
+  },
+  {
+    "namespace": "CAPTURED_BEAST",
+    "name": "Tunnelworm"
+  },
+  {
+    "namespace": "CAPTURED_BEAST",
+    "name": "Twisted Chimeral"
+  },
+  {
+    "namespace": "CAPTURED_BEAST",
+    "name": "Tyrannursus Maximus"
+  },
+  {
+    "namespace": "CAPTURED_BEAST",
+    "name": "Ungulath"
+  },
+  {
+    "namespace": "CAPTURED_BEAST",
+    "name": "Unstable Larva"
+  },
+  {
+    "namespace": "CAPTURED_BEAST",
+    "name": "Ventarus"
+  },
+  {
+    "namespace": "CAPTURED_BEAST",
+    "name": "Wild Chimeral"
+  },
+  {
+    "namespace": "CAPTURED_BEAST",
+    "name": "Zombie Rhoa"
+  },
+  {
+    "namespace": "DIVINATION_CARD",
+    "name": "Birth of the Three"
+  },
+  {
+    "namespace": "DIVINATION_CARD",
+    "name": "Blessing of God"
+  },
+  {
+    "namespace": "DIVINATION_CARD",
+    "name": "Soul Quenched"
+  },
+  {
+    "namespace": "DIVINATION_CARD",
+    "name": "The Bargain"
+  },
+  {
+    "namespace": "DIVINATION_CARD",
+    "name": "The Cartographer"
+  },
+  {
+    "namespace": "DIVINATION_CARD",
+    "name": "The Cheater"
+  },
+  {
+    "namespace": "DIVINATION_CARD",
+    "name": "The Landing"
+  },
+  {
+    "namespace": "DIVINATION_CARD",
+    "name": "The Master"
+  },
+  {
+    "namespace": "DIVINATION_CARD",
+    "name": "The Obscured"
+  },
+  {
+    "namespace": "DIVINATION_CARD",
+    "name": "The Puzzle"
+  },
+  {
+    "namespace": "DIVINATION_CARD",
+    "name": "The Sustenance"
+  },
+  {
+    "namespace": "DIVINATION_CARD",
+    "name": "The Valley of Steel Boxes"
+  },
+  {
+    "namespace": "GEM",
+    "name": "Quickstep"
+  },
+  {
+    "namespace": "GEM",
+    "name": "Vaal Absolution (Absolution of Inspiring)"
+  },
+  {
+    "namespace": "GEM",
+    "name": "Vaal Animate Weapon (Animate Weapon of Ranged Arms)"
+  },
+  {
+    "namespace": "GEM",
+    "name": "Vaal Animate Weapon (Animate Weapon of Self Reflection)"
+  },
+  {
+    "namespace": "GEM",
+    "name": "Vaal Arc (Arc of Oscillating)"
+  },
+  {
+    "namespace": "GEM",
+    "name": "Vaal Arc (Arc of Surging)"
+  },
+  {
+    "namespace": "GEM",
+    "name": "Vaal Blade Flurry (Blade Flurry of Incision)"
+  },
+  {
+    "namespace": "GEM",
+    "name": "Vaal Blade Vortex (Blade Vortex of the Scythe)"
+  },
+  {
+    "namespace": "GEM",
+    "name": "Vaal Blight (Blight of Atrophy)"
+  },
+  {
+    "namespace": "GEM",
+    "name": "Vaal Blight (Blight of Contagion)"
+  },
+  {
+    "namespace": "GEM",
+    "name": "Vaal Burning Arrow (Burning Arrow of Vigour)"
+  },
+  {
+    "namespace": "GEM",
+    "name": "Vaal Caustic Arrow (Caustic Arrow of Poison)"
+  },
+  {
+    "namespace": "GEM",
+    "name": "Vaal Cleave (Cleave of Rage)"
+  },
+  {
+    "namespace": "GEM",
+    "name": "Vaal Cold Snap (Cold Snap of Power)"
+  },
+  {
+    "namespace": "GEM",
+    "name": "Vaal Cyclone (Cyclone of Tumult)"
+  },
+  {
+    "namespace": "GEM",
+    "name": "Vaal Detonate Dead (Detonate Dead of Chain Reaction)"
+  },
+  {
+    "namespace": "GEM",
+    "name": "Vaal Detonate Dead (Detonate Dead of Scavenging)"
+  },
+  {
+    "namespace": "GEM",
+    "name": "Vaal Domination (Dominating Blow of Inspiring)"
+  },
+  {
+    "namespace": "GEM",
+    "name": "Vaal Double Strike (Double Strike of Impaling)"
+  },
+  {
+    "namespace": "GEM",
+    "name": "Vaal Double Strike (Double Strike of Momentum)"
+  },
+  {
+    "namespace": "GEM",
+    "name": "Vaal Earthquake (Earthquake of Amplification)"
+  },
+  {
+    "namespace": "GEM",
+    "name": "Vaal Fireball (Fireball of Radiation)"
+  },
+  {
+    "namespace": "GEM",
+    "name": "Vaal Firestorm (Firestorm of Meteors)"
+  },
+  {
+    "namespace": "GEM",
+    "name": "Vaal Firestorm (Firestorm of Pelting)"
+  },
+  {
+    "namespace": "GEM",
+    "name": "Vaal Flameblast (Flameblast of Celerity)"
+  },
+  {
+    "namespace": "GEM",
+    "name": "Vaal Flameblast (Flameblast of Contraction)"
+  },
+  {
+    "namespace": "GEM",
+    "name": "Vaal Flicker Strike (Flicker Strike of Power)"
+  },
+  {
+    "namespace": "GEM",
+    "name": "Vaal Glacial Hammer (Glacial Hammer of Shattering)"
+  },
+  {
+    "namespace": "GEM",
+    "name": "Vaal Ground Slam (Ground Slam of Earthshaking)"
+  },
+  {
+    "namespace": "GEM",
+    "name": "Vaal Ice Nova (Ice Nova of Deep Freeze)"
+  },
+  {
+    "namespace": "GEM",
+    "name": "Vaal Ice Nova (Ice Nova of Frostbolts)"
+  },
+  {
+    "namespace": "GEM",
+    "name": "Vaal Ice Shot (Ice Shot of Penetration)"
+  },
+  {
+    "namespace": "GEM",
+    "name": "Vaal Lightning Arrow (Lightning Arrow of Electrocution)"
+  },
+  {
+    "namespace": "GEM",
+    "name": "Vaal Lightning Strike (Lightning Strike of Arcing)"
+  },
+  {
+    "namespace": "GEM",
+    "name": "Vaal Lightning Trap (Lightning Trap of Sparking)"
+  },
+  {
+    "namespace": "GEM",
+    "name": "Vaal Molten Strike (Molten Strike of the Zenith)"
+  },
+  {
+    "namespace": "GEM",
+    "name": "Vaal Power Siphon (Power Siphon of the Archmage)"
+  },
+  {
+    "namespace": "GEM",
+    "name": "Vaal Rain of Arrows (Rain of Arrows of Artillery)"
+  },
+  {
+    "namespace": "GEM",
+    "name": "Vaal Rain of Arrows (Rain of Arrows of Saturation)"
+  },
+  {
+    "namespace": "GEM",
+    "name": "Vaal Reap (Reap of Butchery)"
+  },
+  {
+    "namespace": "GEM",
+    "name": "Vaal Reave (Reave of Refraction)"
+  },
+  {
+    "namespace": "GEM",
+    "name": "Vaal Righteous Fire (Righteous Fire of Arcane Devotion)"
+  },
+  {
+    "namespace": "GEM",
+    "name": "Vaal Smite (Smite of Divine Judgement)"
+  },
+  {
+    "namespace": "GEM",
+    "name": "Vaal Spark (Spark of Unpredictability)"
+  },
+  {
+    "namespace": "GEM",
+    "name": "Vaal Spark (Spark of the Nova)"
+  },
+  {
+    "namespace": "GEM",
+    "name": "Vaal Spectral Throw (Spectral Throw of Materialising)"
+  },
+  {
+    "namespace": "GEM",
+    "name": "Vaal Spectral Throw (Spectral Throw of Trarthus)"
+  },
+  {
+    "namespace": "GEM",
+    "name": "Vaal Storm Call (Storm Call of Trarthus)"
+  },
+  {
+    "namespace": "GEM",
+    "name": "Vaal Summon Skeletons (Summon Skeletons of Archers)"
+  },
+  {
+    "namespace": "GEM",
+    "name": "Vaal Summon Skeletons (Summon Skeletons of Mages)"
+  },
+  {
+    "namespace": "GEM",
+    "name": "Vaal Volcanic Fissure (Volcanic Fissure of Snaking)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Abberathine Horns"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Abyssal Incubator"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Adherent's Crown"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Admiral Proclar's Pipe"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Aegis Tulgraft"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Al-Hezmin's Head"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Albino Crab Claw"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Alchemical Chalice"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Alchemy Shard",
+    "icon": "https://web.poecdn.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvQ3VycmVuY3kvQ3VycmVuY3lVcGdyYWRlVG9SYXJlU2hhcmQiLCJzY2FsZSI6MX1d/8adca6259f/CurrencyUpgradeToRareShard.png"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Alteration Shard",
+    "icon": "https://web.poecdn.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvQ3VycmVuY3kvQ3VycmVuY3lSZXJvbGxNYWdpY1NoYXJkIiwic2NhbGUiOjF9XQ/39480d8d0d/CurrencyRerollMagicShard.png"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Ambush Leaguestone"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Anarchy Leaguestone"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Ancestor's Club"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Ancient Seal"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Ancient Shard"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Apprentice Cartographer's Seal"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Arachnid Egg Sac"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Arachnid Fangs"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Arachnid Leg"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Aristocrat's Torso"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Armoured Leg"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Artificial Appendage"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Augmentation Implant"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Awakened Sextant"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Bandit Rogue's Head"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Bandit Warrior's Head"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Bandit Witch's Head"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Baran's Head"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Bat's Wings"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Battering Uulgraft"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Bear Head"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Bestiary Orb"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Beyond Leaguestone"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Binding Shard"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blackened Lungs"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blackguard's Leg"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blazing Skull"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blessing of Chayula",
+    "icon": "https://web.poecdn.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvQ3VycmVuY3kvQnJlYWNoL0JyZWFjaFVwZ3JhZGVyQ2hhb3MiLCJzY2FsZSI6MX1d/45e8da717e/BreachUpgraderChaos.png"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blessing of Esh",
+    "icon": "https://web.poecdn.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvQ3VycmVuY3kvQnJlYWNoL0JyZWFjaFVwZ3JhZGVyTGlnaHRuaW5nIiwic2NhbGUiOjF9XQ/3d1db83ad2/BreachUpgraderLightning.png"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blessing of Tul",
+    "icon": "https://web.poecdn.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvQ3VycmVuY3kvQnJlYWNoL0JyZWFjaFVwZ3JhZGVyQ29sZCIsInNjYWxlIjoxfV0/3573fedbf3/BreachUpgraderCold.png"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blessing of Uul-Netol",
+    "icon": "https://web.poecdn.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvQ3VycmVuY3kvQnJlYWNoL0JyZWFjaFVwZ3JhZGVyUGh5c2ljYWwiLCJzY2FsZSI6MX1d/f230a19a13/BreachUpgraderPhysical.png"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blessing of Xoph",
+    "icon": "https://web.poecdn.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvQ3VycmVuY3kvQnJlYWNoL0JyZWFjaFVwZ3JhZGVyRmlyZSIsInNjYWxlIjoxfV0/16a58db13d/BreachUpgraderFire.png"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blight-ravaged Map (Academy)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blight-ravaged Map (Acid Caverns)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blight-ravaged Map (Alleyways)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blight-ravaged Map (Ancient City)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blight-ravaged Map (Arachnid Nest)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blight-ravaged Map (Arachnid Tomb)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blight-ravaged Map (Arcade)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blight-ravaged Map (Arena)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blight-ravaged Map (Arid Lake)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blight-ravaged Map (Armoury)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blight-ravaged Map (Arsenal)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blight-ravaged Map (Ashen Wood)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blight-ravaged Map (Atoll)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blight-ravaged Map (Barrows)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blight-ravaged Map (Basilica)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blight-ravaged Map (Bazaar)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blight-ravaged Map (Beach)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blight-ravaged Map (Belfry)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blight-ravaged Map (Bog)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blight-ravaged Map (Bone Crypt)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blight-ravaged Map (Bramble Valley)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blight-ravaged Map (Burial Chambers)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blight-ravaged Map (Cage)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blight-ravaged Map (Caldera)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blight-ravaged Map (Canyon)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blight-ravaged Map (Carcass)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blight-ravaged Map (Castle Ruins)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blight-ravaged Map (Cells)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blight-ravaged Map (Cemetery)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blight-ravaged Map (Channel)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blight-ravaged Map (Chateau)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blight-ravaged Map (City Square)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blight-ravaged Map (Cold River)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blight-ravaged Map (Colonnade)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blight-ravaged Map (Colosseum)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blight-ravaged Map (Conservatory)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blight-ravaged Map (Coral Ruins)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blight-ravaged Map (Core)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blight-ravaged Map (Courthouse)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blight-ravaged Map (Courtyard)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blight-ravaged Map (Coves)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blight-ravaged Map (Crimson Temple)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blight-ravaged Map (Crimson Township)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blight-ravaged Map (Crystal Ore)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blight-ravaged Map (Cursed Crypt)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blight-ravaged Map (Dark Forest)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blight-ravaged Map (Defiled Cathedral)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blight-ravaged Map (Desert Spring)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blight-ravaged Map (Desert)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blight-ravaged Map (Dig)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blight-ravaged Map (Dry Sea)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blight-ravaged Map (Dunes)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blight-ravaged Map (Dungeon)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blight-ravaged Map (Estuary)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blight-ravaged Map (Fields)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blight-ravaged Map (Flooded Mine)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blight-ravaged Map (Forbidden Woods)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blight-ravaged Map (Forking River)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blight-ravaged Map (Foundry)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blight-ravaged Map (Fungal Hollow)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blight-ravaged Map (Gardens)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blight-ravaged Map (Geode)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blight-ravaged Map (Ghetto)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blight-ravaged Map (Glacier)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blight-ravaged Map (Grave Trough)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blight-ravaged Map (Graveyard)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blight-ravaged Map (Grotto)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blight-ravaged Map (Haunted Mansion)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blight-ravaged Map (Iceberg)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blight-ravaged Map (Infested Valley)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blight-ravaged Map (Ivory Temple)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blight-ravaged Map (Jungle Valley)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blight-ravaged Map (Laboratory)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blight-ravaged Map (Lair)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blight-ravaged Map (Lava Chamber)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blight-ravaged Map (Lava Lake)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blight-ravaged Map (Leyline)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blight-ravaged Map (Lighthouse)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blight-ravaged Map (Lookout)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blight-ravaged Map (Malformation)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blight-ravaged Map (Marshes)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blight-ravaged Map (Mausoleum)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blight-ravaged Map (Maze)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blight-ravaged Map (Mesa)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blight-ravaged Map (Mineral Pools)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blight-ravaged Map (Moon Temple)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blight-ravaged Map (Mud Geyser)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blight-ravaged Map (Museum)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blight-ravaged Map (Necropolis)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blight-ravaged Map (Orchard)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blight-ravaged Map (Overgrown Ruin)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blight-ravaged Map (Overgrown Shrine)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blight-ravaged Map (Palace)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blight-ravaged Map (Park)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blight-ravaged Map (Pen)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blight-ravaged Map (Peninsula)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blight-ravaged Map (Phantasmagoria)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blight-ravaged Map (Pit)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blight-ravaged Map (Plateau)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blight-ravaged Map (Plaza)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blight-ravaged Map (Port)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blight-ravaged Map (Precinct)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blight-ravaged Map (Primordial Blocks)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blight-ravaged Map (Primordial Pool)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blight-ravaged Map (Promenade)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blight-ravaged Map (Racecourse)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blight-ravaged Map (Ramparts)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blight-ravaged Map (Reef)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blight-ravaged Map (Relic Chambers)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blight-ravaged Map (Residence)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blight-ravaged Map (Sepulchre)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blight-ravaged Map (Shipyard)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blight-ravaged Map (Shore)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blight-ravaged Map (Shrine)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blight-ravaged Map (Siege)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blight-ravaged Map (Silo)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blight-ravaged Map (Spider Forest)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blight-ravaged Map (Spider Lair)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blight-ravaged Map (Stagnation)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blight-ravaged Map (Strand)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blight-ravaged Map (Sulphur Vents)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blight-ravaged Map (Summit)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blight-ravaged Map (Sunken City)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blight-ravaged Map (Temple)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blight-ravaged Map (Terrace)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blight-ravaged Map (Thicket)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blight-ravaged Map (Tower)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blight-ravaged Map (Toxic Sewer)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blight-ravaged Map (Tropical Island)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blight-ravaged Map (Underground River)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blight-ravaged Map (Underground Sea)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blight-ravaged Map (Vault)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blight-ravaged Map (Villa)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blight-ravaged Map (Volcano)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blight-ravaged Map (Waste Pool)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blight-ravaged Map (Wasteland)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blight-ravaged Map (Wharf)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blighted Incubator"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blighted Map (Academy)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blighted Map (Acid Caverns)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blighted Map (Alleyways)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blighted Map (Ancient City)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blighted Map (Arachnid Nest)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blighted Map (Arachnid Tomb)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blighted Map (Arcade)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blighted Map (Arena)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blighted Map (Arid Lake)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blighted Map (Armoury)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blighted Map (Arsenal)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blighted Map (Ashen Wood)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blighted Map (Atoll)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blighted Map (Barrows)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blighted Map (Basilica)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blighted Map (Bazaar)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blighted Map (Beach)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blighted Map (Belfry)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blighted Map (Bog)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blighted Map (Bone Crypt)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blighted Map (Bramble Valley)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blighted Map (Burial Chambers)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blighted Map (Cage)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blighted Map (Caldera)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blighted Map (Canyon)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blighted Map (Carcass)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blighted Map (Castle Ruins)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blighted Map (Cells)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blighted Map (Cemetery)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blighted Map (Channel)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blighted Map (Chateau)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blighted Map (City Square)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blighted Map (Cold River)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blighted Map (Colonnade)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blighted Map (Colosseum)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blighted Map (Conservatory)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blighted Map (Coral Ruins)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blighted Map (Core)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blighted Map (Courthouse)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blighted Map (Courtyard)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blighted Map (Coves)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blighted Map (Crater)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blighted Map (Crimson Temple)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blighted Map (Crimson Township)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blighted Map (Crystal Ore)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blighted Map (Cursed Crypt)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blighted Map (Dark Forest)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blighted Map (Defiled Cathedral)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blighted Map (Desert Spring)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blighted Map (Desert)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blighted Map (Dig)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blighted Map (Dry Sea)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blighted Map (Dunes)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blighted Map (Dungeon)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blighted Map (Estuary)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blighted Map (Excavation)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blighted Map (Factory)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blighted Map (Fields)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blighted Map (Flooded Mine)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blighted Map (Forbidden Woods)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blighted Map (Forking River)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blighted Map (Foundry)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blighted Map (Frozen Cabins)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blighted Map (Fungal Hollow)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blighted Map (Gardens)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blighted Map (Geode)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blighted Map (Ghetto)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blighted Map (Glacier)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blighted Map (Grave Trough)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blighted Map (Graveyard)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blighted Map (Grotto)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blighted Map (Haunted Mansion)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blighted Map (Iceberg)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blighted Map (Infested Valley)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blighted Map (Ivory Temple)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blighted Map (Jungle Valley)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blighted Map (Laboratory)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blighted Map (Lair)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blighted Map (Lava Chamber)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blighted Map (Lava Lake)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blighted Map (Leyline)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blighted Map (Lighthouse)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blighted Map (Lookout)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blighted Map (Malformation)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blighted Map (Marshes)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blighted Map (Mausoleum)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blighted Map (Maze)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blighted Map (Mesa)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blighted Map (Mineral Pools)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blighted Map (Moon Temple)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blighted Map (Mud Geyser)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blighted Map (Museum)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blighted Map (Necropolis)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blighted Map (Orchard)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blighted Map (Overgrown Ruin)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blighted Map (Overgrown Shrine)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blighted Map (Palace)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blighted Map (Park)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blighted Map (Pen)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blighted Map (Peninsula)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blighted Map (Phantasmagoria)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blighted Map (Pier)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blighted Map (Pit)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blighted Map (Plateau)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blighted Map (Plaza)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blighted Map (Port)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blighted Map (Precinct)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blighted Map (Primordial Blocks)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blighted Map (Primordial Pool)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blighted Map (Promenade)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blighted Map (Racecourse)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blighted Map (Ramparts)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blighted Map (Reef)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blighted Map (Relic Chambers)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blighted Map (Residence)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blighted Map (Scriptorium)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blighted Map (Sepulchre)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blighted Map (Shipyard)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blighted Map (Shore)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blighted Map (Shrine)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blighted Map (Siege)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blighted Map (Silo)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blighted Map (Spider Forest)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blighted Map (Spider Lair)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blighted Map (Stagnation)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blighted Map (Strand)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blighted Map (Sulphur Vents)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blighted Map (Summit)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blighted Map (Sunken City)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blighted Map (Temple)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blighted Map (Terrace)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blighted Map (Thicket)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blighted Map (Tower)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blighted Map (Toxic Sewer)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blighted Map (Tropical Island)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blighted Map (Underground River)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blighted Map (Underground Sea)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blighted Map (Vaal Pyramid)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blighted Map (Vault)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blighted Map (Villa)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blighted Map (Volcano)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blighted Map (Waste Pool)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blighted Map (Wasteland)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blighted Map (Waterways)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blighted Map (Wharf)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blighted Scouting Report"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blood of Innocence"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Blood-filled Vessel"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Bloodied Arm"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Bloodlines Leaguestone"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Boar Head"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Bonestalker's Ribcage"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Box of Tripyxis"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Breach Leaguestone"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Broken Bust"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Broken Mirror of Kalandra"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Brute's Arm"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Bust of Emperor Caspiro"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Calcified Leg"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Captain's Leg"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Cartographer's Chisel",
+    "icon": "https://web.poecdn.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvQ3VycmVuY3kvQ3VycmVuY3lNYXBRdWFsaXR5Iiwic2NhbGUiOjF9XQ/0246313b99/CurrencyMapQuality.png"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Cartographer's Incubator"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Carved Haunches"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Celestial Armoursmith's Incubator"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Celestial Blacksmith's Incubator"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Celestial Jeweller's Incubator"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Celestial Stone"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Ceremonial Goblet"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Challenging Incubator"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Champion's Banner"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Chaos Golem's Core"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Charged Compass"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Charred Leg"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Chart (Abyssal Plain)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Chart (Anchorfield)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Chart (Brine King's Domain)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Chart (Clam-infested Shelf)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Chart (Diving Shoals)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Chart (Eldritch Depths)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Chart (Hazardous Depths)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Chart (Infested Bathyspheres)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Chart (Kishara's Rest)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Chart (Lost Ruins)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Chart (Pelagic Abyss)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Chart (Sea Pillars)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Chart (Seafloor Ridges)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Chart (Sunken Totems)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Chart (Undersea Groves)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Chart (Unremarkable Seabed)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Chayula's Breachstone"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Chayula's Flawless Breachstone"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Chimera's Head"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Chimeral Eye"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Chitinous Leg"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Coagulated Essence"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Cobra Tail"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Comprehensive Scouting Report"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Conjoined Hound Head"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Constrictor's Head"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Construct's Head"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Corrupted Carapace"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Coven Queen's Crown"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Craicic Lure"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Crescent Blade"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Crest of Ezomyr"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Crested Golden Idol"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Crustacean's Claw"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Cutthroat's Head"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Defaced Bust"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Dekhara's Resolve"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Delirious Scouting Report"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Deregulation Scroll"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Desert Queen's Crown"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Desert Sword"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Despot's Fist"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Dessicated Head"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Devourer's Antenna"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Diseased Wing"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Distended Stomach"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Diviner's Incubator"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Domination Leaguestone"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Draining Eshgraft"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Drox's Head"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Eater of Worlds' Head"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Eber's Key"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Elder's Head"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Eldritch Incubator"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Electroshock Scroll"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Elemental Essence"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Elevated Sextant"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Empty Coffin"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Enchanted Incubator"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Energy Blade"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Engineer's Orb",
+    "icon": "https://web.poecdn.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvQ3VycmVuY3kvRW5naW5lZXJzT3JiIiwic2NhbGUiOjF9XQ/114b671d41/EngineersOrb.png"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Engineer's Shard"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Engorged Eye"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Enigmatic Assembly A4"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Enigmatic Assembly B2"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Enigmatic Assembly C5"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Enigmatic Assembly D1"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Enshrouded Body Armour"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Enshrouded Boots"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Enshrouded Gloves"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Enshrouded Helmet"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Enshrouded Quiver"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Enshrouded Shield"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Enslaver's Head"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Eradicator's Head"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Erupting Xophgraft"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Esh's Breachstone"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Esh's Flawless Breachstone"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Essence Burner"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Essence Leaguestone"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Exalted Implant"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Exceptional Black Scythe Artifact"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Exceptional Broken Circle Artifact"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Exceptional Order Artifact"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Exceptional Sun Artifact"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Explorer's Scouting Report"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Ez Myrae Tome"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Facetor's Lens"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Farric Lure"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Fenumal Lure"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Feral Incubator"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Filled Coffin"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Fine Incubator"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Flamecaller Xophgraft"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Flaming Furnace"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Flaming Goat Hoof"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Flaming Ribbon"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Flask of Welakath"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Flayed Arm"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Flayed Visage"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Flesh-fused Lantern"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Fleshgraft"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Forbidden Lamp"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Foreboding Incubator"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Fossilised Incubator"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Fragmentation Scroll"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Fragmented Incubator"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Frayed Thread",
+    "icon": "https://web.poecdn.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvQ3VycmVuY3kvVGhyZWFkcy9GcmF5ZWRUaHJlYWQiLCJzY2FsZSI6MX1d/05edda6ed4/FrayedThread.png"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Freezing Tulgraft"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Galvanic Tentacle"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Gargantuan Claws"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Gelid Fangs"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Gemcutter's Incubator"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Gemling Torso"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "General's Head"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Geomancer's Incubator"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Ghostly Claw"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Gilded Abyss Scarab"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Gilded Ambush Scarab"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Gilded Bestiary Scarab"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Gilded Blight Scarab"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Gilded Breach Scarab"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Gilded Cartography Scarab"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Gilded Divination Scarab"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Gilded Elder Scarab"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Gilded Expedition Scarab"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Gilded Harbinger Scarab"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Gilded Legion Scarab"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Gilded Reliquary Scarab"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Gilded Shaper Scarab"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Gilded Sulphite Scarab"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Gilded Torment Scarab"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Gilded Ultimatum Scarab"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Gladiator's Heart"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Goatman's Horn"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Gold"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Golden Ankh"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Golden Ceremonial Mask"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Golden Grotesque"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Golden Hetzapal Idol"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Golden Matatl Idol"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Golden Napuatzi Idol"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Golden Prayer Idol"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Golden Sacrificial Glyph"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Golden Slave Idol"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Golden Xoplotli Idol"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Golemic Stone"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Grand Black Scythe Artifact"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Grand Broken Circle Artifact"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Grand Order Artifact"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Grand Sun Artifact"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Greater Black Scythe Artifact"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Greater Broken Circle Artifact"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Greater Order Artifact"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Greater Sun Artifact"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Growing Wombgift"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Haemocombustion Scroll"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Hag's Head"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Hag's Stomach"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Hallowed Descry"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Hand of Arimor"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Harbinger Scarab"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Harbinger Scarab of Obelisks"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Harbinger Scarab of Regency"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Harbinger Scarab of Warhoards"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Harbinger's Orb",
+    "icon": "https://web.poecdn.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvQ3VycmVuY3kvSGFyYmluZ2VyT3JiIiwic2NhbGUiOjF9XQ/0a26e01f15/HarbingerOrb.png"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Harbinger's Shard"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Hardening Uulgraft"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Heart Coil"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Heretical Tome"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Hollowed Skull"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Honoured Incubator"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Horizon Shard"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Hydra's Head"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Impaling Uulgraft"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Impossible Crystal"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Imprint"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Incarnation of Dread's Head"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Incarnation of Fear's Head"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Incarnation of Neglect's Cube"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Incense of Keth"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Infected Leg"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Infested Torso"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Influenced Scouting Report"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Infused Engineer's Orb",
+    "icon": "https://web.poecdn.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvQ3VycmVuY3kvSW5mdXNlZEVuZ2luZWVyc09yYiIsInNjYWxlIjoxfV0/55774baf2f/InfusedEngineersOrb.png"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Infused Incubator"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Inquisitor's Claw"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Inquisitor's Head"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Invasion Leaguestone"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Inya's Key"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Jolting Eshgraft"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Journeyman Cartographer's Seal"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Justicar's Helm"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Kalguuran Incubator"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "King Crab's Claw"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Lesser Black Scythe Artifact"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Lesser Broken Circle Artifact"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Lesser Order Artifact"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Lesser Sun Artifact"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Lion's Claws"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Lithic Haunches"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Living Ice"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Lunar Bow"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Maddening Incubator"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Mariner's Tricorne"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Master Cartographer's Seal"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Maven's Invitation: The Atlas"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Maven's Orrery"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Mercenary Warrant (Bastion)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Mercenary Warrant (Blade Ambusher)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Mercenary Warrant (Bladebitter)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Mercenary Warrant (Bladecaster)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Mercenary Warrant (Bloodletter)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Mercenary Warrant (Cardinal)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Mercenary Warrant (Chaplain of the Well)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Mercenary Warrant (Combatant)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Mercenary Warrant (Cruel Mistress)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Mercenary Warrant (Earthshaker)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Mercenary Warrant (Eruptor)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Mercenary Warrant (Fallen Reverend)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Mercenary Warrant (Flamehand)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Mercenary Warrant (Flamequiver)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Mercenary Warrant (Flaming Charlatan)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Mercenary Warrant (Frost Ambusher)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Mercenary Warrant (Frosthand)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Mercenary Warrant (Infamous Bastion)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Mercenary Warrant (Infamous Blade Ambusher)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Mercenary Warrant (Infamous Bladebitter)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Mercenary Warrant (Infamous Bladecaster)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Mercenary Warrant (Infamous Bloodletter)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Mercenary Warrant (Infamous Cardinal)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Mercenary Warrant (Infamous Combatant)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Mercenary Warrant (Infamous Cruel Mistress)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Mercenary Warrant (Infamous Earthshaker)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Mercenary Warrant (Infamous Eruptor)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Mercenary Warrant (Infamous Fallen Reverend)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Mercenary Warrant (Infamous Flamequiver)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Mercenary Warrant (Infamous Frosthand)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Mercenary Warrant (Infamous Kineticist)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Mercenary Warrant (Infamous Manyshot)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Mercenary Warrant (Infamous Mysterious Diver)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Mercenary Warrant (Infamous Reanimator)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Mercenary Warrant (Infamous Ripper)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Mercenary Warrant (Infamous Sanguimancer)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Mercenary Warrant (Infamous Shock Ambusher)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Mercenary Warrant (Infamous Sniper)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Mercenary Warrant (Infamous Stormhand)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Mercenary Warrant (Infamous Storming Zealot)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Mercenary Warrant (Infamous Striker)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Mercenary Warrant (Infamous Swiftblade)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Mercenary Warrant (Infamous Toxicologist)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Mercenary Warrant (Infamous Warpriest of the Ruckus)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Mercenary Warrant (Infamous Warpriest)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Mercenary Warrant (Infamous Withertouch)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Mercenary Warrant (Kineticist)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Mercenary Warrant (Manyshot)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Mercenary Warrant (Mysterious Diver)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Mercenary Warrant (Reanimator)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Mercenary Warrant (Ripper)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Mercenary Warrant (Sanguimancer)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Mercenary Warrant (Shattersword)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Mercenary Warrant (Shock Ambusher)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Mercenary Warrant (Smoulderstrike)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Mercenary Warrant (Sniper)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Mercenary Warrant (Stormhand)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Mercenary Warrant (Storming Zealot)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Mercenary Warrant (Striker)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Mercenary Warrant (Swiftblade)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Mercenary Warrant (Thunderquiver)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Mercenary Warrant (Toxicologist)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Mercenary Warrant (Warpriest)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Mercenary Warrant (Winter Deacon)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Mercenary Warrant (Withertouch)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Minotaur's Head"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Miraged Incubator"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Mirror of Teklatipitzi"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Molten Core"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Molten Xophgraft"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Mysterious Incubator"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Necromancer's Mask"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Necromancy Net"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Nemesis Leaguestone"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Nightmarish Book of Depravity"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Nightmarish Core of the Unbreakable"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Nightmarish Head of Uhtred"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Nightmarish Wings of Catarina"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Nightmarish Wings of Lycia"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Noble's Head"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Obscured Incubator"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Ogham Candelabra"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Oil Extractor",
+    "icon": "https://web.poecdn.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvQ3VycmVuY3kvT2lscy9JY2hvckV4dHJhY3RvciIsInNjYWxlIjoxfV0/e020224caf/IchorExtractor.png"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Omen of Acceleration"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Omen of Bequeathal"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Omen of Resurgence"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Omen of Revenge"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Onslaught Leaguestone"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Operative's Scouting Report"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Orb of Horizons",
+    "icon": "https://web.poecdn.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvQ3VycmVuY3kvSG9yaXpvbk9yYiIsInNjYWxlIjoxfV0/0891338fb0/HorizonOrb.png"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Orbala's Fifth Adventure"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Originator's Exalted Orb",
+    "icon": "https://web.poecdn.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvQ3VycmVuY3kvU2VjcmV0c29mdGhlQXRsYXMvT3JpZ2luYXRvcnNFeGFsdGVkT3JiIiwic2NhbGUiOjF9XQ/49732248b0/OriginatorsExaltedOrb.png"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Ornate Incubator"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Ornate Torso"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Osseous Scythe"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Osseous Talon"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Otherworldly Incubator"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Otherworldly Scouting Report"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Overseer's Whip"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Perandus Coin"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Phoenix's Head"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Pit Fighter's Helm"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Poacher's Leg"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Pocked Arm"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Pocked Leg"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Polished Abyss Scarab"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Polished Ambush Scarab"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Polished Bestiary Scarab"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Polished Blight Scarab"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Polished Breach Scarab"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Polished Cartography Scarab"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Polished Divination Scarab"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Polished Elder Scarab"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Polished Expedition Scarab"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Polished Harbinger Scarab"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Polished Legion Scarab"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Polished Reliquary Scarab"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Polished Shaper Scarab"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Polished Sulphite Scarab"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Polished Torment Scarab"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Polished Ultimatum Scarab"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Primal Incubator"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Primate Foot"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Primordial Exalted Orb",
+    "icon": "https://web.poecdn.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvQ3VycmVuY3kvU3Ryb25naG9sZHMvUHJpbW9yZGlhbEV4YWx0ZWRPcmIiLCJzY2FsZSI6MX1d/e885112ad7/PrimordialExaltedOrb.png"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Prophecy Leaguestone"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Prosthetic Leg"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Purifier's Head"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Rampage Leaguestone"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Ravenous Skull"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Regal Implant"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Reinforced Iron Net"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Reinforced Rope Net"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Reinforced Steel Net"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Remnant of Corruption"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Replicating Eshgraft"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Resplendent Sceptre"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Rusted Abyss Scarab"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Rusted Ambush Scarab"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Rusted Bestiary Scarab"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Rusted Blight Scarab"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Rusted Breach Scarab"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Rusted Cartography Scarab"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Rusted Divination Scarab"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Rusted Elder Scarab"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Rusted Expedition Scarab"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Rusted Harbinger Scarab"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Rusted Legion Scarab"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Rusted Reliquary Scarab"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Rusted Shaper Scarab"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Rusted Sulphite Scarab"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Rusted Torment Scarab"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Rusted Ultimatum Scarab"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Sacred Incubator"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Sanctum Archives Research"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Sanctum Cathedral Research"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Sanctum Necropolis Research"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Sanctum Vaults Research"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Saqawine Lure"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Scarecrow's Pitchfork"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Scholar's Arm"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Scholar's Leg"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Scorched Arm"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Scorpion Stinger"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Scout's Bow"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Scroll Fragment"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Scrying Orb (Academy)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Scrying Orb (Alleyways)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Scrying Orb (Ancient City)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Scrying Orb (Arachnid Nest)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Scrying Orb (Arachnid Tomb)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Scrying Orb (Arcade)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Scrying Orb (Arid Lake)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Scrying Orb (Armoury)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Scrying Orb (Arsenal)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Scrying Orb (Atoll)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Scrying Orb (Barrows)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Scrying Orb (Basilica)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Scrying Orb (Bazaar)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Scrying Orb (Beach)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Scrying Orb (Belfry)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Scrying Orb (Bone Crypt)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Scrying Orb (Bramble Valley)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Scrying Orb (Burial Chambers)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Scrying Orb (Cage)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Scrying Orb (Caldera)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Scrying Orb (Carcass)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Scrying Orb (Castle Ruins)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Scrying Orb (Cells)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Scrying Orb (Cemetery)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Scrying Orb (Channel)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Scrying Orb (Chateau)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Scrying Orb (City Square)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Scrying Orb (Cold River)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Scrying Orb (Colonnade)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Scrying Orb (Colosseum)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Scrying Orb (Conservatory)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Scrying Orb (Coral Ruins)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Scrying Orb (Core)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Scrying Orb (Courthouse)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Scrying Orb (Coves)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Scrying Orb (Crater)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Scrying Orb (Crimson Temple)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Scrying Orb (Crystal Ore)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Scrying Orb (Cursed Crypt)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Scrying Orb (Dark Forest)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Scrying Orb (Defiled Cathedral)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Scrying Orb (Desert Spring)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Scrying Orb (Desert)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Scrying Orb (Dig)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Scrying Orb (Dunes)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Scrying Orb (Dungeon)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Scrying Orb (Estuary)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Scrying Orb (Excavation)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Scrying Orb (Factory)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Scrying Orb (Fields)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Scrying Orb (Flooded Mine)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Scrying Orb (Forbidden Woods)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Scrying Orb (Forking River)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Scrying Orb (Foundry)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Scrying Orb (Frozen Cabins)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Scrying Orb (Fungal Hollow)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Scrying Orb (Gardens)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Scrying Orb (Geode)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Scrying Orb (Ghetto)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Scrying Orb (Grave Trough)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Scrying Orb (Graveyard)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Scrying Orb (Grotto)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Scrying Orb (Haunted Mansion)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Scrying Orb (Iceberg)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Scrying Orb (Infested Valley)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Scrying Orb (Ivory Temple)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Scrying Orb (Jungle Valley)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Scrying Orb (Laboratory)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Scrying Orb (Lair)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Scrying Orb (Lava Lake)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Scrying Orb (Lookout)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Scrying Orb (Malformation)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Scrying Orb (Marshes)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Scrying Orb (Mausoleum)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Scrying Orb (Maze)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Scrying Orb (Mesa)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Scrying Orb (Mineral Pools)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Scrying Orb (Moon Temple)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Scrying Orb (Mud Geyser)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Scrying Orb (Museum)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Scrying Orb (Necropolis)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Scrying Orb (Orchard)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Scrying Orb (Overgrown Ruin)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Scrying Orb (Overgrown Shrine)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Scrying Orb (Palace)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Scrying Orb (Park)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Scrying Orb (Pen)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Scrying Orb (Peninsula)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Scrying Orb (Phantasmagoria)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Scrying Orb (Pier)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Scrying Orb (Pit)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Scrying Orb (Plateau)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Scrying Orb (Plaza)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Scrying Orb (Port)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Scrying Orb (Primordial Blocks)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Scrying Orb (Primordial Pool)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Scrying Orb (Promenade)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Scrying Orb (Racecourse)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Scrying Orb (Ramparts)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Scrying Orb (Reef)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Scrying Orb (Relic Chambers)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Scrying Orb (Residence)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Scrying Orb (Scriptorium)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Scrying Orb (Sepulchre)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Scrying Orb (Shipyard)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Scrying Orb (Shore)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Scrying Orb (Shrine)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Scrying Orb (Siege)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Scrying Orb (Silo)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Scrying Orb (Spider Forest)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Scrying Orb (Spider Lair)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Scrying Orb (Stagnation)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Scrying Orb (Strand)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Scrying Orb (Sulphur Vents)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Scrying Orb (Summit)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Scrying Orb (Sunken City)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Scrying Orb (Temple)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Scrying Orb (Terrace)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Scrying Orb (Thicket)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Scrying Orb (Tower)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Scrying Orb (Toxic Sewer)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Scrying Orb (Tropical Island)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Scrying Orb (Underground River)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Scrying Orb (Underground Sea)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Scrying Orb (Vaal Pyramid)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Scrying Orb (Vault)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Scrying Orb (Villa)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Scrying Orb (Volcano)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Scrying Orb (Waste Pool)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Scrying Orb (Wasteland)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Scrying Orb (Waterways)"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Sea Witch's Tentacle"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Seal of Lunaris"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Seal of Solaris"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Searing Exarch's Descry"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Severed Rhoa Head"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Severed Scythe-hand"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Severed Stinger"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Shaper's Head"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Simple Iron Net"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Simple Rope Net"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Simple Steel Net"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Singular Incubator"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Singular Scouting Report"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Siren's Tentacle"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Sirus' Head"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Skeletal Archer's Arm"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Skeletal Beast Leg"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Skeletal Tail"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Skeletal Warrior's Leg"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Skeleton Wheel"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Skittering Incubator"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Smouldering Leg"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Smuggler's Hand"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Solar Shield"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Soldier's Head"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Spectral Hood"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Specularity Scroll"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Spider Queen's Head"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Spiked Carapace"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Spiking Uulgraft"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Spined Claws"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Splinter of Chayula"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Splinter of Esh"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Splinter of Tul"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Splinter of Uul-Netol"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Splinter of Xoph"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Squalling Tulgraft"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Staff of the First Sin Eater"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Stag Head"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Statue Leg"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Stoking Xophgraft"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Storming Eshgraft"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Strong Iron Net"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Strong Rope Net"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Strong Steel Net"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Summoning Tulgraft"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Sun-bleached Breastplate"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Sword of the Inverse Relic"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Swordmaster's Blade"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Talisman Leaguestone"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Tempest Leaguestone"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Templar Banner"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Templar Skull"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Terrifying Maw"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Thaumaturge's Head"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Thaumaturge's Incubator"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Thaumaturgical Net"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "The Goddess of Water"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "The Golden Ibis"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "The Sea Pearl Heirloom"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Time-Lost Incubator"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Time-light Scroll"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Torment Leaguestone"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Totemic Visage"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Transmutation Shard",
+    "icon": "https://web.poecdn.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvQ3VycmVuY3kvQ3VycmVuY3lVcGdyYWRlVG9NYWdpY1NoYXJkIiwic2NhbGUiOjF9XQ/047a6fc903/CurrencyUpgradeToMagicShard.png"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Tul's Breachstone"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Tul's Flawless Breachstone"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Tusked Hominid Skull"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Uncarved Gemstone"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Unrelenting Timeless Eternal Emblem"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Unrelenting Timeless Karui Emblem"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Unrelenting Timeless Maraketh Emblem"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Unrelenting Timeless Templar Emblem"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Unrelenting Timeless Vaal Emblem"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Unshaping Orb"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Unstable Implant"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Urn of Farud"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Urn of the Original Ashes"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Ursine Flesh"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Uul-Netol's Breachstone"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Uul-Netol's Flawless Breachstone"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Vaal Appendage"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Vaal Scouting Report"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Veiled Scarab"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Venarius' Scripture"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Vendigo Claws"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Veritania's Head"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Voidbearer's Leg"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Volkuur's Key"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Voltaic Apparatus"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Voltaic Skull"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Vulture's Gut"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Warbands Leaguestone"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Warden's Arm"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Whispering Incubator"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Winged Abyss Scarab"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Winged Ambush Scarab"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Winged Bestiary Scarab"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Winged Blight Scarab"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Winged Breach Scarab"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Winged Cartography Scarab"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Winged Divination Scarab"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Winged Elder Scarab"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Winged Expedition Scarab"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Winged Harbinger Scarab"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Winged Legion Scarab"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Winged Reliquary Scarab"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Winged Shaper Scarab"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Winged Sulphite Scarab"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Winged Torment Scarab"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Winged Ultimatum Scarab"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Witch's Head"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Wraith Claws"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Xoph's Breachstone"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Xoph's Flawless Breachstone"
+  },
+  {
+    "namespace": "ITEM",
+    "name": "Yriel's Key"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "Agnerod (Legacy)"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "Ahuana's Bite (Legacy)"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "Allelopathy (Legacy)"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "Amplification Rod"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "Anatomical Knowledge"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "Ancient Waystones"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "Angler's Plait"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "Apep's Rage (Legacy)"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "Apep's Slumber (Legacy)"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "Apparitions"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "Architect's Hand (Legacy)"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "Asenath's Chant"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "Ashcaller (Legacy)"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "Ashes of the Sun"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "Asphyxia's Wrath (Legacy)"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "Assassin's Haste"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "Atziri's Mirror"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "Auxium (Legacy)"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "Blackgleam (Legacy)"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "Blightwell (Legacy)"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "Blood Sacrifice"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "Blood of Summer"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "Bloodboil (Legacy)"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "Bloodgrip (Legacy)"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "Brawn"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "Briskwrap (Legacy)"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "Brittle Barrier"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "Broadstroke"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "Chaber Cairn"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "Cheap Construction"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "Chitus' Needle"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "Clear Mind"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "Coated Shrapnel"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "Cold Steel"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "Collateral Damage"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "Combustibles"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "Conqueror's Efficiency"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "Conqueror's Longevity"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "Conqueror's Potency"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "Corona Solaris"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "Corrupted Energy"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "Cragfall"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "Cragfall (Legacy)"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "Craghead (Legacy)"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "Crystal Vault"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "Dance of the Offered (Legacy)"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "Death's Opus"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "Deidbellow"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "Demigod's Authority"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "Demigod's Beacon"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "Demigod's Bounty"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "Demigod's Dominance"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "Demigod's Eye"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "Demigod's Immortality"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "Demigod's Presence"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "Demigod's Stride"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "Demigod's Touch"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "Demigod's Triumph"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "Deshret's Vise (Legacy)"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "Divine Inferno"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "Doedre's Malevolence"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "Doomfletch's Prism"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "Doryani's Delusion (Legacy)"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "Dreadbeak"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "Dreadsurge"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "Drillneck (Legacy)"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "Duskblight"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "Duskblight (Legacy)"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "Dusktoe (Legacy)"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "Dying Breath (Legacy)"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "Eclipse Solaris (Legacy)"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "El'Abin's Visage"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "Eldritch Knowledge"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "Endless Misery"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "Esh's Mirror (Legacy)"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "Essentia Sanguis (Legacy)"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "Eyes of the Greatwolf (Legacy)"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "Ezomyte Hold"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "Fight for Survival"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "Fireborn"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "First Snow"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "Fortified Legion"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "Fox's Fortune"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "Fragile Bloom"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "Fragment of Eternity"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "From Dust"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "Frostferno"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "Frozen Trail"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "Geofri's Devotion"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "Geofri's Legacy"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "Glitterdisc"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "Greedtrap"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "Growing Agony"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "Hair Trigger"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "Hand of Thought and Motion (Legacy)"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "Hazardous Research"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "Hellbringer (Legacy)"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "Honoured Alliance"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "Hotheaded"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "Hrimburn"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "Hrimnor's Dirge"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "Hungry Abyss"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "Hyrri's Bite (Legacy)"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "Hyrri's Demise"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "Hyrri's Demise (Legacy)"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "Inevitability"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "Infernal Mantle (Legacy)"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "Infused Beachhead"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "Iron Heart (Legacy)"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "Izaro's Dilemma"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "Izaro's Turmoil"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "Kaltensoul"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "Kaom's Way"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "Karui Charge"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "Kongming's Stratagem (Legacy)"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "Lord of Steel"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "Malachai's Awakening"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "Malicious Intent"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "Maloney's Nightfall (Legacy)"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "Manastorm (Legacy)"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "Mantra of Flames"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "Martial Artistry"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "Martyr's Crown"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "Mask of the Spirit Drinker (Legacy)"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "Midnight Bargain (Legacy)"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "Might and Influence"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "Might in All Forms"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "Mirebough"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "Moonsorrow (Legacy)"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "Mutated Growth"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "Natural Hierarchy (Legacy)"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "Ngamahu Tiki"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "Night's Hold (Legacy)"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "Obliteration (Legacy)"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "Omen on the Winds"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "Overwhelming Odds"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "Panquetzaliztli"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "Pillar of the Caged God (Legacy)"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "Piscator's Vigil (Legacy)"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "Pitch Darkness"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "Poacher's Aim"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "Pugilist"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "Queen's Escape"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "Rapid Expansion"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "Realm Ender"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "Rearguard (Legacy)"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "Reefbane"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "Relic of the Cycle"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "Relic of the Pact (Legacy)"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "Remnant of Empires"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "Replica Allelopathy (Legacy)"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "Replica Blood Sacrifice"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "Replica Cheap Construction"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "Replica Conqueror's Efficiency"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "Replica Forbidden Shako"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "Replica Fragile Bloom"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "Replica Hotheaded"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "Replica Midnight Bargain (Legacy)"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "Replica Pure Talent"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "Replica Soul Strike (Legacy)"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "Replica Soul Taker"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "Replica Tulfall (Legacy)"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "Replica Twyzel (Legacy)"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "Replica Unstable Payload"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "Rigwald's Curse (Legacy)"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "Rigwald's Quills (Legacy)"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "Ring of Blades"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "Rolling Flames"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "Rotting Legion"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "Rust of Winter"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "Sacrificial Harvest"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "Saemus' Gift (Legacy)"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "Sanguine Gambol"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "Scar of Fate"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "Scorpion's Call (Legacy)"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "Serle's Masterwork"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "Shattered Chains"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "Shavronne's Gambit"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "Silverbough"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "Skirmish (Legacy)"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "Slivers of Providence"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "Song of the Sirens"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "Soul Strike (Legacy)"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "Soul's Wick"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "Spine of the First Claimant"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "Spire of Stone"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "Spirit Guards"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "Spirited Response"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "Splinter of the Moon"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "Spreading Rot"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "Static Electricity"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "Steel Spirit"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "Steelworm (Legacy)"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "Storm Prison (Legacy)"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "Story of the Vaal (Legacy)"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "Sudden Ignition"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "Sunspite"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "Survival Instincts"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "Survival Secrets"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "Survival Skills"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "Talisman of the Victor"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "The Beachhead"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "The Cauteriser"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "The Covetous Dark"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "The Dancing Duo"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "The Effigon"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "The Enmity Divine"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "The Flow Untethered"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "The Formless Flame (Legacy)"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "The Fracturing Spinner"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "The Fracturing Spinner (Legacy)"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "The Geomantic Gyre"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "The Goddess Unleashed"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "The Gryphon"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "The Infinite Pursuit (Legacy)"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "The Long Winter"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "The Nomad"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "The Oak"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "The Perandus Manor"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "The Peregrine"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "The Poet's Pen (Legacy)"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "The Poised Prism (Legacy)"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "The Redblade"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "The Rippling Thoughts"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "The Searing Touch (Legacy)"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "The Shattered Divinity (Legacy)"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "The Signal Fire"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "The Signal Fire (Legacy)"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "The Snowblind Grace (Legacy)"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "The Stormwall"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "The Tactician"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "The Tempest"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "The Tempest's Binding"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "The Tower of Ordeals"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "The Unshattered Will"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "The Vigil"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "Thirst for Horrors"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "Thunder of the Dawn"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "Timetwist"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "Tipua Kaikohuru (Legacy)"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "Titucus Span (Legacy)"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "To Dust (Legacy)"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "Tulborn (Legacy)"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "Tulfall (Legacy)"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "Twyzel (Legacy)"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "Unstable Payload"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "Untainted Paradise"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "Uul-Netol's Kiss (Legacy)"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "Vaal Sentencing"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "Vestige of Divinity"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "Violent Dead"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "Viper's Scales"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "Voidfletcher (Legacy)"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "Voidheart"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "Volley Fire"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "Wall of Brambles"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "Warlord's Reach"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "Warrior's Tale"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "Weight of Sin"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "Weight of the Empire"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "Whakatutuki o Matua"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "Wildfire"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "Wildwrap"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "Windshriek"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "Wings of Entropy (Legacy)"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "Winter Burial"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "Winter's Bounty"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "Worldcarver"
+  },
+  {
+    "namespace": "UNIQUE",
+    "name": "Xoph's Inception (Legacy)"
+  }
+]

@@ -2,7 +2,7 @@
 
 **A free, open-source item price checker for Path of Exile 1 (PoE1) and Path of Exile 2 (PoE2).** Hover over an item and press **Ctrl+D** to compare its rolls with trade listings for your league. The price checker opens in its own Windows desktop window.
 
-[**Download for Windows x64**](https://github.com/CyanBalloon/poe-price-checker/releases/download/v1.1.3/poe-price-checker-setup-1.1.3.exe) · [Portable edition](https://github.com/CyanBalloon/poe-price-checker/releases/download/v1.1.3/poe-price-checker-1.1.3.exe) · [Website](https://poe2pricechecker.com/) · [v1.1.3 release notes](https://github.com/CyanBalloon/poe-price-checker/releases/tag/v1.1.3)
+[**Download for Windows x64**](https://github.com/CyanBalloon/poe-price-checker/releases/download/v1.1.4/poe-price-checker-setup-1.1.4.exe) · [Portable edition](https://github.com/CyanBalloon/poe-price-checker/releases/download/v1.1.4/poe-price-checker-1.1.4.exe) · [Website](https://poe2pricechecker.com/) · [v1.1.4 release notes](https://github.com/CyanBalloon/poe-price-checker/releases/tag/v1.1.4)
 
 [![Polaric Devastation in the Path of Exile 1 price checker, with Divine Orb and Chaos Orb values above its modifiers and trade listings](docs/public/images/poe1-price.webp)](docs/public/images/poe1-price.webp)
 
@@ -12,7 +12,7 @@
 
 1. Run the installer, or open the portable executable directly. Choose **PoE 1** or **PoE 2** at the top right, then select your league.
 2. Hover over an item in game and press **Ctrl+D**. If you already have the item text, use **Paste item** in the app.
-3. Expand a modifier group, select the rolls you want to match, and apply the filters. Open **Trade** to see the search on the official trade site.
+3. Exchange items open in **Item Search** with the item selected. For gear, expand a modifier group, select the rolls you want to match, and apply the filters. Open **Trade** to see the search on the official trade site.
 
 For a worked example, follow the [PoE1 guide to chaos, divines and modifier filters](https://poe2pricechecker.com/poe1-price-checker/) or the [PoE2 guide to checking gear and looking up uniques](https://poe2pricechecker.com/poe2-price-checker/).
 

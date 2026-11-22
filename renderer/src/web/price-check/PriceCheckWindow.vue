@@ -230,6 +230,7 @@ import { usePoeninja } from "../background/Prices";
 import { useLeagues } from "@/web/background/Leagues";
 import { AppConfig } from "@/web/Config";
 import { ItemCategory, ItemRarity, parseClipboard, ParsedItem } from "@/parser";
+import { exchangeItem } from "../item-search/exchange-item";
 import RelatedItems from "./related-items/RelatedItems.vue";
 import { selectGame } from "@/web/background/Game";
 import RateLimiterState from "./trade/RateLimiterState.vue";
@@ -377,16 +378,9 @@ export default defineComponent({
       if (e.activeGame && !await selectGame(e.activeGame)) return;
 
       const parsedTemp = e.item ? ok(e.item as ParsedItem) : parseClipboard(e.clipboard);
-      if (parsedTemp.isOk()) {
+      if (!isStandalone.value && parsedTemp.isOk()) {
         const itemTemp = parsedTemp.value;
-        const isLineageSupport = itemTemp.category === ItemCategory.Gem && (itemTemp.info.icon?.includes('/Lineage') ?? false);
-        const isUnidentifiedUnique = itemTemp.isUnidentified && itemTemp.rarity === ItemRarity.Unique;
-        const isListingsDisabled = 
-          (itemTemp.category === ItemCategory.Currency ||
-          isLineageSupport ||
-          itemTemp.info.tradeTag != null) && !isUnidentifiedUnique;
-
-        if (AppConfig().game === "poe2" && isListingsDisabled && !isStandalone.value) {
+        if (exchangeItem(itemTemp)) {
           const searchWidget = wm.widgets.value.find(w => w.wmType === 'item-search');
           if (searchWidget) {
             wm.show(searchWidget.wmId);

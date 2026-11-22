@@ -160,7 +160,8 @@ import {
   nextTick
 } from "vue";
 import { registry } from "../overlay/widget-registry.js";
-import { ItemCategory, ItemRarity, parseClipboard } from "@/parser";
+import { ItemRarity, parseClipboard } from "@/parser";
+import { exchangeItem } from "../item-search/exchange-item";
 import { selectGame } from "@/web/background/Game";
 import type { GameVersion } from "@ipc/types";
 import { useUpdateControl } from "@/web/settings/updates";
@@ -265,34 +266,9 @@ export default defineComponent({
     });
 
     Host.onEvent("MAIN->CLIENT::item-text", async (e) => {
-      if (e.isManual) return;
-      if (e.target === "price-check") {
-        if (e.activeGame && !await toggleGame(e.activeGame)) return;
-        const parsed = parseClipboard(e.clipboard);
-        if (parsed.isOk()) {
-          const item = parsed.value;
-          const isUnidentifiedUnique = item.isUnidentified && item.rarity === ItemRarity.Unique;
-          const isUnique = item.rarity === ItemRarity.Unique && !isUnidentifiedUnique;
-          const isLineageSupport = item.category === ItemCategory.Gem && (item.info.icon?.includes('/Lineage') ?? false);
-          const isListingsDisabled =
-            item.category === ItemCategory.Currency ||
-            isLineageSupport ||
-            item.info.tradeTag != null ||
-            isUnique;
-
-          if (gameMode.value === "poe2" && isListingsDisabled) {
-            activeTab.value = "search";
-            nextTick(() => {
-              window.dispatchEvent(new CustomEvent("add-search-item", { detail: item }));
-            });
-            return;
-          } else {
-            activeTab.value = "price-check";
-          }
-        }
-        manualItemText.value = e.clipboard;
-        handleManualPaste();
-      }
+      if (e.isManual || e.target !== "price-check") return;
+      if (e.activeGame && !await toggleGame(e.activeGame)) return;
+      checkItemText(e.clipboard, true);
     });
 
     const destroyDialog = ref<HTMLDialogElement>();
@@ -351,7 +327,20 @@ export default defineComponent({
     function handleManualPaste() {
       const text = manualItemText.value.trim();
       if (!text) return;
+      checkItemText(text);
+    }
 
+    function checkItemText(text: string, fromHotkey = false) {
+      const item = parseClipboard(text).unwrapOr(null);
+      manualItemText.value = "";
+      isPasteCollapsed.value = true;
+      const uniqueShortcut = fromHotkey && gameMode.value === "poe2" && item?.rarity === ItemRarity.Unique && !item.isUnidentified;
+      if (item && itemSearchWidgetConfig.value && (exchangeItem(item) || uniqueShortcut)) {
+        activeTab.value = "search";
+        nextTick(() => window.dispatchEvent(new CustomEvent("add-search-item", { detail: item })));
+        return;
+      }
+      activeTab.value = "price-check";
       Host.selfDispatch({
         name: "MAIN->CLIENT::item-text",
         payload: {
@@ -361,11 +350,10 @@ export default defineComponent({
           focusOverlay: true,
           isManual: true,
           activeGame: AppConfig().game,
+          item: item ?? undefined,
         },
       });
 
-      manualItemText.value = "";
-      isPasteCollapsed.value = true;
     }
 
     // Widget Configurations

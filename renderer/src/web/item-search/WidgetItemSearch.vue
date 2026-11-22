@@ -22,16 +22,17 @@
         <button type="button" class="ui-button" @click="clearSelectedItems">Clear</button>
       </header>
       <div class="item-search-list">
-        <div v-for="item in starred" :key="item.info.refName + (item.discr || '')" class="item-search-row">
+        <div v-for="item in starred" :key="item.info.namespace + ':' + item.info.refName" class="item-search-row">
           <div class="item-search-art">
             <ui-item-img :icon="item.info.icon || '%NOT_FOUND%'" :item-name="item.info.refName" :namespace="item.info.namespace" />
           </div>
           <div class="item-search-copy">
             <strong :class="{ 'item-search-unique': isUnique(item) }">{{ item.info.name }}</strong>
-            <small>{{ item.discr ? t(item.discr) : itemKind(item.info) }}</small>
+            <small>{{ item.variant || itemKind(item.info) }}</small>
           </div>
           <div class="item-search-price">
             <strong v-if="item.display" class="ui-value">{{ formatPrice(item.display.primary) }}</strong>
+            <small v-else-if="isMarketLoading">Loading price…</small>
             <small v-else>No estimate</small>
             <small v-if="item.display?.chaosEquivalent">≈ {{ formatPrice(item.display.chaosEquivalent) }}</small>
             <small v-if="item.price?.currency === 'div' && AppConfig().game === 'poe2' && exaltedRate">{{ Math.round(item.price.min * exaltedRate) }} ex</small>
@@ -58,7 +59,7 @@
           :key="item.namespace + ':' + item.refName"
           type="button"
           class="item-search-row"
-          @click="selectItem(item, { unique: item.unique ? true : undefined })"
+          @click="selectItem(item)"
         >
           <span class="item-search-art">
             <ui-item-img :icon="item.icon || '%NOT_FOUND%'" :item-name="item.refName" :namespace="item.namespace" />
@@ -74,8 +75,8 @@
 
     <div v-else-if="searchValue.trim() || !starred.length" class="ui-empty item-search-empty" role="status">
       <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
-      <p v-if="isMarketLoading">Loading market data…</p>
-      <p v-else-if="searchValue.trim().length < 3">Type at least three characters to search.</p>
+      <p v-if="searchValue.trim().length < 3">Type at least three characters to search.</p>
+      <p v-else-if="isMarketLoading && AppConfig().game === 'poe2'">Loading market data…</p>
       <p v-else>No matching items.</p>
     </div>
   </div>
@@ -91,10 +92,13 @@ import {
   BaseType,
   ITEM_BY_REF,
   ITEM_BY_TRANSLATED,
+  itemCatalogue,
   CLIENT_STRINGS as _$,
   GEM_NS_NAMES,
 } from "@/assets/data";
 import { CurrencyValue } from "@/web/background/Prices";
+import { catalogueItem, indexCatalogue, searchCatalogue } from "@/assets/data/item-catalogue";
+import { exchangeItem } from "./exchange-item";
 import type { WidgetSpec } from "../overlay/interfaces";
 import { ItemSearchWidget } from "./widget.js";
 
@@ -123,10 +127,6 @@ export default {
 
 interface SelectedItem {
   info: BaseType;
-  discr?: string;
-  chaos?: number;
-  price?: CurrencyValue;
-  ninjaUrl?: string;
   rawItem?: ParsedItem;
 }
 
@@ -138,19 +138,15 @@ function useSelectedItems() {
   });
 
   function addItem(newItem: SelectedItem) {
-    if (
-      items.value.some(
-        (item) =>
-          item.info.name === newItem.info.name && item.discr === newItem.discr,
-      )
-    )
+    const previous = items.value.findIndex(item => item.info.namespace === newItem.info.namespace
+      && item.info.refName === newItem.info.refName);
+    if (previous !== -1) {
+      if (newItem.rawItem) items.value[previous] = newItem;
       return false;
+    }
 
     if (items.value.length < 5) {
       items.value.push(newItem);
-      items.value.sort((a, b) => {
-        return (b.chaos ?? 0) - (a.chaos ?? 0);
-      });
     } else {
       items.value = [newItem];
     }
@@ -198,10 +194,8 @@ function fuzzyFindHeistGem(badStr: string) {
 
 <script setup lang="ts">
 import { shallowRef, nextTick, onMounted, onUnmounted } from "vue";
-import { useI18nNs } from "@/web/i18n";
 import { usePoeninja, formatChaosOrDivineAmount } from "@/web/background/Prices";
 import { Host } from "@/web/background/IPC";
-import { ItemRarity } from "@/parser/ParsedItem";
 import { ParsedItem } from "@/parser";
 
 import UiItemImg from "@/web/ui/UiItemImg.vue";
@@ -210,8 +204,7 @@ const props = defineProps<{
   config: ItemSearchWidget;
 }>();
 
-const { t } = useI18nNs("item_search");
-const { findPriceByQuery, autoCurrency, displayPrice, queuePricesFetch, exaltedRate, searchNinjaItems, isLoading: isMarketLoading } = usePoeninja();
+const { findPriceByQuery, findCataloguePrice, marketItems, autoCurrency, displayPrice, queuePricesFetch, exaltedRate, isLoading: isMarketLoading } = usePoeninja();
 
 const showTimeout = shallowRef<{ reset: () => void } | null>(null);
 
@@ -221,10 +214,22 @@ nextTick(() => {
 
 const searchValue = shallowRef("");
 const { items, addItem, clearItems } = useSelectedItems();
-const starred = computed(() => items.value.map(item => ({
-  ...item,
-  display: item.price ? displayPrice(item.price) : undefined,
-})));
+const starred = computed(() => items.value.map(item => {
+  const { info, rawItem } = item;
+  const query = { ns: info.namespace, name: info.refName };
+  let quote;
+  if (AppConfig().game === "poe1" && rawItem) {
+    const details = getDetailsId(rawItem);
+    quote = details && findPriceByQuery(details);
+  } else if (AppConfig().game === "poe2" && info.unique) {
+    quote = findPriceByQuery({ ...query, variant: info.unique.base });
+  } else {
+    quote = findCataloguePrice(query);
+  }
+  const price = quote ? autoCurrency(quote.primaryValue) : undefined;
+  return { ...item, price, display: price && displayPrice(price), variant: quote?.variant,
+    ninjaUrl: quote?.url, value: quote?.primaryValue ?? 0 };
+}).sort((a, b) => b.value - a.value));
 
 function isUnique(item: SelectedItem) {
   const ns = item.info.namespace;
@@ -274,36 +279,12 @@ Host.onEvent("MAIN->CLIENT::ocr-text", (e) => {
 
 function selectItem(
   item: BaseType,
-  opts?: { unique?: true; withTimeout?: true; rawItem?: ParsedItem },
+  opts?: { withTimeout?: true; rawItem?: ParsedItem },
 ) {
   queuePricesFetch();
 
-  let price: ReturnType<typeof findPriceByQuery>;
-  if (opts?.rawItem && AppConfig().game === "poe1") {
-    const details = getDetailsId(opts.rawItem);
-    price = details ? findPriceByQuery(details) : null;
-  } else if (AppConfig().game === "poe1") {
-    const match = searchNinjaItems(item.refName).find((entry) =>
-      entry.name === item.refName && entry.ns === item.namespace,
-    );
-    price = findPriceByQuery(match ?? { ns: item.namespace, name: item.refName });
-  } else if (opts?.unique) {
-    price = findPriceByQuery({
-      ns: item.namespace,
-      name: item.refName,
-      variant: item.unique!.base,
-    });
-  } else {
-    price = findPriceByQuery({
-      ns: item.namespace,
-      name: item.refName,
-    });
-  }
   const isAdded = addItem({
     info: item,
-    chaos: price?.primaryValue,
-    price: price != null ? autoCurrency(price.primaryValue) : undefined,
-    ninjaUrl: price?.url,
     rawItem: opts?.rawItem,
   });
   if (isAdded && opts?.withTimeout) {
@@ -313,30 +294,20 @@ function selectItem(
   searchValue.value = "";
 }
 
-const results = computed(() => {
-  const ninjaResults = searchNinjaItems(searchValue.value.trim());
-  if (ninjaResults.length === 0 && searchValue.value.length >= 3) return [];
-  if (ninjaResults.length === 0) return false;
-
-  return ninjaResults.map((res) => {
-    let localNs = res.ns;
-    if (localNs === "SkillGem") localNs = "GEM";
-    if (localNs === "UniqueWeapon" || localNs === "UniqueArmour" || localNs === "UniqueAccessory" || localNs === "UniqueFlask" || localNs === "UniqueJewel") localNs = "UNIQUE";
-    
-    let localMatches = ITEM_BY_REF(localNs as BaseType["namespace"], res.name);
-    if (!localMatches || localMatches.length === 0) {
-      localMatches = ITEM_BY_TRANSLATED("ITEM", res.name);
-    }
-    const localItem = localMatches?.[0];
-    if (localItem) return localItem;
-    return {
-      name: res.name,
-      refName: res.name,
-      namespace: res.ns,
-      icon: "",
-    } as BaseType;
-  });
+const searchIndex = computed(() => {
+  const catalogue = itemCatalogue.value;
+  const available = new Map<string, BaseType>();
+  for (const [key, item] of catalogue.entries) {
+    if (AppConfig().game === "poe1" || catalogue.exchange.has(item.refName)) available.set(key, item);
+  }
+  for (const { ns, name } of marketItems.value) {
+    const namespace = (ns === "SkillGem" ? "GEM" : ns.startsWith("Unique") ? "UNIQUE" : ns) as BaseType["namespace"];
+    const key = namespace + ":" + name;
+    if (!available.has(key)) available.set(key, catalogue.entries.get(key) ?? catalogueItem({ namespace, name }));
+  }
+  return indexCatalogue(available.values());
 });
+const results = computed(() => searchCatalogue(searchIndex.value, searchValue.value));
 
 function clearSelectedItems() {
   clearItems();
@@ -366,10 +337,7 @@ onMounted(() => {
   const handleAddSearchItem = (e: Event) => {
     const parsedItem = (e as CustomEvent).detail as ParsedItem;
     if (!parsedItem) return;
-    selectItem(parsedItem.info, {
-      unique: parsedItem.rarity === ItemRarity.Unique ? true : undefined,
-      rawItem: parsedItem,
-    });
+    selectItem(exchangeItem(parsedItem) ?? parsedItem.info, { rawItem: parsedItem });
   };
   window.addEventListener("add-search-item", handleAddSearchItem);
   onUnmounted(() => {

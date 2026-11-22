@@ -15,7 +15,8 @@ import { useTradeData } from "@/web/background/TradeData";
 import { ItemCategory } from "@/parser/meta";
 import { ItemRarity } from "@/parser/ParsedItem";
 import { Host } from "@/web/background/IPC";
-import { reactive } from "vue";
+import { reactive, shallowRef } from "vue";
+import { buildCatalogue, type CatalogueItem } from "./item-catalogue";
 
 export * from "./interfaces";
 
@@ -47,6 +48,7 @@ export let UNIQUE_NS_NAMES: () => Generator<string> = function* () {};
 export let ITEM_NS_NAMES: () => Generator<string> = function* () {};
 
 export let TRADE_TAG_TO_REF = new Map<string, string>();
+export const itemCatalogue = shallowRef(buildCatalogue([], [], []));
 
 export let STAT_BY_MATCH_STR: (
   name: string,
@@ -386,14 +388,18 @@ async function loadGameData(game: GameVersion, language: string) {
     const base = await loadClientStrings(lang);
     return game === "poe1" ? { ...base, ...await loadPoe1ClientStrings(lang) } : base;
   }
-  const [strings, refStrings, items, stats, drops] = await Promise.all([
+  const [strings, refStrings, items, stats, drops, extra, exchangeNames] = await Promise.all([
     clientStrings(language),
     clientStrings("en"),
     loadItems(directory, game),
     loadStats(directory),
     fetchData(root + "/item-drop.json").then((r) => r.json() as Promise<DropEntry[]>),
+    game === "poe1" ? fetchData(root + "/search-items.json").then(r => r.json() as Promise<CatalogueItem[]>) : [],
+    fetchData(root + (game === "poe1" ? "/exchange-extra.json" : "/exchange-items.json"))
+      .then(r => r.json() as Promise<string[]>),
   ]);
-  return { strings, refStrings, items, stats, drops };
+  const catalogue = buildCatalogue(items.items('"namespace"'), extra, exchangeNames);
+  return { strings, refStrings, items, stats, drops, catalogue };
 }
 
 export function loadForLang(lang: string) {
@@ -411,7 +417,7 @@ export async function switchGameData(game: GameVersion, lang: string) {
     pending = loadGameData(game, language).finally(() => pendingData.delete(key));
     pendingData.set(key, pending);
   }
-  const { strings, refStrings, items, stats, drops } = await pending;
+  const { strings, refStrings, items, stats, drops, catalogue } = await pending;
   if (request !== dataRequest) return false;
 
   CLIENT_STRINGS = strings;
@@ -423,6 +429,7 @@ export async function switchGameData(game: GameVersion, lang: string) {
   UNIQUE_NS_NAMES = items.uniqueNames;
   ITEM_NS_NAMES = items.itemNames;
   TRADE_TAG_TO_REF = items.tradeTagToRef;
+  itemCatalogue.value = catalogue;
   STAT_BY_MATCH_STR = stats.byMatcher;
   STAT_BY_REF = stats.byRef;
   STATS_ITERATOR = stats.iterator;
@@ -524,6 +531,12 @@ function bindTradeData(game: GameVersion) {
     let base: BaseType | undefined;
     const { baseType, name, rarity, category } = itemQuery;
 
+    const exchangeName = baseType ?? name;
+    if (exchangeName && itemCatalogue.value.exchange.has(exchangeName)) {
+      const namespace = category === ItemCategory.Gem ? "GEM" : category === ItemCategory.DivinationCard ? "DIVINATION_CARD" : "ITEM";
+      const known = itemCatalogue.value.entries.get(namespace + ":" + exchangeName);
+      if (known) return [withItemIcon(known, game)];
+    }
     if (category === ItemCategory.Gem) {
       if (name && items.has(name)) {
         base = {

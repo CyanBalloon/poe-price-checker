@@ -4,6 +4,10 @@ const STASH_CATEGORIES = [
   ["Currency", "ITEM", "currency"],
   ["Fragment", "ITEM", "fragments"],
   ["SkillGem", "GEM", "skill-gems"],
+  ["Wombgift", "ITEM", "wombgifts"],
+  ["Viscera", "ITEM", "viscera"],
+  ["Corpse", "ITEM", "corpses"],
+  ["Incubator", "ITEM", "incubators"],
   ["BaseType", "ITEM", "base-types"],
   ["Map", "ITEM", "maps"],
   ["BlightedMap", "ITEM", "blighted-maps"],
@@ -20,6 +24,15 @@ const STASH_CATEGORIES = [
 ] as const;
 
 const EXCHANGE_CATEGORIES = [
+  ["Currency", "ITEM", "currency"],
+  ["Fragment", "ITEM", "fragments"],
+  ["Ducat", "ITEM", "ducats"],
+  ["DjinnCoin", "ITEM", "djinn-coins"],
+  ["Thread", "ITEM", "threads"],
+  ["Astrolabe", "ITEM", "astrolabes"],
+  ["EnshroudingCrystal", "ITEM", "enshrouding-crystals"],
+  ["Runegraft", "ITEM", "runegrafts"],
+  ["AllflameEmber", "ITEM", "allflame-embers"],
   ["DivinationCard", "DIVINATION_CARD", "divination-cards"],
   ["Scarab", "ITEM", "scarabs"],
   ["Essence", "ITEM", "essences"],
@@ -70,6 +83,7 @@ interface ExchangeOverview {
 interface ExchangeItem {
   id: string;
   name: string;
+  detailsId?: string;
 }
 
 interface PriceKey {
@@ -79,6 +93,7 @@ interface PriceKey {
 }
 
 interface StashPrice extends PriceKey {
+  cx: boolean;
   chaos: number;
   url: string;
   detailsId: string;
@@ -114,7 +129,9 @@ export async function loadPoe1Prices(league: string, signal: AbortSignal) {
   const prices = new Map<string, StashPrice>();
   const names = new Map<string, PriceKey>();
   function add(entry: StashPrice) {
-    prices.set(poe1PriceKey(entry), entry);
+    const priceKey = poe1PriceKey(entry);
+    if (!entry.cx && prices.get(priceKey)?.cx) return;
+    prices.set(priceKey, entry);
     const { ns, name, variant } = entry;
     const key = poe1PriceKey({ ns, name });
     if (!names.has(key) || !variant) names.set(key, { ns, name, variant });
@@ -136,7 +153,7 @@ export async function loadPoe1Prices(league: string, signal: AbortSignal) {
         const chaos = line.chaosValue ?? line.chaosEquivalent;
         if (!name || chaos == null || !Number.isFinite(chaos)) continue;
         add({
-          ns, name, chaos, variant: stashVariant(type, line),
+          ns, name, chaos, cx: false, variant: stashVariant(type, line),
           detailsId: line.detailsId,
           url: site + category + "/" + line.detailsId,
           sparkline: line.sparkline ?? line.receiveSparkLine ?? line.paySparkLine ?? EMPTY_SPARKLINE,
@@ -145,16 +162,17 @@ export async function loadPoe1Prices(league: string, signal: AbortSignal) {
     }),
     ...EXCHANGE_CATEGORIES.map(([type, ns, category]) => async () => {
       const data = await overview<ExchangeOverview>("exchange/current/overview", type);
-      const items = new Map((data.items ?? data.core.items ?? []).map((item) => [item.id, item.name]));
+      const items = new Map((data.items ?? data.core.items ?? []).map((item) => [item.id, item]));
       const chaosPerPrimary = data.core.primary === "chaos" ? 1 : data.core.rates.chaos;
       if (!chaosPerPrimary) return;
       for (const line of data.lines) {
-        const name = items.get(line.id);
-        if (!name || !Number.isFinite(line.primaryValue)) continue;
+        const item = items.get(line.id);
+        if (!item || !Number.isFinite(line.primaryValue)) continue;
+        const detailsId = item.detailsId ?? line.id;
         add({
-          ns, name, chaos: line.primaryValue * chaosPerPrimary,
-          detailsId: line.id,
-          url: site + category + "/" + line.id,
+          ns, name: item.name, cx: true, chaos: line.primaryValue * chaosPerPrimary,
+          detailsId,
+          url: site + category + "/" + detailsId,
           sparkline: line.sparkline ?? EMPTY_SPARKLINE,
         });
       }
@@ -173,7 +191,7 @@ export async function loadPoe1Prices(league: string, signal: AbortSignal) {
   }
   if (prices.size && !prices.has(poe1PriceKey({ ns: "ITEM", name: "Chaos Orb" }))) {
     add({
-      ns: "ITEM", name: "Chaos Orb", chaos: 1, detailsId: "chaos-orb",
+      ns: "ITEM", name: "Chaos Orb", chaos: 1, cx: true, detailsId: "chaos-orb",
       url: site + "currency/chaos-orb", sparkline: EMPTY_SPARKLINE,
     });
   }

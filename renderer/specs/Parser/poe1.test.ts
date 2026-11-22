@@ -1,6 +1,9 @@
 import { parseClipboard } from "@/parser";
 import { AppConfig } from "@/web/Config";
-import { init, switchGameData, ITEM_BY_REF, TRADE_TAG_TO_REF } from "@/assets/data/index";
+import { init, switchGameData, itemCatalogue, ITEM_BY_REF, TRADE_TAG_TO_REF } from "@/assets/data/index";
+import { indexCatalogue, searchCatalogue } from "@/assets/data/item-catalogue";
+import { exchangeItem } from "@/web/item-search/exchange-item";
+import { UncutSkillGem } from "./items";
 import { describe, expect, it, beforeAll, vi } from "vitest";
 import { setupTests } from "@specs/vitest.setup";
 import { Host } from "@/web/background/IPC";
@@ -62,6 +65,52 @@ describe("POE1 Parser", () => {
     exact: true,
     useEn: true,
   } as const;
+
+  it("searches the 3.30 catalogue before prices arrive and ranks exact names first", () => {
+    const index = indexCatalogue(itemCatalogue.value.entries.values());
+    for (const [query, expected] of [
+      ["hunters exalted orb", "Hunter's Exalted Orb"],
+      [" ducat   Merrick’s ", "Merrick's Ducat"],
+      ["flaming goat hoof", "Flaming Goat Hoof"],
+      ["chart (abyssal plain)", "Chart (Abyssal Plain)"],
+      ["chaos orb", "Chaos Orb"],
+    ]) {
+      const matches = searchCatalogue(index, query);
+      expect(matches[0]?.refName).toBe(expected);
+      expect(matches.filter(item => item.refName === expected)).toHaveLength(1);
+    }
+    expect(searchCatalogue(index, "or")).toEqual([]);
+    expect(searchCatalogue(index, "orb")).toHaveLength(50);
+  });
+
+  it("routes copied currency, fragments and cards using exchange membership", () => {
+    for (const [itemClass, rarity, name] of [
+      ["Stackable Currency", "Currency", "Hunter's Exalted Orb"],
+      ["Stackable Currency", "Currency", "Merrick's Ducat"],
+      ["Map Fragments", "Normal", "Sacrifice at Dusk"],
+      ["Divination Cards", "Divination Card", "A Chilling Wind"],
+    ]) {
+      const parsed = parseClipboard(["Item Class: " + itemClass, "Rarity: " + rarity, name, "--------", "Stack Size: 1/10"].join("\n"))._unsafeUnwrap();
+      expect(exchangeItem(parsed)?.refName).toBe(name);
+    }
+    expect(exchangeItem(parseClipboard(itemText)._unsafeUnwrap())).toBeUndefined();
+  });
+
+  it("uses localized catalogue names and switches to PoE2 exchange gem levels", async () => {
+    try {
+      await switchGameData("poe1", "ru");
+      const name = ITEM_BY_REF("ITEM", "Hunter's Exalted Orb")![0].name;
+      expect(name).not.toBe("Hunter's Exalted Orb");
+      expect(searchCatalogue(indexCatalogue(itemCatalogue.value.entries.values()), name)[0]?.refName).toBe("Hunter's Exalted Orb");
+      await switchGameData("poe2", "en");
+      AppConfig().game = "poe2";
+      expect(itemCatalogue.value.exchange.has("Merrick's Ducat")).toBe(false);
+      expect(exchangeItem(parseClipboard(UncutSkillGem.rawText)._unsafeUnwrap())?.refName).toBe("Uncut Skill Gem (Level 19)");
+    } finally {
+      AppConfig().game = "poe1";
+      await switchGameData("poe1", "en");
+    }
+  });
 
   it("parses gear, advanced modifiers, and PoE 1 pseudo stats", () => {
     const item = parseClipboard(itemText).unwrapOr(null);
@@ -356,6 +405,14 @@ describe("POE1 Parser", () => {
       const request = new URL("https://" + url);
       expect(request.searchParams.get("league")).toBe("Hardcore Example");
       const category = request.searchParams.get("type");
+      if (request.pathname.includes("/exchange/") && (category === "Currency" || category === "Ducat")) {
+        const name = category === "Currency" ? "Hunter's Exalted Orb" : "Merrick's Ducat";
+        return new Response(JSON.stringify({
+          core: { primary: "divine", rates: { chaos: 150 } },
+          items: [{ id: "short-id", name, detailsId: "market-details" }],
+          lines: [{ id: "short-id", primaryValue: 2 }],
+        }));
+      }
       const lines = category === "Currency"
         ? [{ currencyTypeName: "Divine Orb", chaosEquivalent: 150, detailsId: "divine-orb" }]
         : category === "SkillGem"
@@ -365,6 +422,11 @@ describe("POE1 Parser", () => {
     });
     try {
       const { prices } = await loadPoe1Prices("Hardcore Example", new AbortController().signal);
+      for (const [name, category] of [["Hunter's Exalted Orb", "currency"], ["Merrick's Ducat", "ducats"]]) {
+        expect(prices.get(poe1PriceKey({ ns: "ITEM", name }))).toMatchObject({
+          chaos: 300, cx: true, url: "https://poe.ninja/poe1/economy/examplehc/" + category + "/market-details",
+        });
+      }
       expect(prices.get(poe1PriceKey({ ns: "ITEM", name: "Divine Orb" }))?.chaos).toBe(150);
       expect(prices.get(poe1PriceKey({ ns: "GEM", name: "Fireball", variant: "21/20c" }))).toMatchObject({
         chaos: 75,
