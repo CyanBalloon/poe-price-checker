@@ -1,4 +1,4 @@
-import { computed } from "vue";
+import { computed, ref, watch } from "vue";
 import { Host } from "@/web/background/IPC";
 import type { UpdateAction, UpdateInfo } from "@ipc/types";
 
@@ -27,4 +27,29 @@ export function useUpdateControl() {
     if (action) Host.sendEvent({ name: "CLIENT->MAIN::user-action", payload: { action } });
   }
   return { control, run };
+}
+
+export function useUpdateNotice() {
+  const version = computed(() => {
+    const info = Host.updateInfo.value;
+    return "version" in info ? info.version : undefined;
+  });
+  const visible = ref(false);
+  let announcedVersion: string | undefined;
+  let timeout: ReturnType<typeof setTimeout>;
+  function dismiss() {
+    clearTimeout(timeout);
+    visible.value = false;
+  }
+  watch(version, (current, _, onCleanup) => {
+    if (!current || current === announcedVersion) return;
+    announcedVersion = current;
+    visible.value = true;
+    timeout = setTimeout(dismiss, 15_000);
+    onCleanup(dismiss);
+  }, { immediate: true });
+  const label = computed(() => Host.updateInfo.value.state === "update-downloaded"
+    ? `v${version.value} is ready to install`
+    : `Update available · v${version.value}`);
+  return { visible, label, dismiss };
 }

@@ -123,7 +123,7 @@
               </div>
             </template>
             <template #application>
-              <div class="application-actions">
+              <div ref="applicationUpdates" class="application-actions" role="group" aria-label="Application updates" tabindex="-1">
                 <span>PoE Price Checker v{{ version }}</span>
                 <span role="status">{{ updateControl.status }}</span>
                 <button v-if="updateControl.action" type="button" class="ui-button" @click="runUpdate">{{ updateControl.label }}</button>
@@ -133,6 +133,16 @@
         </section>
       </main>
     </div>
+
+    <aside v-if="updateNoticeVisible" class="update-notice" aria-label="Application update">
+      <button type="button" class="update-notice-link" @click="openUpdateSettings">
+        <i class="fa-solid fa-download" aria-hidden="true"></i>
+        <span><strong role="status">{{ updateNoticeLabel }}</strong><small>Open update settings</small></span>
+      </button>
+      <button type="button" class="update-notice-close" aria-label="Dismiss update notice" @click="dismissUpdateNotice">
+        <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+      </button>
+    </aside>
 
     <dialog v-if="showDestroyWarning || showDestroyConfirm" ref="destroyDialog" class="trade-dialog" aria-labelledby="destroy-dialog-title" @cancel.prevent="closeDestroyDialog">
       <div class="trade-dialog-icon"><i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i></div>
@@ -164,7 +174,7 @@ import { ItemRarity, parseClipboard } from "@/parser";
 import { exchangeItem } from "../item-search/exchange-item";
 import { selectGame } from "@/web/background/Game";
 import type { GameVersion } from "@ipc/types";
-import { useUpdateControl } from "@/web/settings/updates";
+import { useUpdateControl, useUpdateNotice } from "@/web/settings/updates";
 import { AppConfig, saveConfig, pushHostConfig } from "@/web/Config";
 import { Host } from "@/web/background/IPC";
 import { useLeagues } from "@/web/background/Leagues";
@@ -298,6 +308,18 @@ export default defineComponent({
 
     const version = Host.version;
     const { control: updateControl, run: runUpdate } = useUpdateControl();
+    const { visible: updateNoticeVisible, label: updateNoticeLabel, dismiss: dismissUpdateNotice } = useUpdateNotice();
+    const applicationUpdates = ref<HTMLElement>();
+    async function openUpdateSettings() {
+      dismissUpdateNotice();
+      activeTab.value = "settings";
+      await nextTick();
+      const controls = applicationUpdates.value;
+      if (controls) {
+        (controls.querySelector("button") ?? controls).focus({ preventScroll: true });
+        controls.scrollIntoView({ block: "center" });
+      }
+    }
 
     // Manual input parsing
     const manualItemText = ref("");
@@ -504,6 +526,11 @@ export default defineComponent({
       openClipboard,
       updateControl,
       runUpdate,
+      updateNoticeVisible,
+      updateNoticeLabel,
+      dismissUpdateNotice,
+      openUpdateSettings,
+      applicationUpdates,
       priceCheckHotkey,
       isLoggedIn,
       isElectron,

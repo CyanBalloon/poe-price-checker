@@ -1,4 +1,27 @@
 .trade-shell, .trade-workspace { height: 100%; min-height: 0; }
+.update-notice {
+  position: fixed;
+  inset: auto 1rem 1rem auto;
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  max-width: calc(100% - 2rem);
+  padding: 0.25rem;
+  border-radius: 0.65rem;
+  background: var(--surface);
+  color: var(--ink);
+  box-shadow: 0 4px 24px #0007, 0 0 0 1px var(--line);
+}
+.update-notice-link, .update-notice-close { display: flex; align-items: center; border-radius: 0.4rem; background: transparent; }
+.update-notice-link { gap: 0.7rem; padding: 0.55rem 0.75rem; text-align: start; }
+.update-notice-link > i { color: var(--accent); }
+.update-notice-link strong, .update-notice-link small { display: block; }
+.update-notice-link strong { font-size: 0.9rem; font-weight: 600; }
+.update-notice-link small, .update-notice-close { color: var(--muted); }
+.update-notice-link small { font-size: 0.78rem; }
+.update-notice-close { justify-content: center; width: 2rem; height: 2rem; }
+.update-notice button:hover { background: var(--line); }
+.update-notice button:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
 .trade-workspace { display: flex; flex-direction: column; }
 .trade-toolbar {
   --toolbar-inset: clamp(0.75rem, 2vw, 2rem);
