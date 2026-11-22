@@ -18,8 +18,8 @@ $backup = [IO.Path]::Combine($stage, 'previous.exe')
 $original = [Diagnostics.Process]::GetProcessById([int]$env:POE_UPDATE_PID)
 [Console]::WriteLine('ready')
 [Console]::Out.Flush()
-if (!$original.WaitForExit(60000)) { exit 1 }
 try {
+  if (!$original.WaitForExit(60000)) { throw "The application did not close in time." }
   $until = [DateTime]::UtcNow.AddSeconds(45)
   while ($true) {
     try { [IO.File]::Replace($next, $target, $backup, $true); break }
@@ -64,7 +64,7 @@ export async function restartPortable(target: string, update: UpdateDownloadedEv
 
     const worker = spawn(path.join(process.env.SystemRoot!, "System32", "WindowsPowerShell", "v1.0", "powershell.exe"),
       ["-NoLogo", "-NoProfile", "-NonInteractive", "-Command", replaceAndRestart], {
-        cwd: directory, detached: true, windowsHide: true, stdio: ["ignore", "pipe", "ignore"],
+        cwd: directory, windowsHide: true, stdio: ["ignore", "pipe", "ignore"],
         env: { ...process.env, POE_UPDATE_TARGET: target, POE_UPDATE_STAGE: stage,
           POE_UPDATE_PID: String(process.pid), POE_UPDATE_PROFILE: app.commandLine.getSwitchValue("user-data-dir") },
       });
