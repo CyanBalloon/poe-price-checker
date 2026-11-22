@@ -12,23 +12,16 @@ const mainDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
 
 if (process.platform === 'win32') {
   const distDir = path.join(mainDir, 'dist')
-  const csFile = path.join(mainDir, 'src/shortcuts/clicker.cs')
-  const exeFile = path.join(distDir, 'clicker.exe')
 
-  if (!fs.existsSync(distDir)) {
-    fs.mkdirSync(distDir, { recursive: true })
-  }
-  try {
-    console.info('Compiling clicker.cs...')
-    child_process.execFileSync(
-      'C:\\Windows\\Microsoft.NET\\Framework64\\v4.0.30319\\csc.exe',
-      ['/nologo', '/out:' + exeFile, csFile],
-      { stdio: 'inherit' }
-    )
-    console.info('clicker.cs compiled successfully.')
-  } catch (err) {
-    console.error('Failed to compile clicker.cs:', err.toString())
-    process.exit(1)
+  fs.mkdirSync(distDir, { recursive: true })
+  const csc = path.join(process.env.SystemRoot || 'C:\\Windows', 'Microsoft.NET', 'Framework64', 'v4.0.30319', 'csc.exe')
+  for (const [source, binary, kind] of [
+    ['shortcuts/clicker.cs', 'clicker.exe', 'exe'],
+    ['PortableUpdater.cs', 'portable-updater.exe', 'winexe']
+  ]) {
+    child_process.execFileSync(csc, [
+      '/nologo', '/target:' + kind, '/out:' + path.join(distDir, binary), path.join(mainDir, 'src', source)
+    ], { stdio: 'inherit' })
   }
 }
 

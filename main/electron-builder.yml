@@ -26,6 +26,8 @@ portable:
 afterAllArtifactBuild: ./build/portable-manifest.cjs
 win:
   extraResources:
+    - from: dist/portable-updater.exe
+      to: portable-updater.exe
     - from: build/portable-update.yml
       to: portable-update.yml
   target:
