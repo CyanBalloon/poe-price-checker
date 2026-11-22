@@ -99,7 +99,7 @@ export function useBulkApi() {
                 ? result.value?.xchgExalted?.listed.value
                 : result.value?.xchgStable?.listed.value;
             // fix best guess we did while making optimistic search
-            otherHave!.total -= _result.value.total;
+            if (otherHave) otherHave.total -= _result.value.total;
           } catch (err) {
             error.value = (err as Error).message;
           }

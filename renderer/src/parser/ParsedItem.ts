@@ -30,6 +30,8 @@ export enum ItemInfluence {
 // }
 
 export interface ParsedItem {
+  name?: string;
+  baseType?: string;
   rarity?: ItemRarity;
   itemLevel?: number;
   armourAR?: number;

@@ -1,35 +1,23 @@
 import path from "path";
 import { BrowserWindow, dialog, shell, Menu, app, screen } from "electron";
 import fs from "fs";
-import {
-  OverlayController,
-} from "electron-overlay-window";
+
 import type { ServerEvents } from "../server";
 import type { Logger } from "../RemoteLogger";
 import type { GameWindow } from "./GameWindow";
 
-export class OverlayWindow {
+export class AppWindow {
   public isInteractable = false;
   public wasUsedRecently = true;
   public window?: BrowserWindow;
-  private overlayKey: string = "Shift + Space";
-  private isOverlayKeyUsed = false;
 
   constructor(
     private server: ServerEvents,
     private logger: Logger,
     private poeWindow: GameWindow,
   ) {
-    this.server.onEventAnyClient(
-      "OVERLAY->MAIN::focus-game",
-      this.assertGameActive,
-    );
     this.poeWindow.on("active-change", this.handlePoeWindowActiveChange);
     this.poeWindow.onAttach(this.handleOverlayAttached);
-
-    this.server.onEventAnyClient("CLIENT->MAIN::used-recently", (e) => {
-      this.wasUsedRecently = e.isOverlay;
-    });
 
     const isStandalone = true;
 
@@ -79,7 +67,11 @@ export class OverlayWindow {
       height: isStandalone ? windowState.height : 600,
       x: isStandalone ? windowState.x : undefined,
       y: isStandalone ? windowState.y : undefined,
-      frame: isStandalone,
+      skipTaskbar: false,
+      ...(process.platform === "win32" && {
+        titleBarStyle: "hidden",
+        titleBarOverlay: { color: "#00000000", symbolColor: "#c6cad0", height: 56 },
+      }),
       title: "Poe2 Price Checker",
       show: true,
       webPreferences: {
@@ -133,13 +125,9 @@ export class OverlayWindow {
       });
     }
 
-    this.window.setMenu(
-      Menu.buildFromTemplate([
-        { role: "editMenu" },
-        { role: "reload" },
-        { role: "toggleDevTools" },
-      ]),
-    );
+    this.window.setMenu(process.platform === "win32" ? null : Menu.buildFromTemplate([
+      { role: "editMenu" }, { role: "reload" }, { role: "toggleDevTools" },
+    ]));
 
     this.window.webContents.on("before-input-event", this.handleExtraCommands);
     this.window.webContents.on(
@@ -155,55 +143,26 @@ export class OverlayWindow {
     });
   }
 
-  loadAppPage(port: number) {
+  loadAppPage(port: number, rendererUrl?: string) {
     const isStandalone = true;
     const baseUrl =
-      process.env.VITE_DEV_SERVER_URL || `http://localhost:${port}/index.html`;
+      rendererUrl ?? (process.env.VITE_DEV_SERVER_URL || `http://localhost:${port}/index.html`);
     const url = isStandalone ? `${baseUrl}?mode=standalone` : baseUrl;
+    console.log("Loading URL:", url);
+    console.log("Window visibility before load:", this.window?.isVisible());
 
     if (!this.window) {
       shell.openExternal(url);
       return;
     }
 
-    if (process.env.VITE_DEV_SERVER_URL) {
-      this.window.loadURL(url);
+    this.window.loadURL(url);
+    if (process.env.VITE_DEV_SERVER_URL && !rendererUrl) {
       this.window.webContents.openDevTools({ mode: "detach", activate: false });
-    } else {
-      this.window.loadURL(url);
     }
   }
 
-  assertOverlayActive = () => {
-    if (this.window) {
-      this.window.show();
-      this.window.focus();
-    }
-  };
-
-  assertGameActive = () => {
-    OverlayController.focusTarget();
-  };
-
-  toggleActiveState = () => {
-      if (this.window) {
-        if (this.window.isVisible()) {
-          this.window.hide();
-          this.assertGameActive();
-        } else {
-          this.window.setAlwaysOnTop(true);
-          this.window.show();
-          this.window.focus();
-          setTimeout(() => {
-            this.window?.setAlwaysOnTop(false);
-          }, 50);
-        }
-      }
-  };
-
-  updateOpts(overlayKey: string, windowTitle: string) {
-    this.overlayKey = overlayKey;
-    const isStandalone = true;
+  updateOpts(windowTitle: string) {
     this.poeWindow.attach(undefined, windowTitle);
   }
 
@@ -228,7 +187,7 @@ export class OverlayWindow {
     event: Electron.Event,
     input: Electron.Input,
   ) => {
-    if (input.type !== "keyDown") return;
+    if (input.type !== "keyDown" || process.platform !== "win32") return;
 
     let { code, control: ctrlKey, shift: shiftKey, alt: altKey } = input;
 
@@ -246,13 +205,18 @@ export class OverlayWindow {
     else if (shiftKey) code = `Shift + ${code}`;
 
     switch (code) {
+      case "Ctrl + R":
+      case "F5":
+        event.preventDefault();
+        this.window?.webContents.reload();
+        break;
+      case "Ctrl + Shift + I":
+      case "F12":
+        event.preventDefault();
+        this.window?.webContents.toggleDevTools();
+        break;
       case "Escape":
       case "Ctrl + W": {
-        break;
-      }
-      case this.overlayKey: {
-        event.preventDefault();
-        process.nextTick(this.toggleActiveState);
         break;
       }
     }
@@ -271,11 +235,6 @@ export class OverlayWindow {
           "\n" +
           "You need to restart Poe2 Price Checker with administrator rights.",
       );
-    } else {
-      this.server.sendEventTo("broadcast", {
-        name: "MAIN->OVERLAY::overlay-attached",
-        payload: undefined,
-      });
     }
   };
 
@@ -283,14 +242,5 @@ export class OverlayWindow {
     if (isActive && this.isInteractable) {
       this.isInteractable = false;
     }
-    this.server.sendEventTo("broadcast", {
-      name: "MAIN->OVERLAY::focus-change",
-      payload: {
-        game: isActive,
-        overlay: this.isInteractable,
-        usingHotkey: this.isOverlayKeyUsed,
-      },
-    });
-    this.isOverlayKeyUsed = false;
   };
 }

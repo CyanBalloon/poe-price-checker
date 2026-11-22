@@ -1,7 +1,7 @@
 import { uIOhook, UiohookKey as Key } from "uiohook-napi";
 import process from "process";
 import type { HostClipboard } from "./HostClipboard";
-import type { OverlayWindow } from "../windowing/OverlayWindow";
+import type { AppWindow } from "../windowing/AppWindow";
 
 const PLACEHOLDER_LAST = "@last";
 const AUTO_CLEAR = [
@@ -68,10 +68,9 @@ export function typeInChat(
 export function stashSearch(
   text: string,
   clipboard: HostClipboard,
-  overlay: OverlayWindow,
+  appWindow: AppWindow,
 ) {
   clipboard.restoreShortly((clipboard) => {
-    overlay.assertGameActive();
     clipboard.writeText(text);
     uIOhook.keyTap(Key.F, [Key.Ctrl]);
 

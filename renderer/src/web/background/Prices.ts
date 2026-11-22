@@ -5,6 +5,8 @@ import { useLeagues } from "./Leagues";
 import { AppConfig } from "../Config";
 import { PriceCheckWidget } from "../overlay/widgets";
 import { ITEM_BY_REF } from "@/assets/data";
+import { loadPoe1Prices, poe1PriceKey } from "./Poe1Prices";
+import { currencyIcon } from "@/web/ui/currency-icons";
 
 export type NinjaSchema = NinjaSchemaV1;
 type NinjaSchemaV1 = {
@@ -90,14 +92,14 @@ function getAvailableCoreCurrencies(): CoreCurrency[] {
       abbrev: "ex",
       ref: "Exalted Orb",
       text: "Exalted Orb",
-      icon: "/images/exa.png",
+      icon: currencyIcon("exalted")!,
     },
     {
       id: "chaos",
       abbrev: "c",
       ref: "Chaos Orb",
       text: "Chaos Orb",
-      icon: "/images/chaos.png",
+      icon: currencyIcon("chaos")!,
     },
   ];
 }
@@ -106,32 +108,19 @@ export const DivCurrency: CoreCurrency = {
   abbrev: "div",
   ref: "Divine Orb",
   text: "Divine Orb",
-  icon: "/images/div.png",
+  get icon() { return currencyIcon("divine")!; },
 };
 
 export const usePoeninja = createGlobalState(() => {
   const leagues = useLeagues();
 
   const availableCoreCurrencies = shallowRef<CoreCurrency[]>([]);
-  const selectedCoreCurrencyId = computed<"exalted" | "chaos">({
-    get() {
-      return availableCoreCurrencies.value.length
-        ? AppConfig<PriceCheckWidget>("price-check")!.coreCurrency
-        : "exalted";
-    },
-    set(id) {
-      AppConfig<PriceCheckWidget>("price-check")!.coreCurrency = id;
-    },
-  });
-
-  const selectedCoreCurrency = computed(() => {
-    const { coreCurrency } = AppConfig<PriceCheckWidget>("price-check")!;
-    if (!availableCoreCurrencies.value || !coreCurrency) return undefined;
-    const listed = availableCoreCurrencies.value.find(
-      (currency) => currency.id === coreCurrency,
-    );
-    return listed;
-  });
+  const selectedCoreCurrencyId = computed(() =>
+    AppConfig()?.game === "poe1" ? "chaos" : AppConfig<PriceCheckWidget>("price-check")?.coreCurrency ?? "exalted",
+  );
+  const selectedCoreCurrency = computed(() =>
+    availableCoreCurrencies.value.find(currency => currency.id === selectedCoreCurrencyId.value),
+  );
 
   /**
    * core/div
@@ -140,6 +129,8 @@ export const usePoeninja = createGlobalState(() => {
   const exaltedRate = shallowRef<number | undefined>(undefined);
   const chaosToExalt = shallowRef<number | undefined>(undefined);
   const annulToExalt = shallowRef<number | undefined>(undefined);
+  const chaosToDivine = shallowRef<number | undefined>(undefined);
+  const annulInChaos = shallowRef<number | undefined>(undefined);
   /**
    * Current core currency
    */
@@ -147,130 +138,147 @@ export const usePoeninja = createGlobalState(() => {
     undefined,
   );
 
+  const activeCoreCurrency = computed(() =>
+    availableCoreCurrencies.value.find((currency) => currency.id === xchgRateCurrency.value),
+  );
   const isLoading = shallowRef(false);
   let PRICES_DB: PriceDatabase = [];
   let lastUpdateTime = 0;
   let downloadController: AbortController | undefined;
   let lastInterestTime = 0;
 
-  let SEARCH_INDEX: Array<{ name: string; ns: string }> = [];
+  const searchIndex = shallowRef<Array<{ name: string; ns: string; variant?: string }>>([]);
+  const poe1Prices = shallowRef<Awaited<ReturnType<typeof loadPoe1Prices>>>();
 
-  let priceCache = new Map<
-    { ns: string; name: string; count: number },
-    CurrencyValue
-  >();
+  const priceCache = new Map<string, CurrencyValue>();
 
   async function load(force: boolean = false) {
     const league = leagues.selected.value;
     if (!league || !league.isPopular || league.realm !== "pc-ggg") return;
+    if (!force && isLoading.value) return;
     if (
       !force &&
       (Date.now() - lastUpdateTime < UPDATE_INTERVAL_MS ||
         Date.now() - lastInterestTime > INTEREST_SPAN_MS)
     )
       return;
-    if (downloadController) downloadController.abort();
+    downloadController?.abort();
+    const controller = new AbortController();
+    downloadController = controller;
+    const game = AppConfig().game;
     try {
       isLoading.value = true;
-      downloadController = new AbortController();
 
       availableCoreCurrencies.value = getAvailableCoreCurrencies().map(
         (currency) => ({
           ...currency,
-          text: ITEM_BY_REF("ITEM", currency.ref)![0].name,
+          text: ITEM_BY_REF("ITEM", currency.ref)?.[0]?.name ?? currency.text,
         }),
       );
-      const haveCurrency = availableCoreCurrencies.value.some(
-        (currency) => currency.id === selectedCoreCurrencyId.value,
-      );
-      if (!haveCurrency) {
-        selectedCoreCurrencyId.value = "exalted";
-      }
-
-      const ninjaSchema: NinjaSchema = JSON.parse(
-        await Host.proxy(
-          "api.exiledexchange2.dev/proxy/data/namespaceMap.json",
+      if (game === "poe2") {
+        const ninjaSchema: NinjaSchema = JSON.parse(
+          await Host.proxy(
+            "api.exiledexchange2.dev/proxy/data/namespaceMap.json",
+            {
+              signal: controller.signal,
+            },
+          ).then((r) => r.text()),
+        );
+        const response = await Host.proxy(
+          `api.exiledexchange2.dev/proxy/${selectedLeagueToUrl(true)}/overviewData.json`,
           {
-            signal: downloadController.signal,
+            signal: controller.signal,
           },
-        ).then((r) => r.text()),
-      );
-      const response = await Host.proxy(
-        `api.exiledexchange2.dev/proxy/${selectedLeagueToUrl(true)}/overviewData.json`,
-        {
-          signal: downloadController.signal,
-        },
-      );
-      const jsonBlob = await response.text();
+        );
+        const jsonBlob = await response.text();
+        if (controller.signal.aborted) return;
 
-      const ninjaXchg = parseXchg(jsonBlob);
+        const ninjaXchg = parseXchg(jsonBlob);
 
-      PRICES_DB = splitJsonBlob(jsonBlob, ninjaSchema);
+        PRICES_DB = splitJsonBlob(jsonBlob, ninjaSchema);
 
-      // Build SEARCH_INDEX
-      try {
-        const parsedBlob = JSON.parse(jsonBlob);
-        SEARCH_INDEX = [];
-        for (const overview of parsedBlob.itemOverviews) {
-          const typeMatch = ninjaSchema.map.find((m) => m.type === overview.type);
-          if (!typeMatch) continue;
-          for (const item of overview.lines) {
-            SEARCH_INDEX.push({
-              name: item.name,
-              ns: typeMatch.ns,
-            });
+        // Build SEARCH_INDEX
+        try {
+          const parsedBlob = JSON.parse(jsonBlob);
+          const items: typeof searchIndex.value = [];
+          for (const overview of parsedBlob.itemOverviews) {
+            const typeMatch = ninjaSchema.map.find((m) => m.type === overview.type);
+            if (!typeMatch) continue;
+            for (const item of overview.lines) {
+              items.push({
+                name: item.name,
+                ns: typeMatch.ns,
+              });
+            }
+          }
+          searchIndex.value = items;
+        } catch (err) {
+          console.warn("Failed to parse ninja JSON for search index", err);
+        }
+
+        // TODO: update to search for requested currency instead of divine
+        const divineRates = ninjaXchg.rates;
+        const preferred = selectedCoreCurrency.value;
+
+        if (divineRates && divineRates.exalted) {
+          exaltedRate.value = divineRates.exalted;
+        }
+
+        if (divineRates && Object.values(divineRates).some((v) => v >= 10)) {
+          if (
+            preferred &&
+            preferred.id !== "div" &&
+            divineRates[preferred.id] >= 5
+          ) {
+            xchgRate.value = divineRates[preferred.id];
+            xchgRateCurrency.value = preferred.id;
+          } else {
+            xchgRate.value = divineRates.exalted;
+            xchgRateCurrency.value = "exalted";
           }
         }
-      } catch (err) {
-        console.warn("Failed to parse ninja JSON for search index", err);
-      }
 
-      // TODO: update to search for requested currency instead of divine
-      const divineRates = ninjaXchg.rates;
-      const preferred = selectedCoreCurrency.value;
-
-      if (divineRates && divineRates.exalted) {
-        exaltedRate.value = divineRates.exalted;
-      }
-
-      if (divineRates && Object.values(divineRates).some((v) => v >= 10)) {
-        if (
-          preferred &&
-          preferred.id !== "div" &&
-          divineRates[preferred.id] >= 5
-        ) {
-          xchgRate.value = divineRates[preferred.id];
-          xchgRateCurrency.value = preferred.id;
+        if (divineRates && divineRates.exalted && divineRates.chaos) {
+          chaosToExalt.value = divineRates.exalted / divineRates.chaos;
         } else {
-          xchgRate.value = divineRates.exalted;
-          xchgRateCurrency.value = "exalted";
+          chaosToExalt.value = undefined;
         }
-      }
 
-      if (divineRates && divineRates.exalted && divineRates.chaos) {
-        chaosToExalt.value = divineRates.exalted / divineRates.chaos;
+        const annulPrice = findPriceByQuery({ ns: "ITEM", name: "Orb of Annulment" });
+        if (annulPrice && divineRates && divineRates.exalted) {
+          annulToExalt.value = annulPrice.primaryValue * divineRates.exalted;
+        } else {
+          annulToExalt.value = undefined;
+        }
       } else {
-        chaosToExalt.value = undefined;
-      }
+        const data = await loadPoe1Prices(league.id, controller.signal);
+        if (controller.signal.aborted) return;
 
-      const annulPrice = findPriceByQuery({ ns: "ITEM", name: "Orb of Annulment" });
-      if (annulPrice && divineRates && divineRates.exalted) {
-        annulToExalt.value = annulPrice.primaryValue * divineRates.exalted;
-      } else {
-        annulToExalt.value = undefined;
+        const currencyPrice = (name: string) =>
+          data.prices.get(poe1PriceKey({ ns: "ITEM", name }))?.chaos;
+        const divine = currencyPrice("Divine Orb");
+        const exalt = currencyPrice("Exalted Orb");
+        const annul = currencyPrice("Orb of Annulment");
+        chaosToDivine.value = divine;
+        chaosToExalt.value = exalt ? 1 / exalt : undefined;
+        exaltedRate.value = exalt && divine ? divine / exalt : undefined;
+        annulInChaos.value = annul;
+        annulToExalt.value = annul && exalt ? annul / exalt : undefined;
+        xchgRateCurrency.value = "chaos";
+        xchgRate.value = divine;
+
+        poe1Prices.value = data;
+        searchIndex.value = Array.from(data.names.values());
       }
 
       // Clear cache
-      priceCache = new Map<
-        { ns: string; name: string; count: number },
-        CurrencyValue
-      >();
+      priceCache.clear();
 
       lastUpdateTime = Date.now();
     } catch (e) {
-      console.warn(e);
+      if (!controller.signal.aborted) console.warn(e);
     } finally {
-      isLoading.value = false;
+      if (downloadController === controller) isLoading.value = false;
     }
   }
 
@@ -298,6 +306,16 @@ export const usePoeninja = createGlobalState(() => {
   }
 
   function findPriceByQuery(query: DbQuery) {
+    if (AppConfig()?.game === "poe1") {
+      const entry = poe1Prices.value?.prices.get(poe1PriceKey(query));
+      if (!entry) return null;
+      return {
+        ...entry,
+        cx: false as const,
+        primaryValue: entry.chaos,
+      };
+    }
+
     // NOTE: order of keys is important
     const searchString = JSON.stringify({
       name: query.name,
@@ -336,7 +354,7 @@ export const usePoeninja = createGlobalState(() => {
     const MAX_RESULTS = 50;
     const out = [];
 
-    for (const item of SEARCH_INDEX) {
+    for (const item of searchIndex.value) {
       const lcName = item.name.toLowerCase();
       if (
         lcSearch.every((part) => lcName.includes(part)) &&
@@ -350,16 +368,16 @@ export const usePoeninja = createGlobalState(() => {
     return out;
   }
 
-  /**
-   * Converts item value from divines to current core currency
-   * @param value item value in divines
-   * @returns Value in core currency or div
-   */
+  // PoE1 market data is denominated in chaos. PoE2 market data is denominated in divines.
   function autoCurrency(
     value: number | [number, number],
     coreOnly: boolean = false,
     forceCurrency?: "exalted" | "chaos" | "div",
   ): CurrencyValue {
+    if (AppConfig()?.game === "poe1") {
+      const [min, max] = Array.isArray(value) ? value : [value, value];
+      return { min, max, currency: "chaos" };
+    }
     if (forceCurrency === "exalted") {
       const rate = exaltedRate.value || 9999;
       if (Array.isArray(value)) {
@@ -384,11 +402,11 @@ export const usePoeninja = createGlobalState(() => {
           currency: "div",
         };
       }
-      if (selectedCoreCurrency.value?.id) {
+      if (activeCoreCurrency.value?.id) {
         return {
           min: coreValue[0],
           max: coreValue[1],
-          currency: selectedCoreCurrency.value.id,
+          currency: activeCoreCurrency.value.id,
         };
       }
       // this should never run, assuming we have loaded a currency
@@ -406,15 +424,26 @@ export const usePoeninja = createGlobalState(() => {
         };
       }
     }
-    if (selectedCoreCurrency.value?.id) {
+    if (activeCoreCurrency.value?.id) {
       return {
         min: coreValue,
         max: coreValue,
-        currency: selectedCoreCurrency.value.id,
+        currency: activeCoreCurrency.value.id,
       };
     }
     // this should never run, assuming we have loaded a currency
     return { min: value, max: value, currency: "div" };
+  }
+
+  function displayPrice<T extends { currency: string; min: number; max: number }>(price: T) {
+    const rate = chaosToDivine.value;
+    if (AppConfig()?.game === "poe1" && price.currency === "chaos" && rate && rate > 0 && price.min >= rate) {
+      return {
+        primary: { currency: "div" as const, min: price.min / rate, max: price.max / rate },
+        chaosEquivalent: price,
+      };
+    }
+    return { primary: price, chaosEquivalent: undefined };
   }
 
   function divineToCore(count: number) {
@@ -422,7 +451,7 @@ export const usePoeninja = createGlobalState(() => {
   }
 
   function cachedCurrencyByQuery(query: DbQuery, count: number) {
-    const key = { ns: query.ns, name: query.name, count };
+    const key = JSON.stringify([query.ns, query.name, query.variant, count]);
     if (priceCache.has(key)) {
       return priceCache.get(key)!;
     }
@@ -440,30 +469,33 @@ export const usePoeninja = createGlobalState(() => {
     load();
   }, RETRY_INTERVAL_MS);
 
-  watch(leagues.selectedId, () => {
-    xchgRate.value = undefined;
-    chaosToExalt.value = undefined;
-    annulToExalt.value = undefined;
-    PRICES_DB = [];
-    load(true);
-  });
-
-  watch(selectedCoreCurrencyId, (curr, prev) => {
-    if (curr === prev) return;
-    xchgRateCurrency.value = curr ?? "exalted";
-    xchgRate.value = undefined;
-    chaosToExalt.value = undefined;
-    annulToExalt.value = undefined;
-    PRICES_DB = [];
-    load(true);
-  });
+  watch(
+    [() => AppConfig()?.game, leagues.selectedId, selectedCoreCurrencyId],
+    () => {
+      downloadController?.abort();
+      xchgRate.value = undefined;
+      xchgRateCurrency.value = undefined;
+      exaltedRate.value = undefined;
+      chaosToExalt.value = undefined;
+      annulToExalt.value = undefined;
+      chaosToDivine.value = undefined;
+      annulInChaos.value = undefined;
+      PRICES_DB = [];
+      poe1Prices.value = undefined;
+      searchIndex.value = [];
+      priceCache.clear();
+      lastUpdateTime = 0;
+      void load(true);
+    },
+  );
 
   return {
     xchgRate: readonly(xchgRate),
-    xchgRateCurrency: readonly(selectedCoreCurrency),
+    xchgRateCurrency: readonly(activeCoreCurrency),
     findPriceByQuery,
     searchNinjaItems,
     autoCurrency,
+    displayPrice,
     queuePricesFetch,
     forceLoad: () => load(true),
     cachedCurrencyByQuery,
@@ -472,6 +504,8 @@ export const usePoeninja = createGlobalState(() => {
     availableCoreCurrencies: readonly(availableCoreCurrencies),
     chaosToExalt: readonly(chaosToExalt),
     annulToExalt: readonly(annulToExalt),
+    chaosToDivine: readonly(chaosToDivine),
+    annulInChaos: readonly(annulInChaos),
     exaltedRate: readonly(exaltedRate),
   };
 });
@@ -527,6 +561,10 @@ function splitJsonBlob(jsonBlob: string, schema: NinjaSchema): PriceDatabase {
     startPos = endPos;
   }
   return database;
+}
+
+export function formatChaosOrDivineAmount(value: number) {
+  return value.toLocaleString(undefined, { maximumFractionDigits: 2 });
 }
 
 export function displayRounding(

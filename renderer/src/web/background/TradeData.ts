@@ -1,6 +1,8 @@
-import { readonly, shallowRef } from "vue";
+import { computed, readonly, shallowRef } from "vue";
 import { createGlobalState } from "@vueuse/core";
 import { Host } from "@/web/background/IPC";
+import { AppConfig } from "@/web/Config";
+import type { GameVersion } from "@ipc/types";
 
 // from Prices.ts, but longer periods since maybe would slowdown ui more
 const RETRY_INTERVAL_MS = 30 * 60 * 1000; // 30 min, try to get new stuff
@@ -27,7 +29,7 @@ interface TradeStat {
   text: string;
 }
 
-export const useTradeData = createGlobalState(() => {
+function createTradeData(game: GameVersion) {
   let lastUpdateTime = 0;
   let downloadController: AbortController | undefined;
   let lastInterestTime = 0;
@@ -51,11 +53,12 @@ export const useTradeData = createGlobalState(() => {
 
     const response = await Host.proxy(
       // don't use `getTradeEndpoint` since we want ref items, not translated
-      `www.pathofexile.com/api/trade2/data/stats`,
+      `www.pathofexile.com/api/${game === "poe1" ? "trade" : "trade2"}/data/stats`,
       {
         signal: downloadController.signal,
       },
     );
+    if (!response?.ok) throw new Error("Trade data request failed: " + response?.status);
     const resText = await response.text();
     const tradeStatsProcessingTime = performance.now();
 
@@ -101,11 +104,12 @@ export const useTradeData = createGlobalState(() => {
 
     const response = await Host.proxy(
       // don't use `getTradeEndpoint` since we want ref items, not translated
-      `www.pathofexile.com/api/trade2/data/items`,
+      `www.pathofexile.com/api/${game === "poe1" ? "trade" : "trade2"}/data/items`,
       {
         signal: downloadController.signal,
       },
     );
+    if (!response?.ok) throw new Error("Trade data request failed: " + response?.status);
     const resText = await response.text();
     const tradeItemsProcessingTime = performance.now();
 
@@ -144,7 +148,9 @@ export const useTradeData = createGlobalState(() => {
     )
       return;
 
-    if (downloadController) downloadController.abort();
+    downloadController?.abort();
+    const controller = new AbortController();
+    downloadController = controller;
 
     let foundItems: number = 0;
     let foundStats: number = 0;
@@ -153,7 +159,6 @@ export const useTradeData = createGlobalState(() => {
       performance.mark("trade-data-load-start");
       isLoading.value = true;
       error.value = null;
-      downloadController = new AbortController();
 
       // grab the data
       const [outItemData, outStatTuple] = await Promise.all([
@@ -161,10 +166,10 @@ export const useTradeData = createGlobalState(() => {
         loadStatData(),
       ]);
 
+      if (controller.signal.aborted) return;
       foundItems = outItemData.size - itemData.value.size;
       foundStats = outStatTuple[1].size - statDataSet.value.size;
-      // don't regress
-      if (foundItems > 0 && foundStats > 0) {
+      if (outItemData.size && outStatTuple[1].size) {
         itemData.value = outItemData;
         statData.value = outStatTuple[0];
         statDataSet.value = outStatTuple[1];
@@ -172,10 +177,10 @@ export const useTradeData = createGlobalState(() => {
 
       lastUpdateTime = Date.now();
     } catch (e) {
-      console.warn(e);
+      if (controller.signal.aborted) return;
       error.value = (e as Error).message;
     } finally {
-      isLoading.value = false;
+      if (downloadController === controller) isLoading.value = false;
     }
     performance.mark("trade-data-load-end");
 
@@ -203,5 +208,19 @@ export const useTradeData = createGlobalState(() => {
     tradeStatData: readonly(statData),
     tradeStatDataSet: readonly(statDataSet),
     load,
+  };
+}
+
+export const useTradeData = createGlobalState(() => {
+  const data = {
+    poe1: createTradeData("poe1"),
+    poe2: createTradeData("poe2"),
+  };
+  const current = computed(() => data[AppConfig()?.game ?? "poe2"]);
+  return {
+    forGame: (game: GameVersion) => data[game],
+    load: (force = false, game = AppConfig()?.game ?? "poe2") => data[game].load(force),
+    isLoading: computed(() => current.value.isLoading.value),
+    error: computed(() => current.value.error.value),
   };
 });

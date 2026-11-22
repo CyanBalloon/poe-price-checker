@@ -208,8 +208,8 @@ export function tryParseTranslation(
       modType === ModifierType.AddedAugment ? ModifierType.Augment : modType;
     if (
       !found ||
-      (!hasTradeIdForType(found.stat.trade.ids, realType) &&
-        !found.stat.ref.startsWith(_$REF.GRANTS_SKILL))
+      (!hasTradeIdForType(found.stat?.trade?.ids, realType) &&
+        !found.stat?.ref.startsWith(_$REF.GRANTS_SKILL))
     ) {
       if (backupParsedStat) {
         continue;
@@ -353,7 +353,7 @@ export function getRollOrMinmaxAvg(values: number[]): number {
 }
 
 function trySecondaryParseTranslation(stat: string): ParsedStat | undefined {
-  const tradeStat = TRADE_STAT_BY_MATCH_STR(stat);
+  const tradeStat = TRADE_STAT_BY_MATCH_STR?.(stat);
   if (!tradeStat) return;
 
   let optionValue: number | undefined;

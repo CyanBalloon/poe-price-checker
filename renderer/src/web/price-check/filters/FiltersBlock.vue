@@ -1,157 +1,6 @@
 <template>
-  <div>
-    <div class="flex justify-between">
-      <div class="flex flex-wrap items-center pb-3 gap-2">
-        <filter-btn-numeric
-          v-if="filters.socketNumber && !isStandalone"
-          :filter="filters.socketNumber"
-          :name="t('item.gem_sockets')"
-        />
-        <filter-btn-numeric
-          v-if="filters.linkedSockets && !isStandalone"
-          :filter="filters.linkedSockets"
-          :name="t('item.linked_sockets')"
-        />
-        <filter-btn-numeric
-          v-if="filters.mapTier"
-          :filter="filters.mapTier"
-          :name="t('item.map_tier')"
-        />
-        <filter-btn-numeric
-          v-if="filters.awardedAscendancyPoints"
-          :filter="filters.awardedAscendancyPoints"
-          :name="t('item.ascendancy_points')"
-        />
-        <filter-btn-numeric
-          v-if="filters.areaLevel"
-          :filter="filters.areaLevel"
-          :name="t('item.area_level')"
-        />
-        <filter-btn-numeric
-          v-if="filters.heistWingsRevealed"
-          :filter="filters.heistWingsRevealed"
-          :name="t('item.heist_wings_revealed')"
-        />
-        <filter-btn-numeric
-          v-if="filters.sentinelCharge"
-          :filter="filters.sentinelCharge"
-          :name="t('item.sentinel_charge')"
-        />
-        <filter-btn-logical
-          v-if="filters.mapBlighted"
-          readonly
-          :filter="{ disabled: false }"
-          :text="filters.mapBlighted.value"
-        />
-        <filter-btn-logical
-          v-if="filters.rarity?.value === 'magic' && !isStandalone"
-          readonly
-          :filter="{ disabled: false }"
-          text="Magic"
-        />
-        <filter-btn-logical
-          v-if="filters.rarity?.value === 'normal' && !isStandalone"
-          readonly
-          :filter="{ disabled: false }"
-          text="Normal"
-        />
-        <filter-btn-logical
-          v-if="filters.discriminator?.value"
-          readonly
-          :filter="{ disabled: false }"
-          :text="filters.discriminator.value"
-        />
-        <filter-btn-numeric
-          v-if="filters.itemLevel && !isStandalone"
-          :filter="filters.itemLevel"
-          :name="t('item.item_level')"
-        />
-        <filter-btn-numeric
-          v-if="filters.requires?.level && !isStandalone"
-          :filter="filters.requires?.level"
-          :name="t('item.requires_level')"
-        />
-        <filter-btn-numeric
-          v-if="filters.stackSize"
-          :filter="filters.stackSize"
-          :name="t('item.stock')"
-        />
-        <filter-btn-numeric
-          v-if="filters.whiteSockets && !isStandalone"
-          :filter="filters.whiteSockets"
-          :name="t('item.white_sockets')"
-        />
-        <filter-btn-numeric
-          v-if="filters.augmentSockets && !isStandalone"
-          :filter="filters.augmentSockets"
-          :name="t('item.augment_sockets')"
-        />
-        <filter-btn-numeric
-          v-if="filters.gemLevel"
-          :filter="filters.gemLevel"
-          :name="t('item.gem_level')"
-        />
-        <filter-btn-numeric
-          v-if="filters.quality && !isStandalone"
-          :filter="filters.quality"
-          :name="t('item.quality')"
-        />
-        <template v-if="filters.influences">
-          <filter-btn-logical
-            v-for="influence of filters.influences"
-            :key="influence.value"
-            :filter="influence"
-            :text="influence.value"
-            :img="`/images/influence-${influence.value}.png`"
-          />
-        </template>
-        <!-- Implicitly should only be tier or plain unid from create-item-filters -->
-        <filter-btn-numeric
-          v-if="filters.unidentifiedTier"
-          :filter="filters.unidentifiedTier"
-          :name="t('item.unidentified_tier')"
-        />
-        <filter-btn-logical
-          v-else-if="filters.unidentified"
-          :filter="filters.unidentified"
-          :text="t('item.unidentified')"
-        />
-        <filter-btn-logical
-          v-if="filters.veiled"
-          :filter="filters.veiled"
-          :text="t('item.veiled')"
-        />
-        <filter-btn-logical
-          v-if="filters.foil"
-          :filter="filters.foil"
-          :text="t('item.foil_unique')"
-        />
-        <filter-btn-logical
-          v-if="filters.mirrored"
-          active
-          :filter="filters.mirrored"
-          :text="
-            t(filters.mirrored.disabled ? 'item.not_mirrored' : 'item.mirrored')
-          "
-        />
-        <filter-btn-logical
-          v-if="filters.sanctified"
-          active
-          :filter="filters.sanctified"
-          :text="
-            t(
-              filters.sanctified.disabled
-                ? 'item.not_sanctified'
-                : 'item.sanctified',
-            )
-          "
-        />
-        <filter-btn-logical
-          v-if="filters.ultimatumHint"
-          :filter="filters.ultimatumHint"
-          :text="t(`item.${filters.ultimatumHint.value.toLowerCase()}`)"
-        />
-
+  <div :class="{ 'filter-editor': isStandalone, 'filter-editor--properties-only': isStandalone && !hasStats }">
+    <item-filter-properties v-if="!isStandalone" :filters="filters" :is-poe1="isPoe1">
         <filter-btn-logical
           v-if="hasStats"
           :collapse="statsVisibility.disabled"
@@ -163,43 +12,11 @@
               : t('filters.selected_none')
           "
         />
-      </div>
-      <!--
-      <button
-        v-if="
-          hasEmptyAugmentSockets &&
-          filters.itemEditorSelection &&
-          !filters.itemEditorSelection.disabled
-        "
-        @click="
-          filters.itemEditorSelection.editing =
-            !filters.itemEditorSelection.editing
-        "
-        class="flex items-center bg-gray-900 rounded border"
-        :class="[
-          filters.itemEditorSelection.value !== 'None'
-            ? 'border-gray-500'
-            : 'border-transparent',
-        ]"
-      >
-        <div class="flex items-center justify-center shrink-0 w-8 h-8">
-          <div
-            v-if="filters.itemEditorSelection.value === 'None'"
-            class="flex items-center justify-center shrink-0 w-8 h-8 border-2 border-dashed border-gray-400 rounded-full"
-          />
-          <img
-            v-else
-            :src="getAugmentImage(filters.itemEditorSelection.value)"
-            class="max-w-full max-h-full overflow-hidden"
-          />
-        </div>
-      </button>
-    --></div>
+    </item-filter-properties>
     <!-- Handled parse error -->
     <div
       v-if="!statsVisibility.disabled && hasStats"
-      class="mb-4"
-      :class="presets.length > 1 ? 'mt-1' : 'mt-4'"
+      :class="isStandalone ? 'modifier-list' : ['mb-4', presets.length > 1 ? 'mt-1' : 'mt-4']"
     >
       <div class="flex" v-if="presets.length > 1 && !isStandalone">
         <div class="w-5 border-b border-gray-700" />
@@ -216,22 +33,46 @@
         </div>
         <div class="flex-1 border-b border-gray-700" />
       </div>
+      <header v-if="isStandalone" class="filter-section-head">
+        <h3>Modifiers</h3>
+        <span v-if="filteredStats.some(stat => stat.roll && !stat.oils)">Search range</span>
+      </header>
       <form @submit.prevent="handleStatsSubmit">
-        <filter-modifier
-          v-for="filter of filteredStats"
-          :key="filter.tag + '/' + filter.text"
-          :filter="filter"
-          :item="item"
-          :show-sources="showFilterSources"
-          @submit="handleStatsSubmit"
-        />
+        <template v-for="group in modifierGroups" :key="group.label">
+          <h4 v-if="isStandalone" class="modifier-group-title">
+            <button type="button" :aria-expanded="!foldedGroups.has(group.label)" @click="toggleGroup(group.label)">
+              <i class="fa-solid fa-chevron-down" aria-hidden="true"></i>
+              <span>{{ group.label }}</span>
+              <small>{{ group.filters.filter(filter => !filter.disabled).length }} selected</small>
+            </button>
+          </h4>
+          <div v-show="!isStandalone || !foldedGroups.has(group.label)">
+            <filter-modifier
+              v-for="filter in group.filters"
+              :key="filter.tag + '/' + filter.statRef + '/' + filter.text"
+              :filter="filter"
+              :item="item"
+              :show-sources="isStandalone || showFilterSources"
+              :expanded="expandedFilter === filter"
+              @edit="expandedFilter = expandedFilter === filter ? null : filter"
+              @submit="handleStatsSubmit"
+            />
+          </div>
+        </template>
         <div
-          v-if="!filteredStats.length && !showUnknownMods"
+          v-if="!filteredStats.length && !showUnknownMods && (!isStandalone || !stats.length)"
           class="border-b border-gray-700 py-2"
         >
           {{ t("filters.empty") }}
         </div>
-        <template v-if="showUnknownMods">
+        <details v-if="showUnknownMods && isStandalone" class="unrecognized-mods">
+          <summary>Unrecognized modifiers ({{ item.unknownModifiers.length }})</summary>
+          <ul>
+            <li v-for="(stat, index) in item.unknownModifiers" :key="index">{{ stat.text }}</li>
+          </ul>
+          <reload-trade-data :item-text="item.rawText" />
+        </details>
+        <template v-else-if="showUnknownMods">
           <unknown-modifier
             v-for="stat of item.unknownModifiers"
             :key="stat.type + '/' + stat.text"
@@ -267,9 +108,20 @@
         </template>
         <input type="submit" class="hidden" />
       </form>
-      <div class="flex items-center gap-2 mt-4 pt-3 border-t border-[#1b1c26]/60 select-none">
+      <div v-if="isStandalone && (extraMods || showHidden || hasConvertibleResistances || originalStats)" class="modifier-list-actions">
+        <button v-if="extraMods || showHidden" type="button" :aria-expanded="showHidden" @click="showHidden = !showHidden">
+          <i class="fa-solid" :class="showHidden ? 'fa-chevron-up' : 'fa-chevron-down'" aria-hidden="true"></i>
+          {{ showHidden ? 'Show fewer modifiers' : 'Show ' + extraMods + (extraMods === 1 ? ' more modifier' : ' more modifiers') }}
+        </button>
+        <button v-if="hasConvertibleResistances || originalStats" type="button" @click="toggleResistancesConversion">
+          {{ originalStats ? 'Use exact resistances' : 'Combine resistances' }}
+        </button>
+      </div>
+      <div v-else-if="!isStandalone"
+        class="flex flex-wrap items-center gap-2 mt-3 pt-3 border-t border-[var(--line)] select-none">
         <button
           type="button"
+          v-if="!isStandalone"
           @click="statsVisibility.disabled = !statsVisibility.disabled"
           class="flex items-center justify-center gap-1.5 px-3 py-1.5 bg-[#171924]/60 hover:bg-[#202336] border border-[#272a3b]/40 hover:border-violet-500/40 rounded-xl text-[10px] font-semibold text-gray-400 hover:text-white transition-all shadow-sm cursor-pointer shrink-0"
         >
@@ -278,7 +130,7 @@
         </button>
 
         <button
-          v-if="filteredStats.length !== stats.length"
+          v-if="stats.some((stat) => stat.hidden)"
           type="button"
           @click="showHidden = !showHidden"
           class="flex items-center gap-1.5 px-3 py-1.5 border rounded-xl text-[10px] font-semibold transition-all shadow-sm cursor-pointer shrink-0"
@@ -301,7 +153,7 @@
         </button>
 
         <button
-          type="button"
+                    type="button"
           @click="showFilterSources = !showFilterSources"
           class="ml-auto flex items-center gap-1.5 px-3 py-1.5 border rounded-xl text-[10px] font-semibold transition-all shadow-sm cursor-pointer shrink-0"
           :class="showFilterSources 
@@ -313,6 +165,13 @@
         </button>
       </div>
     </div>
+    <details v-if="isStandalone" :key="item.rawText" class="item-properties" :open="!hasStats">
+      <summary>Item properties <i class="fa-solid fa-chevron-down" aria-hidden="true"></i></summary>
+      <div class="item-properties-content">
+        <slot name="search-criteria" />
+        <item-filter-properties standalone :filters="filters" :is-poe1="isPoe1" />
+      </div>
+    </details>
   </div>
 </template>
 
@@ -321,23 +180,23 @@ import {
   defineComponent,
   watch,
   shallowRef,
+  ref,
   shallowReactive,
   computed,
   PropType,
 } from "vue";
 import { useI18n } from "vue-i18n";
-import UiToggle from "@/web/ui/UiToggle.vue";
+import { AppConfig } from "@/web/Config";
 import FilterModifier from "./FilterModifier.vue";
-import FilterBtnNumeric from "./FilterBtnNumeric.vue";
+import ItemFilterProperties from "./ItemFilterProperties.vue";
 import FilterBtnLogical from "./FilterBtnLogical.vue";
 import UnknownModifier from "./UnknownModifier.vue";
+import ReloadTradeData from "../fallback/ReloadTradeData.vue";
 import { ItemFilters, StatFilter, FilterTag } from "./interfaces";
+import { groupModifierFilters } from "./modifier-groups";
 import { ParsedItem, ItemRarity, ItemCategory } from "@/parser";
-import FilterBtnDropdown from "./FilterBtnDropdown.vue";
-import { AUGMENT_DATA_BY_AUGMENT, STAT_BY_REF } from "@/assets/data";
-import { ARMOUR, MARTIAL_WEAPON } from "@/parser/meta";
+import { STAT_BY_REF } from "@/assets/data";
 import { ModifierType } from "@/parser/modifiers";
-import { AppConfig } from "@/web/Config";
 import { PriceCheckWidget } from "@/web/overlay/widgets";
 
 export default defineComponent({
@@ -345,11 +204,10 @@ export default defineComponent({
   emits: ["submit", "preset"],
   components: {
     FilterModifier,
-    FilterBtnNumeric,
+    ItemFilterProperties,
     FilterBtnLogical,
-    FilterBtnDropdown,
     UnknownModifier,
-    UiToggle,
+    ReloadTradeData,
   },
   props: {
     presets: {
@@ -372,6 +230,13 @@ export default defineComponent({
   setup(props, ctx) {
     const statsVisibility = shallowReactive({ disabled: false });
     const showHidden = shallowRef(false);
+    const expandedFilter = shallowRef<StatFilter | null>(null);
+    const foldedGroups = ref(new Set(["Pseudo stats"]));
+    function toggleGroup(label: string) {
+      if (foldedGroups.value.has(label)) foldedGroups.value.delete(label);
+      else foldedGroups.value.add(label);
+    }
+    const extraMods = computed(() => props.stats.filter((stat) => stat.hidden && stat.disabled).length);
     const showFilterSources = shallowRef(false);
     const isStandalone = computed(() => {
       const params = new URLSearchParams(window.location.search);
@@ -379,10 +244,17 @@ export default defineComponent({
     });
 
     const originalStats = shallowRef<StatFilter[] | null>(null);
+    const filteredStats = computed(() => {
+      if (isStandalone.value) {
+        return showHidden.value ? props.stats : props.stats.filter(stat => !stat.hidden || !stat.disabled);
+      }
+      return props.stats.filter(stat => Boolean(stat.hidden) === showHidden.value);
+    });
 
     watch(
       () => props.stats,
       () => {
+        expandedFilter.value = null;
         originalStats.value = null;
       }
     );
@@ -390,6 +262,7 @@ export default defineComponent({
     watch(
       () => props.item,
       () => {
+        foldedGroups.value = new Set(["Pseudo stats"]);
         showHidden.value = false;
         statsVisibility.disabled = false;
         originalStats.value = null;
@@ -591,10 +464,15 @@ export default defineComponent({
     };
 
     return {
+      isPoe1: computed(() => AppConfig().game === "poe1"),
       t,
       isStandalone,
       statsVisibility,
       showHidden,
+      expandedFilter,
+      foldedGroups,
+      toggleGroup,
+      extraMods,
       showFilterSources,
       hasConvertibleResistances,
       convertResistances,
@@ -603,18 +481,15 @@ export default defineComponent({
       totalSelectedMods: computed(() => {
         return props.stats.filter((stat) => !stat.disabled).length;
       }),
-      filteredStats: computed(() => {
-        if (showHidden.value) {
-          return props.stats.filter((s) => s.hidden);
-        } else {
-          return props.stats.filter((s) => !s.hidden);
-        }
-      }),
+      filteredStats,
+      modifierGroups: computed(() => isStandalone.value
+        ? groupModifierFilters(filteredStats.value, props.item.rarity)
+        : [{ label: "", filters: filteredStats.value }]),
       showUnknownMods,
       hasStats: computed(
         () =>
           props.stats.length ||
-          (showUnknownMods.value && props.item.rarity === ItemRarity.Unique) ||
+          (showUnknownMods.value && (isStandalone.value || props.item.rarity === ItemRarity.Unique)) ||
           props.presets.length > 1,
       ),
       handleStatsSubmit() {
@@ -622,18 +497,6 @@ export default defineComponent({
       },
       selectPreset(id: string) {
         ctx.emit("preset", id);
-      },
-      hasEmptyAugmentSockets: computed(() => {
-        return (
-          props.item.augmentSockets &&
-          props.item.augmentSockets.empty > 0 &&
-          (MARTIAL_WEAPON.has(props.item.category!) ||
-            ARMOUR.has(props.item.category!))
-        );
-      }),
-      getAugmentImage(augment: string) {
-        const icon = AUGMENT_DATA_BY_AUGMENT[augment][0].icon;
-        return icon === "%NOT_FOUND%" ? "/images/404.png" : icon;
       },
       hiddenLabel: computed(() => {
         if (
@@ -681,5 +544,60 @@ export default defineComponent({
       theme("colors.gray.800")
     );
   }
+}
+</style>
+
+
+<style scoped>
+.filter-editor { display: grid; gap: 1rem; }
+.modifier-list { min-width: 0; }
+.filter-section-head, .item-properties summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  color: var(--ink);
+  font-size: 0.88rem;
+  font-weight: 600;
+}
+.filter-section-head { align-items: baseline; margin-bottom: 0.8rem; }
+.modifier-group-title { margin: 0.65rem 0 0.15rem; }
+.modifier-group-title:first-child { margin-top: 0; }
+.modifier-group-title button { display: flex; align-items: center; gap: 0.55rem; width: 100%; min-height: 2.2rem; padding-inline: 0.35rem; border-radius: 0.4rem; color: var(--ink); font-size: 0.87rem; font-weight: 600; text-align: left; }
+.modifier-group-title button:hover { background: var(--surface); }
+.modifier-group-title i { color: var(--quiet); font-size: 0.62rem; }
+.modifier-group-title [aria-expanded="false"] i { transform: rotate(-90deg); }
+.modifier-group-title small { margin-left: auto; color: var(--quiet); font-size: 0.75rem; font-weight: 400; font-variant-numeric: tabular-nums; }
+.filter-section-head h3 { font: 500 clamp(1.55rem, 2.4vw, 2.15rem)/1.25 var(--display); }
+.filter-section-head span { color: var(--quiet); font-size: 0.76rem; font-weight: 450; }
+.item-properties { min-width: 0; border-top: 1px solid var(--line); }
+.item-properties summary {
+  min-height: 2.6rem;
+  cursor: pointer;
+  list-style: none;
+}
+.item-properties summary i, .modifier-list-actions i { font-size: 0.64rem; color: var(--quiet); }
+.item-properties[open] summary i { transform: rotate(180deg); }
+.item-properties-content { padding: 0.3rem 0 0.65rem; }
+.modifier-list-actions { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 0.35rem; margin-top: 0.45rem; }
+.modifier-list-actions button { display: inline-flex; align-items: center; gap: 0.5rem; min-height: 2.25rem; color: var(--muted); font-size: 0.78rem; }
+.modifier-list-actions button:hover { color: var(--ink); }
+
+.unrecognized-mods {
+  margin-top: 0.65rem;
+  padding-block: 0.5rem;
+  color: var(--muted);
+  font-size: 0.76rem;
+}
+
+.unrecognized-mods summary {
+  cursor: pointer;
+}
+
+.unrecognized-mods ul {
+  margin-block: 0.6rem;
+  padding-left: 1rem;
+  list-style: disc;
+  overflow-wrap: anywhere;
 }
 </style>

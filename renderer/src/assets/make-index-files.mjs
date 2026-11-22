@@ -5,7 +5,9 @@ import fs from "fs";
 import path from "path";
 
 const LANGUAGES = ["en", "ru", "cmn-Hant", "ko", "ja", "de", "es", "pt", "fr"];
+const DIRS = ["./public/data", "./public/poe1-data"];
 
+for (const dataDir of DIRS) {
 for (const lang of LANGUAGES) {
   const lineStarts = {
     /** @type{Array<{ hash: number, start: number }>} */
@@ -15,7 +17,9 @@ for (const lang of LANGUAGES) {
   };
 
   {
-    const ndjson = fs.readFileSync(`./public/data/${lang}/stats.ndjson`, {
+    const filePath = `${dataDir}/${lang}/stats.ndjson`;
+    if (!fs.existsSync(filePath)) continue;
+    const ndjson = fs.readFileSync(filePath, {
       encoding: "utf-8",
     });
     let start = 0;
@@ -24,22 +28,24 @@ for (const lang of LANGUAGES) {
       const sliceEnd = end === -1 ? ndjson.length : end;
       const line = ndjson.slice(start, sliceEnd).trim();
       if (line) {
-        /** @type {import('./data/interfaces').Stat} */
-        const stat = JSON.parse(line);
-        lineStarts.statsByRef.push({
-          start,
-          hash: Number(fnv1a(stat.ref, { size: 32 })),
-        });
-        for (const matcher of stat.matchers) {
-          lineStarts.matchers.push({
+        const statOrGroup = JSON.parse(line);
+        const stats = statOrGroup.stats ? statOrGroup.stats : [statOrGroup];
+        for (const stat of stats) {
+          lineStarts.statsByRef.push({
             start,
-            hash: Number(fnv1a(matcher.string, { size: 32 })),
+            hash: Number(fnv1a(stat.ref, { size: 32 })),
           });
-          if (matcher.advanced) {
+          for (const matcher of stat.matchers) {
             lineStarts.matchers.push({
               start,
-              hash: Number(fnv1a(matcher.advanced, { size: 32 })),
+              hash: Number(fnv1a(matcher.string, { size: 32 })),
             });
+            if (matcher.advanced) {
+              lineStarts.matchers.push({
+                start,
+                hash: Number(fnv1a(matcher.advanced, { size: 32 })),
+              });
+            }
           }
         }
       }
@@ -55,7 +61,7 @@ for (const lang of LANGUAGES) {
       indexData[i * 2 + 1] = lineStarts.statsByRef[i].start;
     }
     fs.writeFileSync(
-      path.join("./public/data", lang, "stats-ref.index.bin"),
+      path.join(dataDir, lang, "stats-ref.index.bin"),
       indexData,
     );
   }
@@ -68,17 +74,21 @@ for (const lang of LANGUAGES) {
       indexData[i * 2 + 1] = lineStarts.matchers[i].start;
     }
     fs.writeFileSync(
-      path.join("./public/data", lang, "stats-matcher.index.bin"),
+      path.join(dataDir, lang, "stats-matcher.index.bin"),
       indexData,
     );
   }
 }
+}
 
+for (const dataDir of DIRS) {
 for (const lang of LANGUAGES) {
   /** @type{Array<{ hashName: number, hashRefName: number, start: number }>} */
   let lineStarts;
   {
-    const ndjson = fs.readFileSync(`./public/data/${lang}/items.ndjson`, {
+    const filePath = `${dataDir}/${lang}/items.ndjson`;
+    if (!fs.existsSync(filePath)) continue;
+    const ndjson = fs.readFileSync(filePath, {
       encoding: "utf-8",
     });
     let start = 0;
@@ -117,7 +127,7 @@ for (const lang of LANGUAGES) {
       indexData[i * 2 + 1] = lineStarts[i].start;
     }
     fs.writeFileSync(
-      path.join("./public/data", lang, "items-name.index.bin"),
+      path.join(dataDir, lang, "items-name.index.bin"),
       indexData,
     );
   }
@@ -130,8 +140,9 @@ for (const lang of LANGUAGES) {
       indexData[i * 2 + 1] = lineStarts[i].start;
     }
     fs.writeFileSync(
-      path.join("./public/data", lang, "items-ref.index.bin"),
+      path.join(dataDir, lang, "items-ref.index.bin"),
       indexData,
     );
   }
+}
 }

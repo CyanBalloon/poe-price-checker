@@ -1,5 +1,21 @@
 <template>
-  <div v-if="priceData" class="flex items-center justify-between pb-4" style="min-height: 3rem">
+  <section v-if="summary" class="summary-estimate" aria-label="Market estimate">
+    <div class="summary-estimate-label">{{ isValuableBasetype ? 'Base item estimate' : 'Market estimate' }}</div>
+    <template v-if="priceData">
+      <div class="summary-estimate-value">
+        <core-currency-img :currency="priceData.price.currency" />
+        <strong>{{ summaryValue }} {{ currencyLabel(priceData.price.currency, priceData.price.max) }}</strong>
+      </div>
+      <div class="summary-estimate-meta">
+        <span v-if="equivalent">≈ {{ equivalent.amount.toLocaleString() }} {{ currencyLabel(equivalent.currency, equivalent.amount) }}</span>
+        <button type="button" class="summary-estimate-source" @click="openNinja">
+          poe.ninja <i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i>
+        </button>
+      </div>
+    </template>
+    <p v-else class="summary-estimate-unavailable">No estimate available</p>
+  </section>
+  <div v-else-if="priceData" class="market-estimate">
     <div
       v-if="!isValuableBasetype && !slowdown.isReady.value"
       class="flex flex-1 justify-center"
@@ -12,7 +28,7 @@
     <template v-else>
       <item-quick-price
         class="text-base"
-        :price="priceData.price"
+        :price="priceData.rawPrice"
         :fraction="filters.stackSize != null"
         :item-img="item.info.icon"
         :item-base="item.info"
@@ -23,7 +39,7 @@
       </item-quick-price>
       <button
         @click="openNinja"
-        class="flex items-center gap-x-1.5 px-3 py-1.5 rounded bg-[#1e2230]/40 hover:bg-[#282d3f]/60 border border-[#2d3248]/50 hover:border-violet-500/50 text-gray-300 hover:text-white transition-all duration-200 text-xs font-semibold cursor-pointer shrink-0 shadow-sm"
+        class="ui-button"
       >
         <i class="fas fa-external-link-alt text-[10px] text-gray-400"></i>
         <span>Open on poe.ninja</span>
@@ -32,8 +48,7 @@
   </div>
   <div
     v-else-if="!item.info.craftable"
-    class="flex items-center justify-between pb-4"
-    style="min-height: 3rem"
+    class="market-estimate"
   >
     <item-quick-price
       class="text-base"
@@ -48,9 +63,12 @@
 import { defineComponent, PropType, computed, watch } from "vue";
 import { useI18nNs } from "@/web/i18n";
 import {
-  usePoeninja,
+  usePoeninja, displayRounding, formatChaosOrDivineAmount,
 } from "@/web/background/Prices";
 import { isValuableBasetype, getDetailsId } from "./getDetailsId";
+import { AppConfig } from "@/web/Config";
+import { currencyLabel } from "@/web/ui/currency-icons";
+import CoreCurrencyImg from "@/web/ui/CoreCurrencyImg.vue";
 import ItemQuickPrice from "@/web/ui/ItemQuickPrice.vue";
 import { ParsedItem, ItemCategory } from "@/parser";
 import { artificialSlowdown } from "../trade/artificial-slowdown";
@@ -61,8 +79,10 @@ const slowdown = artificialSlowdown(800);
 export default defineComponent({
   components: {
     ItemQuickPrice,
+    CoreCurrencyImg,
   },
   props: {
+    summary: Boolean,
     item: {
       type: Object as PropType<ParsedItem>,
       required: true,
@@ -74,7 +94,7 @@ export default defineComponent({
   },
   setup(props) {
     const { t } = useI18nNs("trade_result");
-    const { findPriceByQuery, autoCurrency } = usePoeninja();
+    const { findPriceByQuery, autoCurrency, displayPrice, exaltedRate } = usePoeninja();
 
     watch(
       () => props.item,
@@ -92,11 +112,14 @@ export default defineComponent({
       const price = autoCurrency(
         entry.primaryValue,
         props.item.info.refName === "Divine Orb" || isCurrency,
-        isCurrency ? "exalted" : undefined,
+        isCurrency && AppConfig().game === "poe2" ? "exalted" : undefined,
       );
 
+      const { primary, chaosEquivalent } = displayPrice(price);
       return {
-        price,
+        price: primary,
+        rawPrice: price,
+        chaosEquivalent,
         url: entry.url,
       };
     });
@@ -104,6 +127,25 @@ export default defineComponent({
     return {
       t,
       priceData,
+      currencyLabel,
+      summaryValue: computed(() => {
+        const price = priceData.value?.price;
+        if (!price) return;
+        const fraction = props.filters.stackSize != null;
+        const format = (value: number) => AppConfig().game === "poe1" ? formatChaosOrDivineAmount(value) : displayRounding(value, fraction);
+        const min = format(price.min);
+        const max = format(price.max);
+        return min === max ? min : min + "–" + max;
+      }),
+      equivalent: computed(() => {
+        const price = priceData.value?.price;
+        if (!price || price.min !== price.max) return;
+        const chaos = priceData.value?.chaosEquivalent;
+        if (chaos) return { amount: chaos.min, currency: "chaos" };
+        if (AppConfig().game === "poe2" && price.currency === "div" && exaltedRate.value) {
+          return { amount: Math.round(price.min * exaltedRate.value), currency: "exalted" };
+        }
+      }),
       openNinja() {
         window.open(priceData.value!.url);
       },
@@ -115,3 +157,15 @@ export default defineComponent({
   },
 });
 </script>
+
+<style scoped>
+.summary-estimate { min-width: 0; }
+.summary-estimate-label { color: var(--quiet); font-size: 0.78rem; }
+.summary-estimate-value { display: flex; align-items: center; gap: 0.65rem; }
+.summary-estimate-value strong { color: var(--ink); font: 500 clamp(1.55rem, 2.5vw, 2.4rem)/1.2 var(--display); font-variant-numeric: tabular-nums; }
+.summary-estimate-meta { display: flex; align-items: baseline; gap: 0.85rem; color: var(--muted); }
+.summary-estimate-source { color: var(--quiet); font-size: 0.75rem; }
+.summary-estimate-source:hover { color: var(--accent); }
+.summary-estimate-unavailable { margin-top: 0.45rem; color: var(--muted); }
+.market-estimate { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 0.6rem; padding-bottom: 0.55rem; }
+</style>

@@ -84,11 +84,7 @@ const hotkeys = computed<HotkeySchema[]>(() => {
         },
       ],
     },
-    {
-      translationKey: "settings.overlay",
-      config: _configModelValue(props.config, "overlayKey"),
-      required: true,
-    },
+
     {
       translationKey: "map_check.name",
       config: _configModelValue(itemCheckWidget, "hotkey"),

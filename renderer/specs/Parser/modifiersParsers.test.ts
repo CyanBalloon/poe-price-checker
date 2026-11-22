@@ -181,6 +181,8 @@ Gain 21(21-27) Mana per enemy killed
 
     const res = __testExports.parseModifiers(section.split("\n"), parsedItem);
     expect(res).toBe("SECTION_PARSED");
+    expect(parsedItem.newMods.find(mod => mod.info.name === "Overpowering")?.info)
+      .toMatchObject({ type: "crafted", generation: "prefix" });
   });
 
   it("Should parse implicit modifiers", () => {

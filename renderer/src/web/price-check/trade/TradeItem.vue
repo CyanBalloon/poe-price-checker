@@ -14,7 +14,7 @@
         }}{{
           result.normalizedPriceCurrency &&
           result.priceCurrency !== result.normalizedPriceCurrency.id &&
-          result.priceCurrency !== "divine" &&
+          !(result.priceCurrency === "divine" && result.normalizedPriceCurrency.id === "div") &&
           result.normalizedPrice
             ? ` (${result.normalizedPrice} ${result.normalizedPriceCurrency.abbrev})`
             : ""

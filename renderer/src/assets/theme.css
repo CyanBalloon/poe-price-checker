@@ -1,103 +1,355 @@
-/* Dark Fantasy Theme Overrides */
-.theme-dark-fantasy {
-  /* Main Backgrounds */
-  --df-bg-main: #14100e;
-  --df-bg-panel: #1a1512;
-  --df-bg-dark: #0f0b09;
-  
-  /* Borders */
-  --df-border-color: #5a482b;
-  --df-border-light: #7d6a45;
-  --df-border-dark: #3a2e1c;
-  
-  /* Buttons & Accents */
-  --df-accent-from: #8b0000;
-  --df-accent-to: #4a0000;
-  --df-accent-hover-from: #a50000;
-  --df-accent-hover-to: #660000;
-  
-  --df-text-muted: #a89f91;
-  --df-text-normal: #d4c8b8;
-  --df-text-highlight: #f0e6d2;
-  
-  font-family: "Georgia", serif !important;
+html {
+  color-scheme: dark;
 }
 
-.theme-dark-fantasy .font-poe-sc {
-  font-family: "Georgia", serif !important;
-  font-variant: small-caps;
+.trade-app {
+  --page: #15171c;
+  --sidebar: #191b20;
+  --surface: #202329;
+  --raised: #252930;
+  --hover: #2d3239;
+  --line: #30343b;
+  --line-strong: #484e59;
+  --ink: #f1f2f3;
+  --muted: #b9bec6;
+  --quiet: #949ca7;
+  --accent: #83d9ef;
+  --accent-strong: #aae9f7;
+  --accent-wash: #22373d;
+  --positive: #9dbb9d;
+  --danger: #ee9a8d;
+  --display: "Fontin", Georgia, serif;
+  color: var(--ink);
+  background-color: var(--page);
+  font: 400 0.875rem/1.45 "Segoe UI", system-ui, sans-serif;
 }
-.theme-dark-fantasy .font-mono {
-  font-family: "Consolas", monospace !important;
+
+.trade-app--ember {
+  --page: #171513;
+  --sidebar: #13110f;
+  --surface: #201c19;
+  --raised: #28231f;
+  --hover: #322c27;
+  --line: #352f29;
+  --line-strong: #4b4035;
+  --ink: #f2ebe1;
+  --muted: #bcb1a4;
+  --quiet: #a2988b;
+  --accent: #e4b67b;
+  --accent-strong: #f0ca95;
+  --accent-wash: #362a1f;
 }
 
-/* Background overrides */
-.theme-dark-fantasy .bg-\[\#07080a\] { background-color: var(--df-bg-main) !important; }
-.theme-dark-fantasy .bg-\[\#07080b\] { background-color: var(--df-bg-main) !important; }
-.theme-dark-fantasy .bg-\[\#0d0e12\] { background-color: var(--df-bg-dark) !important; }
-.theme-dark-fantasy .bg-\[\#0d0e12\]\/60 { background-color: rgba(15, 11, 9, 0.6) !important; }
-.theme-dark-fantasy .bg-\[\#0d0e12\]\/30 { background-color: rgba(15, 11, 9, 0.3) !important; }
-.theme-dark-fantasy .bg-\[\#090a0e\]\/40 { background-color: rgba(15, 11, 9, 0.4) !important; }
-.theme-dark-fantasy .bg-\[\#0e1017\] { background-color: var(--df-bg-panel) !important; }
-.theme-dark-fantasy .bg-\[\#151722\] { background-color: var(--df-bg-dark) !important; }
-.theme-dark-fantasy .bg-\[\#1b1c26\] { background-color: var(--df-bg-main) !important; }
-.theme-dark-fantasy .bg-\[\#1e2230\]\/40 { background-color: rgba(90, 72, 43, 0.4) !important; }
-.theme-dark-fantasy .bg-\[\#14151b\] { background-color: var(--df-bg-main) !important; }
-.theme-dark-fantasy .bg-\[\#0f111a\]\/40 { background-color: rgba(15, 11, 9, 0.4) !important; }
-.theme-dark-fantasy .bg-\[\#0f111a\]\/50 { background-color: rgba(15, 11, 9, 0.5) !important; }
-.theme-dark-fantasy .bg-\[\#1c1d29\] { background-color: var(--df-bg-main) !important; }
-.theme-dark-fantasy .bg-\[\#151724\]\/50 { background-color: rgba(125, 106, 69, 0.5) !important; }
-.theme-dark-fantasy .bg-\[\#171924\]\/60 { background-color: rgba(125, 106, 69, 0.6) !important; }
-.theme-dark-fantasy .bg-\[\#161822\] { background-color: var(--df-bg-main) !important; }
-.theme-dark-fantasy .bg-gray-800 { background-color: var(--df-bg-panel) !important; }
-.theme-dark-fantasy .bg-gray-900 { background-color: var(--df-bg-dark) !important; }
-.theme-dark-fantasy .bg-gray-700 { background-color: var(--df-bg-panel) !important; }
-.theme-dark-fantasy .bg-\[\#1f2233\] { background-color: #2b221d !important; }
+.trade-app ::selection {
+  color: var(--ink);
+  background: var(--accent-wash);
+}
 
-/* Inactive tabs hover & other hovers */
-.theme-dark-fantasy .hover\:bg-\[\#111218\]\/50:hover { background-color: rgba(90, 72, 43, 0.15) !important; }
-.theme-dark-fantasy .hover\:bg-\[\#1f2234\]:hover { background-color: var(--df-border-light) !important; }
-.theme-dark-fantasy .hover\:bg-\[\#151822\]:hover { background-color: var(--df-border-light) !important; }
-.theme-dark-fantasy .hover\:bg-\[\#282d3f\]\/60:hover { background-color: rgba(90, 72, 43, 0.25) !important; }
-.theme-dark-fantasy .hover\:bg-\[\#26283a\]:hover { background-color: var(--df-bg-dark) !important; }
-.theme-dark-fantasy .hover\:bg-\[\#202336\]:hover { background-color: var(--df-bg-dark) !important; }
+.trade-app :focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
 
-/* Border overrides */
-.theme-dark-fantasy .border-\[\#191b22\] { border-color: var(--df-border-color) !important; }
-.theme-dark-fantasy .border-\[\#202334\] { border-color: var(--df-border-color) !important; }
-.theme-dark-fantasy .border-\[\#202334\]\/50 { border-color: rgba(90, 72, 43, 0.5) !important; }
-.theme-dark-fantasy .border-\[\#2c2e42\] { border-color: var(--df-border-color) !important; }
-.theme-dark-fantasy .border-\[\#2d3248\]\/50 { border-color: rgba(90, 72, 43, 0.5) !important; }
-.theme-dark-fantasy .border-\[\#222538\]\/60 { border-color: rgba(90, 72, 43, 0.6) !important; }
-.theme-dark-fantasy .border-\[\#1b1c26\]\/20 { border-color: rgba(90, 72, 43, 0.2) !important; }
-.theme-dark-fantasy .border-\[\#2d2f44\] { border-color: var(--df-border-color) !important; }
-.theme-dark-fantasy .border-\[\#272a3b\]\/40 { border-color: rgba(90, 72, 43, 0.4) !important; }
-.theme-dark-fantasy .border-\[\#222538\] { border-color: var(--df-border-light) !important; }
-.theme-dark-fantasy .border-\[\#1d202e\]\/60 { border-color: rgba(90, 72, 43, 0.6) !important; }
-.theme-dark-fantasy .border-gray-700 { border-color: var(--df-border-color) !important; }
+.trade-app :disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
 
-/* Gradients and buttons */
-.theme-dark-fantasy .from-violet-600, .theme-dark-fantasy .from-purple-600 { --tw-gradient-from: var(--df-accent-from) !important; --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to, rgba(139, 0, 0, 0)) !important; }
-.theme-dark-fantasy .to-indigo-600 { --tw-gradient-to: var(--df-accent-to) !important; }
-.theme-dark-fantasy .hover\:from-violet-500:hover, .theme-dark-fantasy .hover\:from-purple-500:hover { --tw-gradient-from: var(--df-accent-hover-from) !important; }
-.theme-dark-fantasy .hover\:to-indigo-500:hover { --tw-gradient-to: var(--df-accent-hover-to) !important; }
+.trade-app :is(.ui-button, .ui-icon-button, .ui-select) {
+  min-height: 2.25rem;
+  border: 0;
+  border-radius: 0.4rem;
+  background: transparent;
+  color: var(--muted);
+  font-size: 0.8125rem;
+  font-weight: 600;
+}
 
-.theme-dark-fantasy .bg-violet-600, .theme-dark-fantasy .bg-purple-600 { background-color: var(--df-accent-from) !important; }
-.theme-dark-fantasy .border-violet-500, .theme-dark-fantasy .border-purple-500 { border-color: var(--df-accent-hover-from) !important; }
-.theme-dark-fantasy .text-violet-400, .theme-dark-fantasy .text-purple-400 { color: #d84545 !important; }
-.theme-dark-fantasy .text-violet-300, .theme-dark-fantasy .text-purple-300 { color: #f06565 !important; }
-.theme-dark-fantasy .text-\[\#8b5cf6\] { color: #d84545 !important; }
-.theme-dark-fantasy .bg-violet-500\/5, .theme-dark-fantasy .bg-purple-500\/5 { background-color: rgba(139, 0, 0, 0.05) !important; }
-.theme-dark-fantasy .bg-violet-500\/10, .theme-dark-fantasy .bg-purple-500\/10 { background-color: rgba(139, 0, 0, 0.1) !important; }
-.theme-dark-fantasy .bg-violet-500\/20, .theme-dark-fantasy .bg-purple-500\/20 { background-color: rgba(139, 0, 0, 0.2) !important; }
-.theme-dark-fantasy .border-violet-500\/10, .theme-dark-fantasy .border-purple-500\/10 { border-color: rgba(139, 0, 0, 0.1) !important; }
-.theme-dark-fantasy .focus\:border-violet-500:focus, .theme-dark-fantasy .focus\:border-purple-500:focus { border-color: var(--df-accent-hover-from) !important; }
+.trade-app :is(.ui-button, .ui-icon-button) {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.4rem 0.75rem;
+}
 
-/* Text overrides */
-.theme-dark-fantasy .text-gray-400 { color: var(--df-text-muted) !important; }
-.theme-dark-fantasy .text-gray-300 { color: var(--df-text-normal) !important; }
-.theme-dark-fantasy .text-gray-200 { color: var(--df-text-highlight) !important; }
-.theme-dark-fantasy .text-gray-100 { color: var(--df-text-highlight) !important; }
-.theme-dark-fantasy .text-gray-500 { color: var(--df-text-muted) !important; }
-.theme-dark-fantasy .text-gray-600 { color: var(--df-text-muted) !important; }
-.theme-dark-fantasy .text-white { color: var(--df-text-highlight) !important; }
+.trade-app .ui-icon-button {
+  width: 2.25rem;
+  padding: 0;
+}
+
+.trade-app .ui-select {
+  padding: 0.35rem 0.65rem;
+  background: var(--surface);
+}
+
+.trade-app :is(.ui-button, .ui-icon-button, .ui-select):enabled:hover {
+  background: var(--hover);
+  border-color: var(--line-strong);
+  color: var(--ink);
+}
+
+.trade-app .ui-button--primary {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--page);
+}
+
+.trade-app .ui-button--primary:enabled:hover {
+  background: var(--accent-strong);
+  border-color: var(--accent-strong);
+  color: var(--page);
+}
+
+.trade-app .ui-button--danger {
+  color: var(--danger);
+  border-color: #71433d;
+}
+
+.trade-app .ui-kbd {
+  display: inline-block;
+  padding: 0.14rem 0.42rem;
+  border: 1px solid var(--line-strong);
+  border-radius: 0.3125rem;
+  background: var(--raised);
+  color: var(--ink);
+  font: 500 0.6875rem/1.2 ui-monospace, Consolas, monospace;
+  white-space: nowrap;
+}
+
+.trade-app .view-heading {
+  margin-bottom: 1.5rem;
+}
+
+.trade-app .view-heading h1 {
+  font: 400 2.1rem/1.1 var(--display);
+  letter-spacing: -0.015em;
+}
+
+.trade-app .view-heading p {
+  margin-top: 0.45rem;
+  color: var(--muted);
+}
+
+.trade-app .ui-empty {
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  align-content: center;
+  gap: 0.5rem;
+  padding: 2rem 1rem;
+  color: var(--muted);
+  text-align: center;
+}
+
+.trade-app .ui-empty > i {
+  color: var(--accent);
+}
+
+.trade-app .ui-empty > strong {
+  color: var(--ink);
+  font-size: 0.9rem;
+}
+
+.trade-app img, img.item-art, img.currency-art {
+  width: auto !important;
+  height: auto !important;
+  max-width: none !important;
+  max-height: none !important;
+  flex: none;
+}
+
+.trade-app .ui-alert {
+  padding: 0.65rem 0.85rem;
+  border: 1px solid #6b423b;
+  border-radius: 0.5rem;
+  color: var(--danger);
+  background: #342321;
+}
+
+.trade-app .ui-value {
+  color: var(--accent);
+  font-variant-numeric: tabular-nums;
+}
+
+
+.trade-app .listing-view,
+.trade-app .listing-rows {
+  display: grid;
+  gap: 0.45rem;
+  min-width: 0;
+}
+
+.trade-app .listing-rows { gap: 0; }
+
+.trade-app .listing-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  min-height: 2rem;
+  margin-bottom: 0.15rem;
+  color: var(--muted);
+  font-size: 0.78rem;
+}
+
+.trade-app .listing-columns,
+.trade-app .listing-row {
+  display: grid;
+  grid-template-columns: minmax(9rem, 1.55fr) minmax(3.65rem, 0.8fr) minmax(3.65rem, 0.85fr) 6rem;
+  grid-template-areas: "value attributes seller action";
+  gap: 0.7rem;
+  align-items: center;
+  min-width: 0;
+  min-height: 3.55rem;
+  padding: 0.5rem 0;
+  border-top: 1px solid var(--line);
+}
+
+.trade-app .listing-columns { min-height: 2rem; padding-block: 0.35rem; border: 0; color: var(--quiet); font-size: 0.8rem; }
+
+.trade-app .listing-row:hover {
+  background: var(--raised);
+}
+
+.trade-app .listing-value {
+  grid-area: value;
+  display: grid;
+  gap: 0.08rem;
+  min-width: 0;
+}
+
+.trade-app .listing-value > div {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  min-width: 0;
+  color: var(--muted);
+  font-size: 0.95rem;
+}
+
+.trade-app .listing-value > div span {
+  overflow-wrap: anywhere;
+}
+
+.trade-app .listing-value strong {
+  font-size: 1.15rem;
+  color: var(--ink);
+}
+
+
+.trade-app .listing-row small {
+  color: var(--muted);
+  font-size: 0.82rem;
+}
+
+.trade-app .listing-attributes {
+  grid-area: attributes;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.1rem 0.55rem;
+  color: var(--quiet);
+  font-size: 0.78rem;
+}
+
+.trade-app .listing-attributes b {
+  color: var(--ink);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.trade-app .listing-seller {
+  grid-area: seller;
+  display: grid;
+  gap: 0.14rem;
+  min-width: 0;
+  color: var(--muted);
+  font-size: 0.76rem;
+}
+
+.trade-app .listing-seller > span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.trade-app .listing-status {
+  display: inline-block;
+  width: 0.37rem;
+  height: 0.37rem;
+  margin: 0 0.22rem 0.05rem 0;
+  border-radius: 50%;
+  background: var(--quiet);
+}
+
+.trade-app .listing-status[data-status="online"] {
+  background: var(--positive);
+}
+
+.trade-app .listing-status[data-status="afk"] {
+  background: var(--accent);
+}
+
+.trade-app .listing-link {
+  grid-area: action;
+  min-height: 1.9rem;
+  justify-self: end;
+  white-space: nowrap;
+  padding-inline: 0.35rem;
+  color: var(--accent);
+  font-size: 0.8rem;
+}
+
+.trade-app .listing-currencies {
+  display: flex;
+  gap: 0.25rem;
+}
+
+.trade-app .listing-currencies button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.3rem 0.4rem;
+  border: 0;
+  border-radius: 0.4rem;
+}
+
+.trade-app .listing-currencies button:hover {
+  background: var(--hover);
+}
+
+.trade-app .listing-currencies button[aria-pressed="true"] {
+  border-color: var(--line-strong);
+  background: var(--accent-wash);
+  color: var(--accent);
+}
+
+.trade-app .listing-skeleton {
+  min-height: 3.25rem;
+  border: 1px solid var(--line);
+  border-radius: 0.55rem;
+  background: var(--page);
+}
+
+.trade-app .listing-warning {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.55rem;
+}
+
+@container listing-panel (max-width: 36rem) {
+  .trade-app :is(.listing-row, .listing-columns) { grid-template-columns: minmax(8.4rem, 1.5fr) minmax(3rem, 0.8fr) minmax(3rem, 0.9fr) 2rem; }
+  .trade-app .listing-link span { display: none; }
+}
+@container listing-panel (max-width: 25rem) {
+  .trade-app .listing-columns { display: none; }
+  .trade-app .listing-row {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto;
+    grid-template-areas: "value seller action" "attributes attributes action";
+    column-gap: 0.45rem;
+    row-gap: 0.2rem;
+    align-items: start;
+  }
+}

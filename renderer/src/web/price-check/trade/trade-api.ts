@@ -1,5 +1,6 @@
 import { ParsedItem } from "@/parser";
 import { AppConfig } from "@/web/Config";
+import { matchingTradeIcon } from "@/web/background/ImageFetcher";
 import { Host } from "@/web/background/IPC";
 import { shallowRef, computed, shallowReactive } from "vue";
 import { ItemFilters, StatFilter } from "../filters/interfaces";
@@ -62,12 +63,14 @@ export function useTradeApi() {
       fetchResults.value = _fetchResults;
 
       const _searchId = searchId;
+      const game = AppConfig()?.game;
+      const isCurrent = () => _searchId === searchId && game === AppConfig()?.game;
       const request = createTradeRequest(filters, stats, item);
       const _searchResult = await requestTradeResultList(
         request,
         filters.trade.league,
       );
-      if (_searchId !== searchId) {
+      if (!isCurrent()) {
         return;
       }
       searchResult.value = _searchResult;
@@ -99,26 +102,23 @@ export function useTradeApi() {
         await Promise.all([r1, r2]);
       }
 
-      if (item.info && (item.info.icon === "%NOT_FOUND%" || !item.info.icon)) {
-        const firstWithIcon = _fetchResults.find(
-          (res) => res.rawResult?.item?.icon && res.rawResult.item.icon !== "%NOT_FOUND%",
-        );
-        if (firstWithIcon) {
-          const iconUrl = firstWithIcon.rawResult!.item.icon;
+      if (isCurrent() && item.info && (item.info.icon === "%NOT_FOUND%" || !item.info.icon)) {
+        const names = [item.info.name, item.info.refName];
+        for (const result of _fetchResults) {
+          const iconUrl = matchingTradeIcon(result.rawResult?.item, item.info.namespace, names);
+          if (!iconUrl) continue;
           item.info.icon = iconUrl;
           Host.sendEvent({
             name: "CLIENT->MAIN::save-custom-icon",
-            payload: {
-              refName: item.info.refName,
-              iconUrl,
-            },
+            payload: { game, namespace: item.info.namespace, refName: item.info.refName, iconUrl },
           });
+          break;
         }
       }
 
       let fetched = 20;
       async function fetchMore(): Promise<void> {
-        if (_searchId !== searchId) return;
+        if (!isCurrent()) return;
         const totalGrouped = groupedResults.value.length;
         const totalNotGrouped = groupedResults.value.reduce(
           (len, res) => (res.listedTimes <= 2 ? len + 1 : len),

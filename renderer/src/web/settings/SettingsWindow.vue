@@ -1,146 +1,108 @@
 <template>
-  <div
-    :class="isStandalone ? 'flex flex-col w-full h-full bg-[#07080a]' : $style.window"
-    class="grow layout-column"
-  >
-    <AppTitleBar v-if="!isStandalone" @close="close" :title="t('settings.title')" />
-    
-    <div class="flex-1 flex flex-col p-8" :class="isStandalone ? 'bg-[#07080a]' : 'bg-[#0e1017]'">
-      <h2 class="text-xl font-bold tracking-wide text-gray-200 mb-6 uppercase">General Settings</h2>
-      
-      <div class="max-w-xl bg-[#0d0e12]/60 border border-[#191b22] rounded-2xl p-6 shadow-lg">
-        <div class="flex items-center justify-between">
-          <div class="flex flex-col">
-            <span class="text-sm font-semibold text-gray-300">Application Theme</span>
-            <span class="text-xs text-gray-500 mt-1">Customize the visual appearance of the application.</span>
-          </div>
-          <select 
-            v-model="theme" 
-            class="bg-[#151722] border border-[#202334] rounded-xl pl-4 pr-8 py-2 text-sm text-gray-300 focus:outline-none focus:border-purple-500 focus:shadow-[0_0_15px_rgba(139,92,246,0.1)] transition-all cursor-pointer"
-          >
-            <option value="default">Default Modern</option>
-            <option value="dark-fantasy">Dark Fantasy</option>
+  <div class="trade-settings">
+    <app-title-bar v-if="!isStandalone" :title="t('settings.title')" @close="close" />
+    <header class="view-heading">
+      <h1>Settings</h1>
+    </header>
+
+    <section class="settings-group" aria-labelledby="settings-general-title">
+      <h2 id="settings-general-title">General</h2>
+      <div class="settings-rows">
+        <label class="settings-row">
+          <span><strong>Theme</strong><small>Choose the workspace palette.</small></span>
+          <select v-model="theme" class="ui-select">
+            <option value="default">Graphite</option>
+            <option value="dark-fantasy">Ember</option>
           </select>
+        </label>
+        <label class="settings-row">
+          <span><strong>Game language</strong><small>Match the language of the item text you copy.</small></span>
+          <select v-model="language" class="ui-select">
+            <option value="en">English</option>
+            <option value="ru">Русский</option>
+            <option value="cmn-Hant">正體中文</option>
+            <option value="ko">한국어</option>
+            <option value="ja">日本語</option>
+            <option value="de">Deutsch</option>
+            <option value="es">Español</option>
+            <option value="pt">Português (Brasil)</option>
+            <option value="fr">Français</option>
+          </select>
+        </label>
+        <p v-if="poe1EnglishFallback" class="settings-note" role="status">PoE 1 uses English item data for this language.</p>
+        <div class="settings-row">
+          <span><strong id="settings-updates-label">Automatic updates</strong><small>Download updates in the background when using the installer.</small></span>
+          <button type="button" role="switch" class="settings-switch" aria-labelledby="settings-updates-label" :aria-checked="autoUpdater" @click="autoUpdater = !autoUpdater"></button>
         </div>
       </div>
+    </section>
 
-      <!-- Auto Updates Section -->
-      <div class="mt-6 max-w-xl bg-[#0d0e12]/60 border border-[#191b22] hover:border-violet-500/20 rounded-2xl p-6 shadow-lg transition-all duration-300">
-        <div class="flex items-center justify-between">
-          <div class="flex items-center gap-4">
-            <div class="w-10 h-10 rounded-xl bg-violet-600/10 flex items-center justify-center border border-violet-500/10 text-violet-400">
-              <i class="fas fa-sync-alt text-sm"></i>
-            </div>
-            <div class="flex flex-col">
-              <span class="text-sm font-semibold text-gray-200">Auto Updates</span>
-              <span class="text-xs text-gray-500 mt-0.5">Enable background updates via setup installer.</span>
-            </div>
+    <section class="settings-group" aria-labelledby="settings-market-title">
+      <h2 id="settings-market-title">Trade</h2>
+      <div class="settings-rows">
+        <div v-if="isPoe1" class="settings-row"><strong>Base currency</strong><span>Chaos Orb</span></div>
+        <label v-else-if="preferredCurrency" class="settings-row">
+          <span><strong>Preferred currency</strong><small>Use this currency for market estimates when available.</small></span>
+          <select v-model="preferredCurrency" class="ui-select">
+            <option value="chaos">Chaos Orb</option>
+            <option value="exalted">Exalted Orb</option>
+          </select>
+        </label>
+        <form class="settings-row settings-private-league" @submit.prevent="selectPrivateLeague">
+          <label for="settings-private-league"><strong>Private league</strong><small>Enter the league name and its number.</small></label>
+          <div>
+            <input id="settings-private-league" v-model="privateLeague" autocomplete="off" placeholder="My league (PL12345)" />
+            <button type="submit" class="ui-button" :disabled="!privateLeagueValid">Use league</button>
           </div>
-          
-          <!-- Android M3-style Switch Toggle -->
-          <button 
-            @click="autoUpdater = !autoUpdater"
-            class="relative inline-flex h-8 w-14 shrink-0 cursor-pointer rounded-full items-center transition-colors duration-250 ease-in-out focus:outline-none"
-            :class="autoUpdater ? 'bg-violet-600 shadow-[0_0_12px_rgba(139,92,246,0.35)]' : 'bg-[#181a25] border border-[#252839]'"
-          >
-            <span 
-              class="pointer-events-none inline-block transform rounded-full shadow transition-all duration-250 ease-in-out flex items-center justify-center"
-              :class="autoUpdater 
-                ? 'h-6 w-6 translate-x-6 bg-[#07080a] text-teal-400' 
-                : 'h-4 w-4 translate-x-2 bg-[#8084a3]'"
-            >
-              <i v-if="autoUpdater" class="fas fa-check text-[9px]" />
-            </span>
-          </button>
-        </div>
+        </form>
       </div>
+    </section>
 
-      <!-- Auto-Destroy Item Section -->
-      <div class="mt-6 max-w-xl bg-[#0d0e12]/60 border border-[#191b22] hover:border-violet-500/20 rounded-2xl p-6 shadow-lg transition-all duration-300">
-        <div class="flex items-center justify-between">
-          <div class="flex items-center gap-4">
-            <div class="w-10 h-10 rounded-xl bg-violet-600/10 flex items-center justify-center border border-violet-500/10 text-violet-400">
-              <i class="fas fa-trash-alt text-sm"></i>
-            </div>
-            <div class="flex flex-col">
-              <span class="text-sm font-semibold text-gray-200">Auto-Destroy Item</span>
-              <span class="text-xs text-gray-500 mt-0.5">Enable Auto-Destroy item hotkey (Ctrl + Alt + MMB).</span>
-            </div>
-          </div>
-          
-          <button 
-            @click="destroyHotkeyEnabled = !destroyHotkeyEnabled"
-            class="relative inline-flex h-8 w-14 shrink-0 cursor-pointer rounded-full items-center transition-colors duration-250 ease-in-out focus:outline-none"
-            :class="destroyHotkeyEnabled ? 'bg-violet-600 shadow-[0_0_12px_rgba(139,92,246,0.35)]' : 'bg-[#181a25] border border-[#252839]'"
-          >
-            <span 
-              class="pointer-events-none inline-block transform rounded-full shadow transition-all duration-250 ease-in-out flex items-center justify-center"
-              :class="destroyHotkeyEnabled 
-                ? 'h-6 w-6 translate-x-6 bg-[#07080a] text-teal-400' 
-                : 'h-4 w-4 translate-x-2 bg-[#8084a3]'"
-            >
-              <i v-if="destroyHotkeyEnabled" class="fas fa-check text-[9px]" />
-            </span>
-          </button>
+    <section v-if="$slots.rates" class="settings-group">
+      <h2>Exchange rates</h2><slot name="rates" />
+    </section>
+
+    <section class="settings-group" aria-labelledby="settings-shortcuts-title">
+      <h2 id="settings-shortcuts-title">Shortcuts</h2>
+      <div class="settings-rows">
+        <settings-hotkey v-for="hotkey in hotkeys" :key="hotkey.translationKey" :schema="hotkey" class="settings-hotkey-row" />
+        <div class="settings-row">
+          <span><strong id="settings-destroy-label">Destroy item hotkey</strong><small>Allow Ctrl + Alt + middle click after confirming for the session.</small></span>
+          <button type="button" role="switch" class="settings-switch" aria-labelledby="settings-destroy-label" :aria-checked="destroyHotkeyEnabled" @click="destroyHotkeyEnabled = !destroyHotkeyEnabled"></button>
         </div>
       </div>
-      
-      <!-- Hotkeys Section -->
-      <div class="mt-6 max-w-xl bg-[#0d0e12]/60 border border-[#191b22] rounded-2xl p-6 shadow-lg">
-        <h3 class="text-sm font-semibold text-gray-300 mb-4 uppercase tracking-wider">Hotkeys</h3>
-        <div class="flex flex-col gap-4 text-sm text-gray-400">
-          <SettingsHotkey v-for="(hk, i) in hotkeys" :key="i" :schema="hk" />
-        </div>
-      </div>
-    </div>
+    </section>
+    <section v-if="$slots.application" class="settings-group">
+      <h2>Application</h2><slot name="application" />
+    </section>
   </div>
 </template>
 
 <script lang="ts">
-import {
-  defineComponent,
-  shallowRef,
-  computed,
-  PropType,
-  nextTick,
-  inject,
-  reactive,
-  watch,
-} from "vue";
+import { computed, defineComponent, inject, ref, type PropType } from "vue";
 import { useI18n } from "vue-i18n";
-import {
-  AppConfig,
-  updateConfig,
-  saveConfig,
-  pushHostConfig,
-  Config,
-} from "@/web/Config";
-import type {
-  Widget,
-  WidgetManager,
-  WidgetSpec,
-} from "@/web/overlay/interfaces";
+import { POE1_LANGUAGES } from "@/assets/data";
+import { AppConfig, pushHostConfig, saveConfig } from "@/web/Config";
+import { useLeagues } from "@/web/background/Leagues";
+import type { Widget, WidgetManager, WidgetSpec } from "@/web/overlay/interfaces";
+import type { PriceCheckWidget } from "@/web/overlay/widgets";
 import AppTitleBar from "@/web/ui/AppTitlebar.vue";
-import SettingsHotkey from "./SettingsHotkey.vue";
-import UiCheckbox from "@/web/ui/UiCheckbox.vue";
-import { _configModelValue } from "./utils";
+import SettingsHotkey, { type HotkeySchema } from "./SettingsHotkey.vue";
 
 export default defineComponent({
   widget: {
     type: "settings",
     instances: "single",
-    initInstance: () => {
-      return {
-        wmId: 0,
-        wmType: "settings",
-        wmTitle: "{icon=fa-cog}",
-        wmWants: "hide",
-        wmZorder: "exclusive",
-        wmFlags: ["invisible-on-blur", "ignore-ui-visibility"],
-      };
-    },
+    initInstance: () => ({
+      wmId: 0,
+      wmType: "settings",
+      wmTitle: "{icon=fa-cog}",
+      wmWants: "hide",
+      wmZorder: "exclusive",
+      wmFlags: ["invisible-on-blur", "ignore-ui-visibility"],
+    }),
   } satisfies WidgetSpec,
-  components: { AppTitleBar, SettingsHotkey, UiCheckbox },
+  components: { AppTitleBar, SettingsHotkey },
   props: {
     config: {
       type: Object as PropType<Widget>,
@@ -148,137 +110,197 @@ export default defineComponent({
     },
   },
   setup(props) {
-    const wm = inject<WidgetManager>("wm")!;
     const { t } = useI18n();
+    const wm = inject<WidgetManager>("wm")!;
+    const leagues = useLeagues();
+    const isStandalone = new URLSearchParams(window.location.search).get("mode") === "standalone";
+    const privateLeague = ref("");
+    const privateLeagueValid = computed(() => /^.+ \(PL\d+\)$/.test(privateLeague.value.trim()));
+    const priceCheck = computed(() => AppConfig<PriceCheckWidget>("price-check"));
 
-    const isStandalone = computed(() => {
-      const params = new URLSearchParams(window.location.search);
-      return params.get("mode") === "standalone";
-    });
+    function persist() {
+      saveConfig();
+      pushHostConfig();
+    }
 
-    nextTick(() => {
-      if (!isStandalone.value) {
-        props.config.wmWants = "hide";
-      }
-    });
+    function preference<T extends object, K extends keyof T>(getObject: () => T, key: K) {
+      return computed({
+        get: () => getObject()[key],
+        set(value) {
+          getObject()[key] = value;
+          persist();
+        },
+      });
+    }
 
-    const configClone = shallowRef<Config | null>(
-      isStandalone.value ? reactive(JSON.parse(JSON.stringify(AppConfig()))) : null
-    );
-
-    watch(
-      () => props.config.wmWants,
-      (wmWants) => {
-        if (wmWants === "show") {
-          configClone.value = reactive(JSON.parse(JSON.stringify(AppConfig())));
-        } else if (!isStandalone.value) {
-          configClone.value = null;
-        }
-      },
-    );
-
-    const theme = computed<Config["theme"]>({
-      get() {
-        return configClone.value?.theme || "default";
-      },
-      set(value) {
-        if (configClone.value) {
-          configClone.value.theme = value;
-        }
-        AppConfig().theme = value;
-      },
-    });
-
-    const autoUpdater = computed<boolean>({
-      get() {
-        return configClone.value?.autoUpdater ?? true;
-      },
-      set(value) {
-        if (configClone.value) {
-          configClone.value.autoUpdater = value;
-        }
-        AppConfig().autoUpdater = value;
-      },
-    });
-
-    const destroyHotkeyEnabled = computed<boolean>({
-      get() {
-        return configClone.value?.destroyHotkeyEnabled ?? false;
-      },
-      set(value) {
-        if (configClone.value) {
-          configClone.value.destroyHotkeyEnabled = value;
-        }
-        AppConfig().destroyHotkeyEnabled = value;
-      },
-    });
-
-    const hotkeys = computed(() => {
-      if (!configClone.value) return [];
-      const hideoutCmd = configClone.value.commands.find((c: { text: string }) => c.text === '/hideout');
-      const priceCheckWidget = configClone.value.widgets.find((w: { wmType: string }) => w.wmType === 'price-check');
-      return [
-        {
+    const hotkeys = computed<HotkeySchema[]>(() => {
+      const out: HotkeySchema[] = [];
+      const check = priceCheck.value;
+      const hideout = AppConfig().commands.find((command) => command.text === "/hideout");
+      if (check) {
+        out.push({
           translationKey: "Price Check",
           config: {
-            modKey: _configModelValue(priceCheckWidget, "hotkeyHold"),
-            nonModKey: _configModelValue(priceCheckWidget, "hotkey"),
+            modKey: preference(() => check, "hotkeyHold"),
+            nonModKey: preference(() => check, "hotkey"),
           },
-        },
-        {
+        });
+      }
+      if (hideout) {
+        out.push({
           translationKey: "Go To Hideout",
-          config: _configModelValue(hideoutCmd, "hotkey"),
-        }
-      ];
+          config: preference(() => hideout, "hotkey"),
+        });
+      }
+      return out;
     });
 
-    watch(
-      () => configClone.value,
-      (newVal) => {
-        if (newVal) {
-          updateConfig(newVal);
-          saveConfig();
-          pushHostConfig();
-        }
-      },
-      { deep: true }
-    );
+    function selectPrivateLeague() {
+      if (!privateLeagueValid.value) return;
+      leagues.selectedId.value = privateLeague.value.trim();
+      saveConfig();
+      privateLeague.value = "";
+    }
 
     return {
       t,
-      theme,
+      theme: preference(() => AppConfig(), "theme"),
+      language: preference(() => AppConfig(), "language"),
+      autoUpdater: preference(() => AppConfig(), "autoUpdater"),
+      destroyHotkeyEnabled: preference(() => AppConfig(), "destroyHotkeyEnabled"),
+      isPoe1: computed(() => AppConfig().game === "poe1"),
+      preferredCurrency: computed({
+        get: () => priceCheck.value?.coreCurrency,
+        set(value) {
+          if (!priceCheck.value || !value) return;
+          priceCheck.value.coreCurrency = value;
+          saveConfig();
+        },
+      }),
+      poe1EnglishFallback: computed(() => AppConfig().game === "poe1" && !POE1_LANGUAGES.has(AppConfig().language)),
       hotkeys,
-      autoUpdater,
-      destroyHotkeyEnabled,
-      close() {
-        wm.hide(props.config.wmId);
-      },
+      privateLeague,
+      privateLeagueValid,
+      selectPrivateLeague,
       isStandalone,
+      close: () => wm.hide(props.config.wmId),
     };
   },
 });
 </script>
 
-<style lang="postcss" module>
-.window {
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  right: 0;
+<style scoped>
+.trade-settings {
+  max-width: 65rem;
   margin: 0 auto;
-  max-width: 45rem;
-  max-height: 30rem;
-  overflow: hidden;
-  @apply bg-[#0e1017];
-  @apply border border-[#191b22];
-  @apply shadow-2xl shadow-black/80;
-  @apply rounded-2xl;
-  margin-top: 5rem;
+}
 
-  &:global {
-    animation-name: slideInDown;
-    animation-duration: 0.5s;
-  }
+.settings-group + .settings-group {
+  margin-top: 1.45rem;
+}
+
+.settings-group h2 {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  min-height: 2rem;
+  margin-bottom: 0.45rem;
+  color: var(--ink);
+  font: 500 1.4rem/1.3 var(--display);
+}
+
+.settings-group h2 i {
+  width: 1rem;
+  color: var(--accent);
+  text-align: center;
+}
+
+.settings-row,
+.settings-hotkey-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.65rem;
+  min-height: 3.7rem;
+  padding: 0.65rem 0;
+}
+
+@media (min-width: 49rem) {
+  .settings-group { display: grid; grid-template-columns: 11rem minmax(0, 1fr); align-items: baseline; gap: 2rem; }
+}
+.settings-group { border-top: 1px solid var(--line); padding-block: 1rem; }
+
+
+.settings-row strong,
+.settings-row small {
+  display: block;
+}
+
+.settings-row strong {
+  color: var(--ink);
+  font-weight: 600;
+}
+
+.settings-row small {
+  margin-top: 0.16rem;
+  color: var(--quiet);
+  font-size: 0.75rem;
+}
+
+.settings-row select {
+  min-width: 8.4rem;
+}
+
+.settings-switch {
+  position: relative;
+  width: 2.55rem;
+  height: 1.42rem;
+  border: 1px solid var(--line-strong);
+  border-radius: 1rem;
+  background: var(--raised);
+}
+
+.settings-switch::after {
+  position: absolute;
+  top: 0.16rem;
+  left: 0.17rem;
+  width: 0.97rem;
+  height: 0.97rem;
+  border-radius: 50%;
+  background: var(--muted);
+  content: "";
+}
+
+.settings-switch[aria-checked="true"] {
+  border-color: var(--accent);
+  background: var(--accent-wash);
+}
+
+.settings-switch[aria-checked="true"]::after {
+  left: 1.21rem;
+  background: var(--accent);
+}
+
+.settings-note {
+  padding: 0.5rem 0.9rem;
+  color: var(--accent);
+  font-size: 0.75rem;
+}
+
+.settings-private-league > div {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+}
+
+.settings-private-league input {
+  min-height: 2.25rem;
+  padding: 0.35rem 0.55rem;
+  border: 1px solid var(--line);
+  border-radius: 0.5rem;
+  background: var(--page);
+  color: var(--ink);
+  font-size: 0.8125rem;
 }
 </style>

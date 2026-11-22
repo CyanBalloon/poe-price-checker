@@ -1,44 +1,31 @@
 <template>
-  <div v-if="!error && isStandalone" class="flex flex-col gap-4 w-full h-full min-h-0 text-gray-200">
-    <!-- Header/matched indicator -->
-    <div class="flex items-center justify-between text-[11px] font-semibold text-gray-500 uppercase tracking-wider px-3 select-none shrink-0">
-      <div class="flex items-center gap-1 bg-[#14151b] border border-[#222538]/60 rounded-xl p-1">
+  <div v-if="!error && isStandalone" class="listing-view">
+    <header class="listing-toolbar">
+      <div class="listing-currencies" aria-label="Quote currency" role="group">
         <button
-          v-for="curr in ['xchgExalted', 'xchgChaos', 'xchgStable']"
-          :key="curr"
-          @click="selectedCurr = curr"
-          :class="[
-            'px-2.5 py-1 rounded-lg text-[10px] font-bold tracking-wide uppercase transition-all duration-200 flex items-center gap-1.5',
-            selectedCurr === curr 
-              ? 'bg-violet-600 border border-violet-500 text-white shadow-sm' 
-              : 'text-gray-400 hover:text-gray-200 bg-transparent border border-transparent'
-          ]"
+          v-for="currency in currencies"
+          :key="currency.id"
+          type="button"
+          :aria-pressed="selectedCurr === currency.id"
+          :aria-label="currency.name"
+          :title="currency.name"
+          @click="selectedCurr = currency.id"
         >
-          <img 
-            :src="curr === 'xchgExalted' ? '/images/exa.png' : curr === 'xchgChaos' ? '/images/chaos.png' : '/images/divine.png'" 
-            class="w-4.5 h-4.5" 
-          />
-          <span>{{ result ? (result[curr].listed.value?.total ?? "?") : "?" }}</span>
+          <img :src="currencyIcon(currency.currency)" alt="" />
+          <span>{{ result?.[currency.id].listed.value?.total ?? '…' }}</span>
         </button>
       </div>
-
-      <div class="flex items-center gap-2">
-        <online-filter :filters="filters" api="bulk" />
-      </div>
+      <online-filter :filters="filters" api="bulk" />
+    </header>
+    <div v-if="result && !selectedResults.length" class="ui-empty">
+      <i class="fa-solid fa-coins" aria-hidden="true"></i>
+      <strong>No offers for this currency</strong>
+      <p>Try another quote currency or a lower minimum stock.</p>
     </div>
-
-    <!-- Listings list -->
-    <div class="flex-grow flex flex-col gap-2.5 overflow-y-auto overflow-x-hidden pr-1">
+    <div v-else class="listing-rows">
       <template v-for="(res, idx) in selectedResults">
-        <!-- Loader / skeleton row if not ready -->
-        <div 
-          v-if="!res" 
-          :key="`skele-${idx}`"
-          class="h-14 rounded-xl bg-[#0f111a]/40 animate-pulse border border-[#1b1c26]/20 shrink-0"
-        />
-        
-        <!-- Premium modern card for each bulk listing -->
-        <trade-bulk-row 
+        <div v-if="!res" :key="'placeholder-' + idx" class="listing-skeleton" aria-hidden="true"></div>
+        <trade-bulk-row
           v-else
           :key="res.id"
           :res="res"
@@ -68,7 +55,7 @@
             }"
             @click="selectedCurr = 'xchgExalted'"
           >
-            <img src="/images/exa.png" class="trade-bulk-currency-icon" />
+            <img :src="currencyIcon('exalted')" class="trade-bulk-currency-icon" />
             <span>{{ result.xchgExalted.listed.value?.total ?? "?" }}</span>
           </button>
           <button
@@ -79,7 +66,7 @@
             }"
             @click="selectedCurr = 'xchgChaos'"
           >
-            <img src="/images/chaos.png" class="trade-bulk-currency-icon" />
+            <img :src="currencyIcon('chaos')" class="trade-bulk-currency-icon" />
             <span>{{ result.xchgChaos.listed.value?.total ?? "?" }}</span>
           </button>
           <button
@@ -90,7 +77,7 @@
             }"
             @click="selectedCurr = 'xchgStable'"
           >
-            <img src="/images/divine.png" class="trade-bulk-currency-icon" />
+            <img :src="currencyIcon('divine')" class="trade-bulk-currency-icon" />
             <span>{{ result.xchgStable.listed.value?.total ?? "?" }}</span>
           </button>
           <span class="ml-1"
@@ -221,8 +208,9 @@ import {
 import { useI18nNs } from "@/web/i18n";
 import UiErrorBox from "@/web/ui/UiErrorBox.vue";
 import { createTradeRequest } from "./pathofexile-bulk";
-import { getTradeEndpoint } from "./common";
+import { getTradeEndpoint, getTradeEndpointPath, getTradeUrlSegment } from "./common";
 import { AppConfig } from "@/web/Config";
+import { currencyIcon } from "@/web/ui/currency-icons";
 import { ItemFilters } from "../filters/interfaces";
 import { ParsedItem } from "@/parser";
 import { PriceCheckWidget } from "@/web/overlay/interfaces";
@@ -257,6 +245,12 @@ export default defineComponent({
 
     const showBrowser = inject<(url: string) => void>("builtin-browser")!;
 
+    const currencies = [
+      { id: "xchgExalted", name: "Exalted Orb", currency: "exalted" },
+      { id: "xchgChaos", name: "Chaos Orb", currency: "chaos" },
+      { id: "xchgStable", name: "Divine Orb", currency: "divine" },
+    ] as const;
+
     const useExalts = computed(() => widget.value.coreCurrency === "exalted");
 
     const selectedCurr = shallowRef<"xchgExalted" | "xchgChaos" | "xchgStable">(
@@ -267,6 +261,9 @@ export default defineComponent({
     watch(
       () => props.item,
       (item) => {
+        if (AppConfig().game === "poe1") {
+          selectedCurr.value = item.info.refName === "Chaos Orb" ? "xchgStable" : "xchgChaos";
+        }
         slowdown.reset(item);
       },
       { immediate: true },
@@ -290,6 +287,7 @@ export default defineComponent({
     });
 
     watch(result, () => {
+      if (AppConfig().game === "poe1") return;
       // TODO: If we start having more than just ex & c, this is not scalable
       const stableTotal = result.value?.xchgStable.listed.value?.total;
       const exaltedTotal = result.value?.xchgExalted.listed.value?.total;
@@ -322,18 +320,22 @@ export default defineComponent({
             : ["chaos"]);
       const httpPostBody = createTradeRequest(props.filters, props.item, have);
       const httpGetQuery = { exchange: httpPostBody.query };
-      return `https://${getTradeEndpoint()}/trade2/exchange/poe2/${props.filters.trade.league}?q=${JSON.stringify(httpGetQuery)}`;
+      return `https://${getTradeEndpoint()}/${getTradeEndpointPath()}/exchange/${getTradeUrlSegment()}${encodeURIComponent(props.filters.trade.league)}?q=${encodeURIComponent(JSON.stringify(httpGetQuery))}`;
     }
 
     const { t } = useI18nNs("trade_result");
 
     return {
+      currencyIcon,
       t,
       isStandalone,
       error,
       result,
       selectedResults,
       selectedCurr,
+      currencies: computed(() => AppConfig().game === "poe1"
+        ? [currencies[1], currencies[2], currencies[0]].filter(currency => currency.name !== props.item.info.refName)
+        : currencies),
       execSearch: () => {
         search(props.item, props.filters);
       },
@@ -341,9 +343,9 @@ export default defineComponent({
       makeTradeLink,
       openTradeLink() {
         if (widget.value.builtinBrowser && Host.isElectron) {
-          showBrowser(makeTradeLink(["mirror"]));
+          showBrowser(makeTradeLink());
         } else {
-          window.open(makeTradeLink(["mirror"]));
+          window.open(makeTradeLink());
         }
       },
     };
@@ -353,11 +355,7 @@ export default defineComponent({
 
 <style lang="postcss">
 .trade-bulk-currency-icon {
-  width: 1.75rem;
-  height: 1.75rem;
-  margin: -0.4375rem;
-  margin-right: 0.125rem;
-  filter: grayscale(1);
+  flex: none;
 }
 
 .trade-table-heading {

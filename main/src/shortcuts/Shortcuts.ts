@@ -8,12 +8,11 @@ import {
   mergeTwoHotkeys,
 } from "../../../ipc/KeyToCode";
 import { typeInChat, stashSearch } from "./text-box";
-import { WidgetAreaTracker } from "../windowing/WidgetAreaTracker";
 import { HostClipboard } from "./HostClipboard";
 import { OcrWorker } from "../vision/link-main";
-import type { ShortcutAction } from "../../../ipc/types";
+import type { GameVersion, ShortcutAction } from "../../../ipc/types";
 import type { Logger } from "../RemoteLogger";
-import type { OverlayWindow } from "../windowing/OverlayWindow";
+import type { AppWindow } from "../windowing/AppWindow";
 import type { GameWindow } from "../windowing/GameWindow";
 import type { GameConfig } from "../host-files/GameConfig";
 import type { ServerEvents } from "../server";
@@ -23,23 +22,21 @@ const UiohookToName = Object.fromEntries(
   Object.entries(UiohookKey).map(([k, v]) => [v, k]),
 );
 
-const isStandalone = true;
-
 export class Shortcuts {
   private actions: ShortcutAction[] = [];
   private stashScroll = false;
   private logKeys = false;
-  private areaTracker: WidgetAreaTracker;
   private clipboard: HostClipboard;
   private clickerProcess: any = null;
   private isCtrlPressed = false;
   private isGameWindowActive = false;
+  private activeGame?: GameVersion;
   private gameBounds: { x: number; y: number; width: number; height: number } | null = null;
   private isDestroyHotkeyActivated = false;
 
   static async create(
     logger: Logger,
-    overlay: OverlayWindow,
+    appWindow: AppWindow,
     poeWindow: GameWindow,
     gameConfig: GameConfig,
     server: ServerEvents,
@@ -47,7 +44,7 @@ export class Shortcuts {
     const ocrWorker = await OcrWorker.create();
     const shortcuts = new Shortcuts(
       logger,
-      overlay,
+      appWindow,
       poeWindow,
       gameConfig,
       server,
@@ -58,17 +55,16 @@ export class Shortcuts {
 
   private constructor(
     private logger: Logger,
-    private overlay: OverlayWindow,
+    private appWindow: AppWindow,
     private poeWindow: GameWindow,
     private gameConfig: GameConfig,
     private server: ServerEvents,
     private ocrWorker: OcrWorker,
   ) {
-    this.areaTracker = new WidgetAreaTracker(server, overlay);
     this.clipboard = new HostClipboard(logger);
 
     const updateActiveState = () => {
-      const isFocused = this.isGameWindowActive || this.poeWindow.isActive || (isStandalone && this.overlay.window?.isFocused());
+      const isFocused = this.isGameWindowActive || this.poeWindow.isActive || this.appWindow.window?.isFocused();
       if (this.clickerProcess && this.clickerProcess.stdin.writable) {
         this.clickerProcess.stdin.write(isFocused ? "active 1\n" : "active 0\n");
       }
@@ -87,21 +83,20 @@ export class Shortcuts {
               this.isGameWindowActive = true;
               
               const parts = trimmed.split(" ");
-              if (parts.length >= 6) {
-                const x = parseInt(parts[2], 10);
-                const y = parseInt(parts[3], 10);
-                const width = parseInt(parts[4], 10);
-                const height = parseInt(parts[5], 10);
+              if (parts.length >= 7) {
+                this.activeGame = parts[2] === "poe1" || parts[2] === "poe2" ? parts[2] : undefined;
+                const x = parseInt(parts[3], 10);
+                const y = parseInt(parts[4], 10);
+                const width = parseInt(parts[5], 10);
+                const height = parseInt(parts[6], 10);
                 this.gameBounds = { x, y, width, height };
               }
 
-              if (isStandalone) {
                 this.register();
-              }
               updateActiveState();
             } else if (trimmed === "focus 0") {
               this.isGameWindowActive = false;
-              if (isStandalone && !this.overlay.window?.isFocused()) {
+              if (!this.appWindow.window?.isFocused()) {
                 this.unregister();
               }
               updateActiveState();
@@ -141,36 +136,33 @@ export class Shortcuts {
       });
     });
 
-    if (isStandalone && this.overlay.window) {
-      this.overlay.window.on("focus", () => {
+    if (this.appWindow.window) {
+      this.appWindow.window.on("focus", () => {
         this.register();
         updateActiveState();
       });
-      this.overlay.window.on("blur", () => {
+      this.appWindow.window.on("blur", () => {
         this.unregister();
         updateActiveState();
       });
 
-      if (this.overlay.window.isFocused()) {
+      if (this.appWindow.window.isFocused()) {
         this.register();
       }
     }
 
     this.server.onEventAnyClient("CLIENT->MAIN::user-action", (e) => {
       if (e.action === "stash-search") {
-        stashSearch(e.text, this.clipboard, this.overlay);
+        stashSearch(e.text, this.clipboard, this.appWindow);
       }
     });
 
     this.server.onEventAnyClient("CLIENT->MAIN::confirm-destroy-response", (e) => {
       if (e.activate) {
         this.isDestroyHotkeyActivated = true;
-        this.overlay.assertGameActive();
-        setTimeout(() => {
-          this.destroyItem();
-        }, 100);
+        // We don't focus the game anymore since it's fully standalone
       } else {
-        this.overlay.assertGameActive();
+        // ...
       }
     });
 
@@ -212,7 +204,7 @@ export class Shortcuts {
     });
 
     uIOhook.on("wheel", (e) => {
-      const isActive = this.isGameWindowActive || this.poeWindow.isActive || (isStandalone && this.overlay.window?.isFocused());
+      const isActive = this.isGameWindowActive || this.poeWindow.isActive || this.appWindow.window?.isFocused();
       if (!this.isCtrlPressed || !isActive) return;
 
       if (isMouseOverStash(e, this)) return;
@@ -293,12 +285,10 @@ export class Shortcuts {
       }
     }
     this.actions = actions.filter(
-      (action) =>
-        !duplicates.has(action.shortcut) ||
-        action.action.type === "toggle-overlay",
+      (action) => !duplicates.has(action.shortcut)
     );
 
-    const isActive = this.isGameWindowActive || this.poeWindow.isActive || (isStandalone && this.overlay.window?.isFocused());
+    const isActive = this.isGameWindowActive || this.poeWindow.isActive || this.appWindow.window?.isFocused();
     if (isActive) {
       this.unregister();
       this.register();
@@ -339,10 +329,7 @@ export class Shortcuts {
               });
           }
 
-          if (entry.action.type === "toggle-overlay") {
-            this.areaTracker.removeListeners();
-            this.overlay.toggleActiveState();
-          } else if (entry.action.type === "paste-in-chat") {
+          if (entry.action.type === "paste-in-chat") {
             typeInChat(entry.action.text, entry.action.send, this.clipboard);
           } else if (entry.action.type === "trigger-event") {
             this.server.sendEventTo("broadcast", {
@@ -350,15 +337,15 @@ export class Shortcuts {
               payload: { target: entry.action.target },
             });
           } else if (entry.action.type === "stash-search") {
-            stashSearch(entry.action.text, this.clipboard, this.overlay);
+            stashSearch(entry.action.text, this.clipboard, this.appWindow);
           } else if (entry.action.type === "copy-item") {
             const { action } = entry;
             const pressPosition = screen.getCursorScreenPoint();
+            const activeGame = this.activeGame;
 
             this.clipboard
               .readItemText()
               .then((clipboardText) => {
-                this.areaTracker.removeListeners();
                 this.server.sendEventTo("broadcast", {
                   name: "MAIN->CLIENT::item-text",
                   payload: {
@@ -366,14 +353,11 @@ export class Shortcuts {
                     clipboard: clipboardText,
                     position: pressPosition,
                     focusOverlay: Boolean(action.focusOverlay),
+                    activeGame,
                   },
                 });
-                if (isStandalone) {
-                  if (action.target === "price-check") {
-                    this.overlay.showWindow();
-                  }
-                } else if (action.focusOverlay && this.overlay.wasUsedRecently) {
-                  this.overlay.assertOverlayActive();
+                if (action.target === "price-check") {
+                  this.appWindow.showWindow();
                 }
               })
               .catch(() => {});
@@ -459,7 +443,7 @@ export class Shortcuts {
   private handleDestroyItem() {
     if (this.isCursorOverEquippedGear()) {
       this.logger.write("warn [Shortcuts] Auto-Destroy blocked: cursor is hovering over equipped gear region.");
-      this.overlay.showWindow();
+      this.appWindow.showWindow();
       this.server.sendEventTo("broadcast", {
         name: "MAIN->CLIENT::show-destroy-warning",
         payload: undefined,
@@ -468,7 +452,7 @@ export class Shortcuts {
     }
 
     if (!this.isDestroyHotkeyActivated) {
-      this.overlay.showWindow();
+      this.appWindow.showWindow();
       this.server.sendEventTo("broadcast", {
         name: "MAIN->CLIENT::confirm-destroy-action",
         payload: undefined,

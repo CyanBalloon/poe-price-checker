@@ -1,5 +1,7 @@
 import { ItemCategory } from "@/parser";
 
+export type { GameVersion } from "@ipc/types";
+
 export interface StatMatcher {
   string: string;
   advanced?: string;
@@ -114,7 +116,7 @@ export interface TranslationDict {
   RARITY_CURRENCY: string;
   RARITY_DIVCARD: string;
   RARITY_QUEST: string;
-  MAP_TIER: string;
+  MAP_TIER: string | RegExp;
   RARITY: string;
   ITEM_CLASS: string;
   ITEM_LEVEL: string;
@@ -175,6 +177,8 @@ export interface TranslationDict {
   PREFIX_MODIFIER: string;
   SUFFIX_MODIFIER: string;
   CRAFTED_MODIFIER: string;
+  CRAFTED_PREFIX?: string;
+  CRAFTED_SUFFIX?: string;
   FRACTURED_MODIFIER: string;
   DESECRATED_MODIFIER: string;
   UNSCALABLE_VALUE: string;

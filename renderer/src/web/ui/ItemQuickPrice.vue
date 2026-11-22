@@ -1,74 +1,65 @@
 <template>
   <div class="flex items-center gap-x-1">
     <slot name="item">
-      <div class="flex items-center justify-center shrink-0" :class="imgSize">
+      <div v-if="resolvedItemImg" class="flex items-center justify-center shrink-0">
         <ui-item-img 
-          :icon="itemImg" 
-          :item-name="itemBase?.name"
+          :icon="resolvedItemImg"
+          :item-name="itemBase?.refName"
           :namespace="itemBase?.namespace"
           overflow-hidden 
         />
       </div>
     </slot>
     <i class="fas fa-arrow-right text-gray-600 px-1 text-sm"></i>
-    <div class="whitespace-nowrap overflow-hidden">
-      <span v-if="approx && !isRange" class="text-gray-600 font-sans">~ </span>
-      <span :class="{ [$style.golden]: isValuable, 'px-1': minText === '?' }">{{
-        minText
-      }}</span>
-      <span v-if="isRange" class="text-gray-600 font-sans"> ~ </span>
-      <span v-if="isRange" :class="{ [$style.golden]: isValuable }">{{
-        maxText
-      }}</span>
-      <span
-        v-if="!currencyText"
-        class="font-sans"
-        :class="{ [$style.golden]: isValuable }"
-      >
-        ×</span
-      >
-      <span v-else-if="price" :class="{ [$style.golden]: isValuable }"
-        >&nbsp;{{ price.currency }}</span
-      >
-    </div>
-    <div
-      class="w-8 h-8 flex items-center justify-center shrink-0"
-      v-if="!currencyText"
-    >
-      <img
-        v-if="price?.currency === 'div'"
-        src="/images/divine.png"
-        class="max-w-full max-h-full"
-      />
-      <img
-        v-else-if="price?.currency === 'chaos'"
-        src="/images/chaos.png"
-        class="max-w-full max-h-full"
-      />
-      <img
-        v-else-if="price?.currency === 'annul'"
-        src="/images/annul.png"
-        class="max-w-full max-h-full"
-      />
-      <img v-else src="/images/exa.png" class="max-w-full max-h-full" />
-    </div>
-    <div v-if="price?.currency === 'div' && exaltedRate" class="flex items-center whitespace-nowrap text-gray-400 text-xs">
-      <span class="opacity-70">({{ Math.round(price.min * exaltedRate) }}</span>
-      <img src="/images/exa.png" class="w-4 h-4 inline-block mx-0.5 opacity-80" />
-      <span class="opacity-70">)</span>
+    <div>
+      <div class="flex items-center gap-x-1">
+        <div class="whitespace-nowrap overflow-hidden">
+          <span v-if="approx && !isRange" class="text-gray-600 font-sans">~ </span>
+          <span :class="{ [$style.golden]: isValuable, 'px-1': minText === '?' }">{{
+            minText
+          }}</span>
+          <span v-if="isRange" class="text-gray-600 font-sans"> ~ </span>
+          <span v-if="isRange" :class="{ [$style.golden]: isValuable }">{{
+            maxText
+          }}</span>
+          <span
+            v-if="!currencyText && price"
+            class="font-sans"
+            :class="{ [$style.golden]: isValuable }"
+          >
+            ×</span
+          >
+          <span v-else-if="formatted" :class="{ [$style.golden]: isValuable }"
+            >&nbsp;{{ formatted.primary.currency }}</span
+          >
+        </div>
+        <core-currency-img v-if="!currencyText && formatted" :currency="formatted.primary.currency" />
+        <div v-if="AppConfig().game === 'poe2' && price?.currency === 'div' && exaltedRate" class="flex items-center whitespace-nowrap text-gray-400 text-xs">
+          <span class="opacity-70">({{ Math.round(price.min * exaltedRate) }}</span>
+          <img :src="currencyIcon('exalted')" class="item-art inline-block mx-0.5" alt="" />
+          <span class="opacity-70">)</span>
+        </div>
+      </div>
+      <div v-if="formatted?.chaosEquivalent" class="text-xs text-gray-400">
+        ≈ {{ formatChaosOrDivineAmount(formatted.chaosEquivalent.min) }}<template v-if="formatted.chaosEquivalent.min !== formatted.chaosEquivalent.max">–{{ formatChaosOrDivineAmount(formatted.chaosEquivalent.max) }}</template> chaos
+      </div>
     </div>
   </div>
 </template>
 
 <script lang="ts">
 import { defineComponent, computed, PropType } from "vue";
-import { displayRounding, usePoeninja } from "../background/Prices";
+import { displayRounding, usePoeninja, formatChaosOrDivineAmount } from "../background/Prices";
 import { ITEM_BY_REF, BaseType } from "@/assets/data";
+import { AppConfig } from "@/web/Config";
 import UiItemImg from "./UiItemImg.vue";
+import CoreCurrencyImg from "./CoreCurrencyImg.vue";
+import { currencyIcon } from "@/web/ui/currency-icons";
 
 export default defineComponent({
   components: {
     UiItemImg,
+    CoreCurrencyImg,
   },
   props: {
     price: {
@@ -89,7 +80,7 @@ export default defineComponent({
     },
     itemImg: {
       type: String,
-      default: "/images/wisdom.png",
+      default: undefined,
     },
     currencyText: {
       type: Boolean,
@@ -101,43 +92,33 @@ export default defineComponent({
     },
   },
   setup(props) {
-    const { exaltedRate } = usePoeninja();
+    const { exaltedRate, displayPrice } = usePoeninja();
+    const formatted = computed(() => props.price && displayPrice(props.price));
+    const format = (value: number) => AppConfig().game === "poe1" ? formatChaosOrDivineAmount(value) : displayRounding(value, props.fraction);
     const minText = computed(() =>
-      props.price ? displayRounding(props.price.min, props.fraction) : "?",
+      formatted.value ? format(formatted.value.primary.min) : "?",
     );
     const maxText = computed(() =>
-      props.price ? displayRounding(props.price.max, props.fraction) : "?",
+      formatted.value ? format(formatted.value.primary.max) : "?",
     );
-
-    const imgSize = computed(() => {
-      if (!props.itemBase) return "w-8 h-8";
-
-      const base = props.itemBase.unique
-        ? ITEM_BY_REF("ITEM", props.itemBase.unique.base)![0]
-        : props.itemBase;
-
-      const width = base.w ?? 1;
-      const height = base.h ?? 1;
-
-      if (height > 1) {
-        return "w-8 h-10 -my-1";
-      } else if (width > 1) {
-        return "w-12 h-8";
-      } else {
-        return "w-8 h-8";
-      }
-    });
 
     return {
       minText,
       maxText,
-      imgSize,
+      resolvedItemImg: computed(() => {
+        if (props.itemImg || props.itemBase) return props.itemImg || props.itemBase?.icon || "%NOT_FOUND%";
+        return ITEM_BY_REF("ITEM", "Scroll of Wisdom")?.[0]?.icon;
+      }),
       exaltedRate,
+      formatted,
+      formatChaosOrDivineAmount,
+      currencyIcon,
+      AppConfig,
       isRange: computed(() => {
         return minText.value !== maxText.value;
       }),
       isValuable: computed(() => {
-        return props.price?.currency === "div";
+        return formatted.value?.primary.currency === "div";
       }),
     };
   },

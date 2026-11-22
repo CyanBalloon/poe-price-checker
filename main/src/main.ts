@@ -6,7 +6,7 @@ import os from "node:os";
 import { startServer, eventPipe, server } from "./server";
 import { Logger } from "./RemoteLogger";
 import { GameWindow } from "./windowing/GameWindow";
-import { OverlayWindow } from "./windowing/OverlayWindow";
+import { AppWindow } from "./windowing/AppWindow";
 import { GameConfig } from "./host-files/GameConfig";
 import { Shortcuts } from "./shortcuts/Shortcuts";
 import { AppUpdater } from "./AppUpdater";
@@ -16,15 +16,13 @@ import { GameLogWatcher } from "./host-files/GameLogWatcher";
 import { HttpProxy } from "./proxy";
 import { installExtension, VUEJS_DEVTOOLS } from "electron-devtools-installer";
 import { FileWriter } from "./host-files/FileWriter";
+import { startDevRenderer } from "./dev-renderer";
 
 if (!app.requestSingleInstanceLock()) {
   app.exit();
 }
 
-// Enable GPU hardware acceleration and force ignore blocklists
-app.commandLine.appendSwitch("ignore-gpu-blocklist");
-app.commandLine.appendSwitch("enable-gpu-rasterization");
-app.commandLine.appendSwitch("enable-zero-copy");
+app.disableHardwareAcceleration();
 
 app.enableSandbox();
 let tray: AppTray;
@@ -75,7 +73,7 @@ let tray: AppTray;
     const fileWriter = new FileWriter(eventPipe, logger);
     const gameLogWatcher = new GameLogWatcher(eventPipe, logger, fileWriter);
 
-    if (process.env.VITE_DEV_SERVER_URL) {
+    if (process.env.VITE_DEV_SERVER_URL && !process.env.EXILE_TRADE_COMBINED_DEV) {
       try {
         await installExtension(VUEJS_DEVTOOLS);
         logger.write("info Vue Devtools installed");
@@ -93,12 +91,12 @@ let tray: AppTray;
 
     setTimeout(
       async () => {
-        const overlay = new OverlayWindow(eventPipe, logger, poeWindow);
-        tray.onShow = () => overlay.showWindow();
+        const appWindow = new AppWindow(eventPipe, logger, poeWindow);
+        tray.onShow = () => appWindow.showWindow();
 
         const shortcuts = await Shortcuts.create(
           logger,
-          overlay,
+          appWindow,
           poeWindow,
           gameConfig,
           eventPipe,
@@ -106,7 +104,7 @@ let tray: AppTray;
         eventPipe.onEventAnyClient(
           "CLIENT->MAIN::update-host-config",
           (cfg) => {
-            overlay.updateOpts(cfg.overlayKey, cfg.windowTitle);
+            appWindow.updateOpts(cfg.windowTitle);
             shortcuts.updateActions(
               cfg.shortcuts,
               cfg.stashScroll,
@@ -119,7 +117,6 @@ let tray: AppTray;
             gameConfig.readConfig(cfg.gameConfig ?? "");
             appUpdater.updateSettings(cfg.autoUpdater);
             appUpdater.checkAtStartup();
-            tray.overlayKey = cfg.overlayKey;
             fileWriter.restart(cfg.libraryAlpha, cfg.libraryOutputPath);
           },
         );
@@ -188,10 +185,23 @@ let tray: AppTray;
         });
         uIOhook.start();
         console.log("uIOhook started");
-        const port = await startServer(appUpdater, logger);
+        const combinedDev = process.env.EXILE_TRADE_COMBINED_DEV;
+        let port: number;
+        let rendererUrl: string | undefined;
+        try {
+          port = await startServer(appUpdater, logger, combinedDev ? 0 : undefined);
+          if (combinedDev) {
+            rendererUrl = await startDevRenderer(port);
+          }
+        } catch (error) {
+          console.error("Could not start Exile Trade:", error);
+          app.exit(1);
+          return;
+        }
         // TODO: move up (currently crashes)
         logger.write(`info ${os.type()} ${os.release} / v${app.getVersion()}`);
-        overlay.loadAppPage(port);
+        appWindow.loadAppPage(port, rendererUrl);
+        appWindow.showWindow();
         tray.serverPort = port;
       },
       // fixes(linux): window is black instead of transparent

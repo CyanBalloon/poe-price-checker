@@ -14,31 +14,17 @@ This document covers how to compile, build, and debug Poe2 Price Checker from so
 
 ## Developer Workflow
 
-Poe2 Price Checker is a standalone desktop application. The development pipeline consists of two separate processes:
+Run the standalone desktop app from the checkout you want to work on.
 
-1. **Frontend (Renderer)**:
-   In the root directory, run:
-   ```bash
-   npm run dev:renderer
-   ```
-   This starts the Vite development server (usually on `http://localhost:5176`), which powers the UI and provides hot-module reloading.
-
-2. **Backend (Main)**:
-   In a second terminal, run:
-   ```bash
-   npm run dev:standalone
-   ```
-   This compiles the C++ shortcut hooks (`clicker.cs`) and launches the Electron application, pointing it directly at the running Vite server.
-
-The application window will open automatically. Edits to `/renderer/src` will be reflected immediately in the application via HMR.
-
-### Fast Launch (Windows)
-
-For convenience on Windows, you can simply run:
-```bash
-dev_standalone.bat
+```powershell
+.\dev_standalone.bat
 ```
-This script will verify that `node_modules` are installed in both directories (running `npm run install:all` if they are missing), and start both development servers concurrently in separate windows.
+
+The launcher installs missing dependencies and runs `npm run dev:standalone`. Electron starts a Vite server for that checkout and waits for its URL. The terminal prints the URL once the app opens. Press `Ctrl+C` in the launch terminal to stop the session.
+
+Each checkout uses a separate development profile in `main/dist/dev-profile`, including its settings and sign-in session. Vite uses an available port so development sessions in other checkouts can stay running.
+
+For the split-server workflow, run `npm run dev:renderer` in one terminal and `npm run dev:main` in another. That workflow uses ports 5176 and 8584.
 
 ## Building for Production
 

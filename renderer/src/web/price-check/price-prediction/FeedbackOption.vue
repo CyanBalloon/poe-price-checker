@@ -51,7 +51,7 @@ export default defineComponent({
       type: Object as PropType<{
         min: number;
         max: number;
-        currency: "exalted" | "div";
+        currency: "chaos" | "exalted" | "div";
       }>,
       required: true,
     },
@@ -83,7 +83,7 @@ export default defineComponent({
         {
           min: props.prediction.min,
           max: props.prediction.max,
-          currency: props.prediction.currency === "div" ? "divine" : "chaos",
+          currency: props.prediction.currency === "div" ? "divine" : props.prediction.currency === "exalted" ? "exalt" : "chaos",
         },
         props.item,
       );

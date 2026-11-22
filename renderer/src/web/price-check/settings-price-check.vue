@@ -82,7 +82,7 @@
         }}</ui-radio>
       </div>
     </div>
-    <div class="mb-4">
+    <div v-if="config.game !== 'poe1'" class="mb-4">
       <div class="flex-1 mb-1">{{ t(":core_currency") }}</div>
       <div class="mb-1 flex">
         <ui-radio

@@ -1,45 +1,74 @@
 <template>
-  <div 
-    :class="[
-      isStandalone 
-        ? 'p-2.5 mb-1.5 rounded-xl bg-[#0d0e14]/40 hover:bg-[#1f2235]/95 border border-[#1b1c26]/60 hover:border-violet-500/50 hover:shadow-[0_0_15px_rgba(139,92,246,0.15)] transition-all duration-200 flex flex-col relative cursor-pointer' 
-        : $style['filter']
-    ]"
-    @click="toggleFilter"
-  >
-    <div v-if="!isStandalone && showSourceInfo" :class="$style['mods']" @click.stop>
+  <div v-if="isStandalone" class="modifier-row" :class="{ 'modifier-row--expanded': expanded }">
+    <div class="modifier-line">
+      <label class="modifier-select">
+        <input type="checkbox" :checked="!isDisabled" @change="filter.disabled = !filter.disabled" />
+        <item-modifier-text :text="showShortText ? shortText : text" :roll="roll?.value" />
+      </label>
+      <button
+        v-if="hasDetails"
+        type="button"
+        class="modifier-edit"
+        :aria-label="'Edit details for ' + modifierLabel"
+        :aria-expanded="expanded"
+        @click="$emit('edit')"
+      >
+        <span v-if="rangeLabel && !isDisabled">{{ rangeLabel }}</span>
+        <i class="fa-solid fa-chevron-down" aria-hidden="true"></i>
+      </button>
+    </div>
+    <div v-if="expanded" class="modifier-details" @keydown.esc.stop.prevent="closeEditor">
+      <div v-if="showInputs" class="range-editor">
+        <label>Minimum
+          <input ref="inputMinEl" v-model.number="inputMin" type="number" :step="changeStep" placeholder="Any"
+            @focus="selectNumber" @input="filter.disabled = false" @mousewheel.stop />
+        </label>
+        <label>Maximum
+          <input ref="inputMaxEl" v-model.number="inputMax" type="number" :step="changeStep" placeholder="Any"
+            @focus="selectNumber" @input="filter.disabled = false" @mousewheel.stop />
+        </label>
+        <div class="range-adjust" aria-label="Adjust search range" role="group">
+          <button type="button" @click="adjustRoll(-10)" aria-label="Decrease range by 10 percent">−10%</button>
+          <button type="button" @click="adjustRoll(10)" aria-label="Increase range by 10 percent">+10%</button>
+        </div>
+      </div>
+      <div class="modifier-facts">
+        <span v-if="showTag">{{ t('filters.tag_' + tag.replace('-', '_')) }}</span>
+        <button v-if="filter.tradeIdVariant && filter.tradeIdBase" type="button" @click="toggleVariant">
+          {{ filter.useVariant ? filter.variantLabel : 'Base' }}
+        </button>
+        <filter-modifier-tiers :filter="filter" :item="item" />
+        <filter-modifier-item-has-empty v-if="tradeId === 'item.has_empty_modifier'" :filter="filter" />
+        <filter-modifier-item-is-elemental v-if="tradeId === 'item.elemental_dps'" :filter="filter" />
+        <span v-if="showAugmentNotice"><img :src="showAugmentNotice === '%NOT_FOUND%' ? '/images/404.png' : showAugmentNotice" alt="" /> Augment</span>
+        <span v-if="showQ20Notice">{{ t('item.prop_quality', [calcQuality]) }}</span>
+        <span v-if="isHidden">{{ hiddenReason }}</span>
+      </div>
+      <modifier-anointment v-if="filter.oils" :filter="filter" />
+      <details v-if="showSourceInfo" class="modifier-sources">
+        <summary>Modifier sources</summary>
+        <source-info v-for="(source, idx) of filter.sources" :key="idx" :source="source" :filter="filter" />
+      </details>
+    </div>
+  </div>
+  <div v-else :class="$style.filter" @click="toggleFilter">
+    <div v-if="showSourceInfo" :class="$style['mods']" @click.stop>
       <div class="pl-5 py-1" v-for="(source, idx) of filter.sources" :key="idx">
         <source-info :source="source" :filter="filter" />
       </div>
     </div>
     <div class="flex flex-col min-w-0 flex-1">
-      <div :class="[isStandalone ? 'flex items-center justify-between gap-2.5' : 'pb-px flex items-baseline justify-between']">
-        <div
-          class="flex items-center text-left min-w-0 flex-1 select-none"
-        >
-          <i
-            class="w-5 text-base transition-colors duration-200 shrink-0"
-            :class="[
-              isStandalone
-                ? (isDisabled ? 'far fa-square text-gray-600' : 'fas fa-check-square text-violet-500')
-                : (isDisabled ? 'far fa-square text-gray-500' : 'fas fa-check-square')
-            ]"
-          ></i>
-          <div
-            class="search-text flex-1 mr-1 relative flex min-w-0"
-            style="line-height: 1rem"
-          >
-            <span class="truncate text-[13px] font-semibold text-gray-200"
-              ><item-modifier-text
-                :text="showShortText ? shortText : text"
-                :roll="roll?.value"
-            /></span>
+      <div class="pb-px flex items-baseline justify-between">
+        <div class="flex items-center text-left min-w-0 flex-1 select-none">
+          <i class="w-5 shrink-0" :class="isDisabled ? 'far fa-square text-gray-500' : 'fas fa-check-square'" aria-hidden="true"></i>
+          <div class="search-text flex-1 mr-1 relative flex min-w-0">
+            <item-modifier-text :text="showShortText ? shortText : text" :roll="roll?.value" />
           </div>
         </div>
         <div class="flex items-center gap-1.5 shrink-0 select-none" @click.stop>
-          <span 
-            v-if="showTag" 
-            :class="isStandalone ? getStandaloneTagClass(tag) : [$style['tag'], $style[`tag-${tag}`]]"
+          <span
+            v-if="showTag"
+            :class="[$style.tag, $style[`tag-${tag}`]]"
           >
             {{ t(`filters.tag_${tag.replace("-", "_")}`) }}
             {{ filter.sources.length > 1 ? ` x ${filter.sources.length}` : null }}
@@ -47,7 +76,7 @@
           <button
             v-if="filter.tradeIdVariant && filter.tradeIdBase"
             @click.stop="toggleVariant"
-            :class="isStandalone ? getStandaloneTagClass('pseudo') + ' hover:bg-[#202336] hover:text-gray-200 cursor-pointer transition-colors' : [$style['tag'], $style['tag-pseudo'], 'cursor-pointer hover:bg-gray-600']"
+            :class="[$style['tag'], $style['tag-pseudo'], 'cursor-pointer hover:bg-gray-600']"
           >
             {{ filter.useVariant ? filter.variantLabel : 'Base' }}
           </button>
@@ -62,25 +91,10 @@
           />
           <div
             v-if="showAugmentNotice"
-            :class="isStandalone ? '' : $style['qualityLabel']"
+            :class="$style['qualityLabel']"
             class="self-center flex items-center"
           >
-            <div
-              v-if="isStandalone"
-              class="bg-blue-950/20 border border-blue-900/30 text-blue-400 rounded-lg px-1.5 py-0.5 text-[9px] font-bold tracking-wider uppercase flex items-center gap-1 shrink-0"
-            >
-              <span>Augment</span>
-              <img
-                :src="
-                  showAugmentNotice === '%NOT_FOUND%'
-                    ? '/images/404.png'
-                    : showAugmentNotice
-                "
-                class="w-3.5 h-3.5"
-              />
-            </div>
             <img
-              v-else
               :src="
                 showAugmentNotice === '%NOT_FOUND%'
                   ? '/images/404.png'
@@ -89,17 +103,18 @@
               class="min-w-5 min-h-5 w-5 h-5"
             />
           </div>
-          <div v-if="showQ20Notice" :class="isStandalone ? 'bg-teal-950/20 border border-teal-900/30 text-teal-400 rounded-lg px-1.5 py-0.5 text-[9px] font-bold tracking-wider uppercase shrink-0' : $style['qualityLabel']">
+          <div v-if="showQ20Notice" :class="$style['qualityLabel']">
             {{ t("item.prop_quality", [calcQuality]) }}
           </div>
-          <div v-if="showInputs" class="flex gap-1 items-center shrink-0 ml-1">
-            <button @click.stop="adjustRoll(-10)" type="button" :class="isStandalone ? 'px-1 py-0.5 text-[9px] bg-[#151722] border border-[#222538]/60 rounded text-gray-400 hover:text-gray-200 hover:bg-[#1f2233] transition-colors' : 'px-1 py-0.5 text-[9px] bg-gray-800 border border-gray-700 rounded text-gray-400 hover:text-gray-200'">-10%</button>
-            <button @click.stop="adjustRoll(10)" type="button" :class="isStandalone ? 'px-1 py-0.5 text-[9px] bg-[#151722] border border-[#222538]/60 rounded text-gray-400 hover:text-gray-200 hover:bg-[#1f2233] transition-colors' : 'px-1 py-0.5 text-[9px] bg-gray-800 border border-gray-700 rounded text-gray-400 hover:text-gray-200'">+10%</button>
+          <div v-if="showInputs" class="modifier-adjust flex gap-1 items-center shrink-0">
+            <button @click.stop="adjustRoll(-10)" type="button" class="px-1 py-0.5 text-[9px] bg-gray-800 border border-gray-700 rounded text-gray-400 hover:text-gray-200">-10%</button>
+            <button @click.stop="adjustRoll(10)" type="button" class="px-1 py-0.5 text-[9px] bg-gray-800 border border-gray-700 rounded text-gray-400 hover:text-gray-200">+10%</button>
           </div>
-          <div class="flex gap-1 ml-1 select-all shrink-0">
+          <div v-if="showInputs" class="modifier-bounds flex gap-1 select-all shrink-0">
             <input
-              :class="isStandalone ? 'bg-[#07080b] border border-[#222538]/60 text-center w-12 py-1 rounded-md text-[11px] font-mono text-gray-300 placeholder-gray-700 focus:border-violet-500 focus:outline-none transition-colors' : $style['rollInput']"
+              :class="$style['rollInput']"
               :placeholder="t('min')"
+              :aria-label="t('min')"
               :min="roll?.bounds?.min"
               :max="roll?.bounds?.max"
               :step="changeStep"
@@ -112,8 +127,9 @@
               @mousewheel.stop
             />
             <input
-              :class="isStandalone ? 'bg-[#07080b] border border-[#222538]/60 text-center w-12 py-1 rounded-md text-[11px] font-mono text-gray-300 placeholder-gray-700 focus:border-violet-500 focus:outline-none transition-colors' : $style['rollInput']"
+              :class="$style['rollInput']"
               :placeholder="t('max')"
+              :aria-label="t('max')"
               :min="roll?.bounds?.min"
               :max="roll?.bounds?.max"
               :step="changeStep"
@@ -128,7 +144,7 @@
           </div>
         </div>
       </div>
-      <div v-if="!isStandalone" class="flex" @click.stop>
+      <div class="flex" @click.stop>
         <div class="w-5 flex items-start">
           <ui-popover
             v-if="isHidden"
@@ -153,9 +169,9 @@
 
         <div class="flex-1 flex flex-col gap-1">
           <div class="flex-1 flex items-start gap-x-2">
-            <span 
-              v-if="showTag" 
-              :class="isStandalone ? getStandaloneTagClass(tag) : [$style['tag'], $style[`tag-${tag}`]]"
+            <span
+              v-if="showTag"
+              :class="[$style.tag, $style[`tag-${tag}`]]"
             >
               {{ t(`filters.tag_${tag.replace("-", "_")}`) }}
               {{ filter.sources.length > 1 ? ` x ${filter.sources.length}` : null }}
@@ -163,7 +179,7 @@
             <button
               v-if="filter.tradeIdVariant && filter.tradeIdBase"
               @click.stop="toggleVariant"
-              :class="isStandalone ? getStandaloneTagClass('pseudo') + ' hover:bg-[#202336] hover:text-gray-200 cursor-pointer transition-colors' : [$style['tag'], $style['tag-pseudo'], 'cursor-pointer hover:bg-gray-600']"
+              :class="[$style['tag'], $style['tag-pseudo'], 'cursor-pointer hover:bg-gray-600']"
             >
               {{ filter.useVariant ? filter.variantLabel : 'Base' }}
             </button>
@@ -189,20 +205,11 @@
           :bounds="roll.bounds"
           @click.stop
         />
-        <div v-if="!isStandalone" style="width: calc(2 * 3rem + 1px)" />
+        <div style="width: calc(2 * 3rem + 1px)" />
       </div>
     </div>
     <div class="flex flex-col" @click.stop>
       <modifier-anointment :filter="filter" v-if="filter.oils" />
-    </div>
-    <div 
-      v-if="isStandalone && showSourceInfo" 
-      class="mt-2 pt-2 border-t border-[#222538]/30 flex flex-col gap-1.5 pl-5"
-      @click.stop
-    >
-      <div v-for="(source, idx) of filter.sources" :key="idx">
-        <source-info :source="source" :filter="filter" />
-      </div>
     </div>
   </div>
 </template>
@@ -239,8 +246,9 @@ export default defineComponent({
     UiPopover,
     FilterModifierItemIsElemental,
   },
-  emits: ["submit"],
+  emits: ["submit", "edit"],
   props: {
+    expanded: Boolean,
     filter: {
       type: Object as PropType<StatFilter>,
       required: true,
@@ -349,7 +357,7 @@ export default defineComponent({
       if (props.filter.tradeIdVariant && props.filter.tradeIdBase) {
         props.filter.tradeId = [props.filter.useVariant ? props.filter.tradeIdVariant : props.filter.tradeIdBase];
       }
-      ctx.emit("submit");
+      if (!isStandalone.value) ctx.emit("submit");
     }
 
     function adjustRoll(percent: number) {
@@ -359,18 +367,12 @@ export default defineComponent({
         return roll.dp ? Number(val.toFixed(2)) : Math.round(val);
       };
 
-      if (roll.min != null) {
-        roll.min = round(roll.min * (1 + percent / 100));
-      } else if (percent < 0) {
-        roll.min = round(roll.value * (1 + percent / 100));
-      } else {
-        roll.min = round(roll.value * (1 + percent / 100));
+      const factor = 1 + percent / 100;
+      roll.min = round((typeof roll.min === "number" ? roll.min : roll.value) * factor);
+      if (typeof roll.max === "number") {
+        roll.max = round(roll.max * factor);
       }
 
-      if (roll.max != null) {
-        roll.max = round(roll.max * (1 + percent / 100));
-      }
-      
       props.filter.disabled = false;
     }
 
@@ -387,32 +389,62 @@ export default defineComponent({
       }
     });
 
-    function getStandaloneTagClass(tag: string) {
-      const base = "px-1.5 py-0.5 rounded text-[9px] font-bold tracking-wide uppercase border transition-all duration-200";
-      switch (tag) {
-        case "crafted":
-        case "synthesised":
-        case "rune":
-        case "added-rune":
-          return `${base} bg-blue-950/20 border-blue-900/30 text-blue-400`;
-        case "corrupted":
-          return `${base} bg-red-950/20 border-red-900/30 text-red-400`;
-        case "fractured":
-          return `${base} bg-yellow-950/20 border-yellow-900/30 text-yellow-400`;
-        case "desecrated":
-          return `${base} bg-green-950/20 border-green-900/30 text-green-400`;
-        case "enchant":
-          return `${base} bg-purple-950/20 border-purple-900/30 text-purple-400`;
-        default:
-          return `${base} bg-[#141620] border-[#222538]/60 text-gray-400`;
+    const rangeLabel = computed(() => {
+      const roll = props.filter.roll;
+      if (!roll) return "";
+      const { min, max } = roll;
+      if (typeof min === "number" && typeof max === "number") {
+        return min === max ? String(min) : `${min}–${max}`;
       }
+      if (typeof min === "number") return `≥ ${min}`;
+      if (typeof max === "number") return `≤ ${max}`;
+      return "";
+    });
+
+    function closeEditor(event: KeyboardEvent) {
+      const editor = (event.currentTarget as HTMLElement).closest(".modifier-row");
+      ctx.emit("edit");
+      editor?.querySelector<HTMLButtonElement>(".modifier-edit")?.focus();
     }
 
     const { t } = useI18n();
 
+    const showSourceInfo = computed(
+      () =>
+        props.showSources &&
+        props.filter.sources.length &&
+        (props.filter.option == null ||
+          (props.filter.tradeId &&
+            props.filter.tradeId.length > 0 &&
+            props.filter.tradeId[0] === "item.elemental_dps")) &&
+        (props.filter.tag === FilterTag.Pseudo ||
+          props.filter.tag === FilterTag.Corrupted ||
+          props.filter.tag === FilterTag.Enchant ||
+          props.filter.tag === FilterTag.Augment ||
+          props.filter.tag === FilterTag.AddedAugment ||
+          props.filter.sources.length >= 2 ||
+          props.filter.sources[0].modifier.info.name != null ||
+          props.filter.sources[0].modifier.info.tier != null ||
+          props.filter.sources[0].modifier.info.rank != null),
+    );
+
+    const hasDetails = computed(() => {
+      const filter = props.filter;
+      return Boolean(filter.roll || filter.oils || filter.tradeIdVariant || filter.hidden ||
+        showSourceInfo.value || showTag.value || showQ20Notice.value || showAugmentNotice.value ||
+        ["item.has_empty_modifier", "item.elemental_dps"].includes(filter.tradeId[0]) ||
+        filter.sources.some((source) => source.modifier.info.tier != null));
+    });
+
     return {
       isStandalone,
-      getStandaloneTagClass,
+      rangeLabel,
+      hasDetails,
+      modifierLabel: computed(() => text.value.replace(/#/g, String(props.filter.roll?.value ?? ""))),
+      selectNumber(event: FocusEvent) {
+        (event.target as HTMLInputElement).select();
+      },
+      closeEditor,
       t,
       showTag,
       showAugmentNotice,
@@ -472,24 +504,7 @@ export default defineComponent({
       roll: computed(() => props.filter.roll),
       isHidden: computed(() => props.filter.hidden != null),
       hiddenReason: computed(() => t(props.filter.hidden!)),
-      showSourceInfo: computed(
-        () =>
-          props.showSources &&
-          props.filter.sources.length &&
-          (props.filter.option == null ||
-            (props.filter.tradeId &&
-              props.filter.tradeId.length > 0 &&
-              props.filter.tradeId[0] === "item.elemental_dps")) &&
-          (props.filter.tag === FilterTag.Pseudo ||
-            props.filter.tag === FilterTag.Corrupted ||
-            props.filter.tag === FilterTag.Enchant ||
-            props.filter.tag === FilterTag.Augment ||
-            props.filter.tag === FilterTag.AddedAugment ||
-            props.filter.sources.length >= 2 ||
-            props.filter.sources[0].modifier.info.name != null ||
-            props.filter.sources[0].modifier.info.tier != null ||
-            props.filter.sources[0].modifier.info.rank != null),
-      ),
+      showSourceInfo,
       inputFocus,
       toggleFilter,
       toggleVariant,
@@ -701,4 +716,66 @@ export default defineComponent({
   left: 0px;
   content: "...";
 }
+</style>
+
+<style scoped>
+.modifier-row { min-width: 0; }
+.modifier-line { display: flex; align-items: stretch; gap: 0.6rem; }
+.modifier-select {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  gap: 0.7rem;
+  min-width: 0;
+  min-height: 2.95rem;
+  padding: 0.45rem 0.1rem;
+  cursor: pointer;
+  overflow-wrap: anywhere;
+  font-size: 1rem;
+  line-height: 1.45;
+  color: var(--ink);
+}
+.modifier-select input { flex: none; width: 1rem; height: 1rem; accent-color: var(--accent); cursor: pointer; }
+.modifier-select :deep(span) { color: inherit; }
+.modifier-select:has(input:not(:checked)) { color: var(--muted); }
+.modifier-edit {
+  display: inline-flex;
+  align-items: center;
+  justify-content: end;
+  gap: 0.55rem;
+  min-width: 2rem;
+  padding: 0.3rem 0.45rem;
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-variant-numeric: tabular-nums;
+}
+.modifier-edit i { color: var(--quiet); font-size: 0.63rem; }
+.modifier-edit[aria-expanded="true"] i { transform: rotate(180deg); }
+.modifier-edit:hover, .modifier-edit[aria-expanded="true"] { color: var(--accent); }
+.modifier-details {
+  display: grid;
+  gap: 0.6rem;
+  margin: 0 0 0.75rem 1.8rem;
+  padding-block: 0.4rem;
+}
+.range-editor { display: flex; flex-wrap: wrap; gap: 0.55rem; align-items: end; }
+.range-editor label { display: grid; gap: 0.3rem; color: var(--muted); font-size: 0.72rem; }
+.range-editor input {
+  width: 5rem;
+  padding: 0.38rem 0.5rem;
+  border: 1px solid var(--line-strong);
+  border-radius: 0.35rem;
+  background: var(--surface);
+  color: var(--ink);
+  font-size: 0.85rem;
+}
+.range-adjust { display: inline-flex; }
+.range-adjust button, .modifier-facts button { min-height: 2rem; padding: 0.25rem 0.45rem; border-radius: 0.35rem; color: var(--muted); font-size: 0.75rem; }
+.range-adjust button:hover, .modifier-facts button:hover { color: var(--ink); background: var(--hover); }
+.modifier-facts { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem; color: var(--muted); font-size: 0.74rem; }
+.modifier-facts:empty { display: none; }
+.modifier-facts img { display: inline; vertical-align: middle; }
+.modifier-sources { color: var(--muted); font-size: 0.78rem; }
+.modifier-sources summary { cursor: pointer; }
+.modifier-sources[open] summary { margin-bottom: 0.5rem; }
 </style>

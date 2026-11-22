@@ -1,14 +1,16 @@
+import { itemIconKey, legacyItemIcon } from "@ipc/item-icons";
 import fnv1a from "@sindresorhus/fnv1a";
 import type {
   BaseType,
   DropEntry,
+  GameVersion,
   AugmentDataByAugment,
   AugmentDataByTradeId,
   Stat,
   StatMatcher,
   TranslationDict,
 } from "./interfaces";
-import { loadClientStrings } from "../client-string-loader";
+import { loadClientStrings, loadPoe1ClientStrings } from "../client-string-loader";
 import { useTradeData } from "@/web/background/TradeData";
 import { ItemCategory } from "@/parser/meta";
 import { ItemRarity } from "@/parser/ParsedItem";
@@ -105,19 +107,16 @@ function ndjsonFindLines<T>(ndjson: string) {
     andIncludes: string[] = [],
   ): Generator<T> {
     let start = 0;
-    while (start !== ndjson.length) {
+    while (start < ndjson.length) {
       const matchPos = ndjson.indexOf(searchString, start);
       if (matchPos === -1) break;
       // works for first line too (-1 + 1 = 0)
       start = ndjson.lastIndexOf("\n", matchPos) + 1;
-      const end = ndjson.indexOf("\n", matchPos);
+      const nextLine = ndjson.indexOf("\n", matchPos);
+      const end = nextLine === -1 ? ndjson.length : nextLine;
       const jsonLine = ndjson.slice(start, end);
       if (andIncludes.every((str) => jsonLine.includes(str))) {
-        const parsed = JSON.parse(jsonLine) as T & { refName?: string; icon?: string };
-        if (parsed.refName && CUSTOM_ICONS[parsed.refName]) {
-          parsed.icon = CUSTOM_ICONS[parsed.refName];
-        }
-        yield parsed;
+        yield JSON.parse(jsonLine) as T;
       }
       start = end + 1;
     }
@@ -142,26 +141,30 @@ function itemNamesFromLines(items: Generator<BaseType>) {
   };
 }
 
-async function loadItems(language: string) {
-  const ts = Date.now();
-  const ndjson = await (
-    await fetch(`${import.meta.env.BASE_URL}data/${language}/items.ndjson?t=${ts}`)
-  ).text();
+async function fetchData(path: string) {
+  const response = await fetch(import.meta.env.BASE_URL + path);
+  if (!response.ok) throw new Error("Could not load game data: " + path);
+  return response;
+}
+
+function withItemIcon(item: BaseType, game: GameVersion) {
+  if (!item.icon || item.icon === "%NOT_FOUND%") {
+    const cached = CUSTOM_ICONS[itemIconKey(game, item.namespace, item.refName)] ??
+      legacyItemIcon(CUSTOM_ICONS[item.refName], game);
+    if (cached) item.icon = cached;
+  }
+  return item;
+}
+
+async function loadItems(directory: string, game: GameVersion) {
+  const [ndjson, nameIndex, refIndex] = await Promise.all([
+    fetchData(directory + "/items.ndjson").then((r) => r.text()),
+    fetchData(directory + "/items-name.index.bin").then((r) => r.arrayBuffer()),
+    fetchData(directory + "/items-ref.index.bin").then((r) => r.arrayBuffer()),
+  ]);
   const INDEX_WIDTH = 2;
-  const indexNames = new Uint32Array(
-    await (
-      await fetch(
-        `${import.meta.env.BASE_URL}data/${language}/items-name.index.bin`,
-      )
-    ).arrayBuffer(),
-  );
-  const indexRefNames = new Uint32Array(
-    await (
-      await fetch(
-        `${import.meta.env.BASE_URL}data/${language}/items-ref.index.bin`,
-      )
-    ).arrayBuffer(),
-  );
+  const indexNames = new Uint32Array(nameIndex);
+  const indexRefNames = new Uint32Array(refIndex);
 
   function commonFind(index: Uint32Array, prop: "name" | "refName") {
     return function (
@@ -177,14 +180,12 @@ async function loadItems(language: string) {
       if (start === -1) return undefined;
       start = index[start * INDEX_WIDTH + 1];
       const out: BaseType[] = [];
-      while (start !== ndjson.length) {
-        const end = ndjson.indexOf("\n", start);
+      while (start < ndjson.length) {
+        const nextLine = ndjson.indexOf("\n", start);
+        const end = nextLine === -1 ? ndjson.length : nextLine;
         const record = JSON.parse(ndjson.slice(start, end)) as BaseType;
         if (record.namespace === ns && record[prop] === name) {
-          if (CUSTOM_ICONS[record.refName]) {
-            record.icon = CUSTOM_ICONS[record.refName];
-          }
-          out.push(record);
+          out.push(withItemIcon(record, game));
           if (!record.disc && !record.unique) break;
         } else {
           break;
@@ -195,24 +196,37 @@ async function loadItems(language: string) {
     };
   }
 
-  ITEM_BY_TRANSLATED = commonFind(indexNames, "name");
-  ITEM_BY_REF = commonFind(indexRefNames, "refName");
-  ITEMS_ITERATOR = ndjsonFindLines<BaseType>(ndjson);
-  GEM_NS_NAMES = itemNamesFromLines(ITEMS_ITERATOR('": "GEM"'));
-  UNIQUE_NS_NAMES = itemNamesFromLines(ITEMS_ITERATOR('": "UNIQUE"'));
-  ITEM_NS_NAMES = itemNamesFromLines(ITEMS_ITERATOR('": "ITEM"'));
-
-  TRADE_TAG_TO_REF = new Map<string, string>();
-  for (const item of ITEMS_ITERATOR('"tradeTag":')) {
-    TRADE_TAG_TO_REF.set(item.tradeTag!, item.refName);
+  const itemLines = ndjsonFindLines<BaseType>(ndjson);
+  function* items(search: string, includes?: string[]) {
+    for (const item of itemLines(search, includes)) yield withItemIcon(item, game);
   }
+  const names = (namespace: BaseType["namespace"]) => itemNamesFromLines(
+    (function* () {
+      for (const item of items(JSON.stringify(namespace), ['"namespace"'])) {
+        if (item.namespace === namespace) yield item;
+      }
+    })(),
+  );
+  const tradeTagToRef = new Map<string, string>();
+  for (const item of items('"tradeTag":')) {
+    tradeTagToRef.set(item.tradeTag!, item.refName);
+  }
+
+  return {
+    itemByTranslated: commonFind(indexNames, "name"),
+    itemByRef: commonFind(indexRefNames, "refName"),
+    items,
+    gemNames: names("GEM"),
+    uniqueNames: names("UNIQUE"),
+    itemNames: names("ITEM"),
+    tradeTagToRef,
+  };
 }
 
 function mergeStats(stats: Stat[]): Stat {
   if (stats.length === 1) return stats[0];
   const merged: Stat = {
-    ref: stats[0].ref,
-    better: stats[0].better,
+    ...stats[0],
     matchers: [],
     trade: {
       ids: {},
@@ -248,120 +262,62 @@ function mergeStats(stats: Stat[]): Stat {
   return merged;
 }
 
-async function loadStats(language: string) {
-  const ndjson = await (
-    await fetch(`${import.meta.env.BASE_URL}data/${language}/stats.ndjson`)
-  ).text();
-  const INDEX_WIDTH = 2;
-  const indexRef = new Uint32Array(
-    await (
-      await fetch(
-        `${import.meta.env.BASE_URL}data/${language}/stats-ref.index.bin`,
-      )
-    ).arrayBuffer(),
-  );
-  const indexMatcher = new Uint32Array(
-    await (
-      await fetch(
-        `${import.meta.env.BASE_URL}data/${language}/stats-matcher.index.bin`,
-      )
-    ).arrayBuffer(),
-  );
+type StatLine = Stat | { stats: Stat[] };
 
-  STAT_BY_REF = function (ref: string) {
-    const hash = Number(fnv1a(ref, { size: 32 }));
-    const foundIdx = dataBinarySearch(
-      indexRef,
-      hash,
-      0,
-      INDEX_WIDTH,
-    );
-    if (foundIdx === -1) return undefined;
+function unpackStats(line: StatLine): Stat[] {
+  return "stats" in line ? line.stats : [line];
+}
 
-    const matchedStats: Stat[] = [];
+async function loadStats(directory: string) {
+  const [ndjson, refIndex, matcherIndex] = await Promise.all([
+    fetchData(directory + "/stats.ndjson").then((r) => r.text()),
+    fetchData(directory + "/stats-ref.index.bin").then((r) => r.arrayBuffer()),
+    fetchData(directory + "/stats-matcher.index.bin").then((r) => r.arrayBuffer()),
+  ]);
+  const indexRef = new Uint32Array(refIndex);
+  const indexMatcher = new Uint32Array(matcherIndex);
+  const indexWidth = 2;
 
-    const checkIndex = (idx: number) => {
-      const start = indexRef[idx * INDEX_WIDTH + 1];
-      const end = ndjson.indexOf("\n", start);
-      const parsed = JSON.parse(ndjson.slice(start, end)) as Stat;
-      if (parsed.ref === ref) {
-        matchedStats.push(parsed);
+  function* findStats(index: Uint32Array, value: string) {
+    const hash = Number(fnv1a(value, { size: 32 }));
+    let row = dataBinarySearch(index, hash, 0, indexWidth);
+    if (row === -1) return;
+    while (row > 0 && index[(row - 1) * indexWidth] === hash) row--;
+
+    let previous = -1;
+    while (row < index.length / indexWidth && index[row * indexWidth] === hash) {
+      const start = index[row * indexWidth + 1];
+      if (start !== previous) {
+        const end = ndjson.indexOf("\n", start);
+        yield* unpackStats(JSON.parse(ndjson.slice(start, end === -1 ? undefined : end)));
+        previous = start;
       }
-    };
-
-    checkIndex(foundIdx);
-
-    let l = foundIdx - 1;
-    while (l >= 0 && indexRef[l * INDEX_WIDTH] === hash) {
-      checkIndex(l);
-      l--;
+      row++;
     }
+  }
 
-    let r = foundIdx + 1;
-    while (
-      r < indexRef.length / INDEX_WIDTH &&
-      indexRef[r * INDEX_WIDTH] === hash
-    ) {
-      checkIndex(r);
-      r++;
-    }
-
-    if (matchedStats.length === 0) return undefined;
-    return mergeStats(matchedStats);
-  };
-
-  STAT_BY_MATCH_STR = function (matchStr: string) {
-    const hash = Number(fnv1a(matchStr, { size: 32 }));
-    const foundIdx = dataBinarySearch(
-      indexMatcher,
-      hash,
-      0,
-      INDEX_WIDTH,
-    );
-    if (foundIdx === -1) return undefined;
-
-    const matchedStats: { stat: Stat; matcher: StatMatcher }[] = [];
-
-    const checkIndex = (idx: number) => {
-      const start = indexMatcher[idx * INDEX_WIDTH + 1];
-      const end = ndjson.indexOf("\n", start);
-      const stat = JSON.parse(ndjson.slice(start, end)) as Stat;
-
-      const matcher = stat.matchers.find(
-        (m) => m.string === matchStr || m.advanced === matchStr,
-      );
-      if (matcher) {
-        matchedStats.push({ stat, matcher });
+  const statLines = ndjsonFindLines<StatLine>(ndjson);
+  return {
+    byRef(ref: string) {
+      const stats = Array.from(findStats(indexRef, ref)).filter((stat) => stat.ref === ref);
+      return stats.length ? mergeStats(stats) : undefined;
+    },
+    byMatcher(text: string) {
+      const stats: Stat[] = [];
+      let matcher: StatMatcher | undefined;
+      for (const stat of findStats(indexMatcher, text)) {
+        const match = stat.matchers.find((m) => m.string === text || m.advanced === text);
+        if (match) {
+          matcher ??= match;
+          stats.push(stat);
+        }
       }
-    };
-
-    checkIndex(foundIdx);
-
-    let l = foundIdx - 1;
-    while (l >= 0 && indexMatcher[l * INDEX_WIDTH] === hash) {
-      checkIndex(l);
-      l--;
-    }
-
-    let r = foundIdx + 1;
-    while (
-      r < indexMatcher.length / INDEX_WIDTH &&
-      indexMatcher[r * INDEX_WIDTH] === hash
-    ) {
-      checkIndex(r);
-      r++;
-    }
-
-    if (matchedStats.length === 0) {
-      // console.log('fnv1a32 collision')
-      return undefined;
-    }
-
-    const mergedStat = mergeStats(matchedStats.map((m) => m.stat));
-    return { stat: mergedStat, matcher: matchedStats[0].matcher };
+      return matcher ? { stat: mergeStats(stats), matcher } : undefined;
+    },
+    *iterator(includes: string, andIncludes?: string[]) {
+      for (const line of statLines(includes, andIncludes)) yield* unpackStats(line);
+    },
   };
-
-  STATS_ITERATOR = ndjsonFindLines<Stat>(ndjson);
 }
 
 // assertion, to avoid regressions in stats.ndjson
@@ -373,15 +329,8 @@ export function stat(text: string) {
 
 export const CUSTOM_ICONS: Record<string, string> = reactive({});
 
-export async function init(lang: string) {
-  CLIENT_STRINGS_REF = await loadClientStrings("en");
-  ITEM_DROP = await (
-    await fetch(`${import.meta.env.BASE_URL}data/item-drop.json`)
-  ).json();
-  APP_PATRONS = await (
-    await fetch(`${import.meta.env.BASE_URL}data/patrons.json`)
-  ).json();
-
+export async function init(lang: string, game: GameVersion = "poe2") {
+  APP_PATRONS = await (await fetchData("data/patrons.json")).json();
   try {
     const response = await fetch("/custom-icons");
     Object.assign(CUSTOM_ICONS, await response.json());
@@ -390,10 +339,11 @@ export async function init(lang: string) {
   }
 
   Host.onEvent("MAIN->CLIENT::custom-icon-added", (payload) => {
-    CUSTOM_ICONS[payload.refName] = payload.iconUrl;
+    CUSTOM_ICONS[itemIconKey(payload.game, payload.namespace, payload.refName)] = payload.iconUrl;
   });
 
-  await loadForLang(lang);
+  await switchGameData(game, lang);
+  await useTradeData().load(true, game);
 
   let failed = false;
   const missing = [];
@@ -422,12 +372,66 @@ export function setLocalAugmentFilter(
   localAugmentFilter = filter;
 }
 
-export async function loadForLang(lang: string) {
-  CLIENT_STRINGS = await loadClientStrings(lang);
-  await loadItems(lang);
-  await loadStats(lang);
+export const POE1_LANGUAGES = new Set(["en", "ru", "cmn-Hant", "ko"]);
+
+let activeGame: GameVersion = "poe2";
+let activeLanguage = "";
+let dataRequest = 0;
+const pendingData = new Map<string, ReturnType<typeof loadGameData>>();
+
+async function loadGameData(game: GameVersion, language: string) {
+  const root = game === "poe1" ? "poe1-data" : "data";
+  const directory = root + "/" + language;
+  async function clientStrings(lang: string): Promise<TranslationDict> {
+    const base = await loadClientStrings(lang);
+    return game === "poe1" ? { ...base, ...await loadPoe1ClientStrings(lang) } : base;
+  }
+  const [strings, refStrings, items, stats, drops] = await Promise.all([
+    clientStrings(language),
+    clientStrings("en"),
+    loadItems(directory, game),
+    loadStats(directory),
+    fetchData(root + "/item-drop.json").then((r) => r.json() as Promise<DropEntry[]>),
+  ]);
+  return { strings, refStrings, items, stats, drops };
+}
+
+export function loadForLang(lang: string) {
+  return switchGameData(activeGame, lang);
+}
+
+export async function switchGameData(game: GameVersion, lang: string) {
+  const request = ++dataRequest;
+  const language = game === "poe1" && !POE1_LANGUAGES.has(lang) ? "en" : lang;
+  if (activeGame === game && activeLanguage === language) return true;
+
+  const key = game + "/" + language;
+  let pending = pendingData.get(key);
+  if (!pending) {
+    pending = loadGameData(game, language).finally(() => pendingData.delete(key));
+    pendingData.set(key, pending);
+  }
+  const { strings, refStrings, items, stats, drops } = await pending;
+  if (request !== dataRequest) return false;
+
+  CLIENT_STRINGS = strings;
+  CLIENT_STRINGS_REF = refStrings;
+  ITEM_BY_TRANSLATED = items.itemByTranslated;
+  ITEM_BY_REF = items.itemByRef;
+  ITEMS_ITERATOR = items.items;
+  GEM_NS_NAMES = items.gemNames;
+  UNIQUE_NS_NAMES = items.uniqueNames;
+  ITEM_NS_NAMES = items.itemNames;
+  TRADE_TAG_TO_REF = items.tradeTagToRef;
+  STAT_BY_MATCH_STR = stats.byMatcher;
+  STAT_BY_REF = stats.byRef;
+  STATS_ITERATOR = stats.iterator;
+  ITEM_DROP = drops;
+  activeGame = game;
+  activeLanguage = language;
   loadUltraLateItems(localAugmentFilter);
-  await loadTradeData();
+  bindTradeData(game);
+  return true;
 }
 
 export function loadUltraLateItems(
@@ -501,13 +505,8 @@ function augmentsToLookupTradeId(
   return augmentDataByAugment;
 }
 
-async function loadTradeData() {
-  const trade = useTradeData();
-  await trade.load(true);
-  if (trade.error.value) {
-    console.error("Failed to load trade data:", trade.error.value);
-    return;
-  }
+function bindTradeData(game: GameVersion) {
+  const trade = useTradeData().forGame(game);
 
   TRADE_ITEM_BY_REF = function (
     itemQuery: {
@@ -580,13 +579,7 @@ async function loadTradeData() {
       }
     }
 
-    if (base) {
-      if (CUSTOM_ICONS[base.refName]) {
-        base.icon = CUSTOM_ICONS[base.refName];
-      }
-    }
-
-    return base ? [base] : undefined;
+    return base ? [withItemIcon(base, game)] : undefined;
   };
 
   TRADE_STAT_BY_STAT_ID = function (tradeId: string) {

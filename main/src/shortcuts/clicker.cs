@@ -171,7 +171,8 @@ class Clicker {
 
                 RECT rect;
                 rect.Left = 0; rect.Top = 0; rect.Right = 0; rect.Bottom = 0;
-                bool isGameActive = IsTargetWindowActive(ref rect);
+                string dummyGame;
+                bool isGameActive = IsTargetWindowActive(ref rect, out dummyGame);
                 bool isTargetActive = active || isGameActive;
 
                 if (isTargetActive) {
@@ -241,14 +242,20 @@ class Clicker {
         }
     }
 
-    static bool IsTargetWindowActive(ref RECT rect) {
+    static bool IsTargetWindowActive(ref RECT rect, out string activeGame) {
+        activeGame = "-";
         IntPtr handle = GetForegroundWindow();
         if (handle == IntPtr.Zero) return false;
         
         StringBuilder sb = new StringBuilder(256);
         if (GetWindowText(handle, sb, 256) > 0) {
             string title = sb.ToString();
-            if (title.Contains("Path of Exile") || title.Contains("Poe2 Price Checker")) {
+            if (title == "Path of Exile" || title == "Path of Exile 2" || title.Contains("Poe2 Price Checker")) {
+                if (title == "Path of Exile 2") {
+                    activeGame = "poe2";
+                } else if (title == "Path of Exile") {
+                    activeGame = "poe1";
+                }
                 GetWindowRect(handle, out rect);
                 return true;
             }
@@ -258,6 +265,7 @@ class Clicker {
 
     static void ClickLoop() {
         bool lastForegroundState = false;
+        string lastGame = "-";
         RECT lastRect;
         lastRect.Left = 0; lastRect.Top = 0; lastRect.Right = 0; lastRect.Bottom = 0;
         while (!shouldExit) {
@@ -271,16 +279,18 @@ class Clicker {
 
             RECT currentRect;
             currentRect.Left = 0; currentRect.Top = 0; currentRect.Right = 0; currentRect.Bottom = 0;
-            bool isGameActive = IsTargetWindowActive(ref currentRect);
+            string activeGame;
+            bool isGameActive = IsTargetWindowActive(ref currentRect, out activeGame);
             bool isTargetActive = active || isGameActive;
 
-            if (isTargetActive != lastForegroundState || (isTargetActive && (currentRect.Left != lastRect.Left || currentRect.Top != lastRect.Top || currentRect.Right != lastRect.Right || currentRect.Bottom != lastRect.Bottom))) {
+            if (isTargetActive != lastForegroundState || (isTargetActive && (activeGame != lastGame || currentRect.Left != lastRect.Left || currentRect.Top != lastRect.Top || currentRect.Right != lastRect.Right || currentRect.Bottom != lastRect.Bottom))) {
                 lastForegroundState = isTargetActive;
                 lastRect = currentRect;
+                lastGame = activeGame;
                 if (isTargetActive) {
                     int width = currentRect.Right - currentRect.Left;
                     int height = currentRect.Bottom - currentRect.Top;
-                    Console.WriteLine("focus 1 " + currentRect.Left + " " + currentRect.Top + " " + width + " " + height);
+                    Console.WriteLine("focus 1 " + activeGame + " " + currentRect.Left + " " + currentRect.Top + " " + width + " " + height);
                 } else {
                     Console.WriteLine("focus 0");
                 }

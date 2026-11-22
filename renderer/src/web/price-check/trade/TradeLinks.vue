@@ -1,15 +1,15 @@
 <template>
-  <div class="flex gap-px">
+  <div class="flex gap-1">
     <template v-if="builtin">
       <button
         @click="open(false)"
-        class="bg-gray-700 text-gray-400 rounded-l px-2"
+        class="ui-button"
       >
         {{ t(text) }}
       </button>
       <button
         @click="open(true)"
-        class="bg-gray-700 text-gray-400 rounded-r px-2"
+        class="ui-icon-button" aria-label="Open in browser" title="Open in browser"
       >
         <i class="fas fa-external-link-alt text-xs" />
       </button>
@@ -17,7 +17,7 @@
     <button
       v-else
       @click="open(true)"
-      class="bg-gray-700 text-gray-400 rounded px-2"
+      class="ui-button"
     >
       {{ t(text) }} <i class="fas fa-external-link-alt text-xs" />
     </button>

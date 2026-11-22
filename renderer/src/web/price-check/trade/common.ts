@@ -1,10 +1,20 @@
 import { shallowReactive } from "vue";
 import type { ItemFilters, StatFilter } from "../filters/interfaces";
+import type { GameVersion } from "@ipc/types";
 import { AppConfig } from "@/web/Config";
 import type { PriceCheckWidget } from "@/web/overlay/interfaces";
 import { RateLimiter } from "./RateLimiter";
 import { ParsedItem, ItemCategory } from "@/parser";
 export { poeWebApi as getTradeEndpoint } from "@/web/Config";
+
+export function getTradeEndpointPath(game: GameVersion = AppConfig()?.game ?? "poe2") {
+  return game === "poe1" ? "trade" : "trade2";
+}
+
+export function getTradeUrlSegment() {
+  const game = AppConfig().game;
+  return game === "poe1" ? "" : "poe2/";
+}
 
 export interface Account {
   name: string;

@@ -1,3 +1,5 @@
+import { AppConfig } from "@/web/Config";
+import { getCategoryToTradeId } from "./trade-constants";
 import { ItemCategory, ParsedItem, ItemRarity } from "@/parser";
 import {
   ItemFilters,
@@ -14,6 +16,7 @@ import {
   TradeResponse,
   Account,
   getTradeEndpoint,
+  getTradeEndpointPath,
   adjustRateLimits,
   RATE_LIMIT_RULES,
   preventQueueCreation,
@@ -31,60 +34,6 @@ import {
 } from "@/web/background/Prices";
 import { getCurrencyDetailsId } from "../trends/getDetailsId";
 import { areaLevelByAscendancyPoints } from "../filters/create-item-filters";
-
-export const CATEGORY_TO_TRADE_ID = new Map([
-  [ItemCategory.Map, "map"],
-  [ItemCategory.AbyssJewel, "jewel.abyss"],
-  [ItemCategory.Amulet, "accessory.amulet"],
-  [ItemCategory.Belt, "accessory.belt"],
-  [ItemCategory.BodyArmour, "armour.chest"],
-  [ItemCategory.Boots, "armour.boots"],
-  [ItemCategory.Bow, "weapon.bow"],
-  [ItemCategory.Claw, "weapon.claw"],
-  [ItemCategory.Dagger, "weapon.dagger"],
-  [ItemCategory.FishingRod, "weapon.rod"],
-  [ItemCategory.Flask, "flask"],
-  [ItemCategory.Gloves, "armour.gloves"],
-  [ItemCategory.Helmet, "armour.helmet"],
-  [ItemCategory.Jewel, "jewel"],
-  [ItemCategory.OneHandedAxe, "weapon.oneaxe"],
-  [ItemCategory.OneHandedMace, "weapon.onemace"],
-  [ItemCategory.OneHandedSword, "weapon.onesword"],
-  [ItemCategory.Quiver, "armour.quiver"],
-  [ItemCategory.Ring, "accessory.ring"],
-  [ItemCategory.RuneDagger, "weapon.runedagger"],
-  [ItemCategory.Sceptre, "weapon.sceptre"],
-  [ItemCategory.Shield, "armour.shield"],
-  [ItemCategory.Staff, "weapon.staff"],
-  [ItemCategory.TwoHandedAxe, "weapon.twoaxe"],
-  [ItemCategory.TwoHandedMace, "weapon.twomace"],
-  [ItemCategory.TwoHandedSword, "weapon.twosword"],
-  [ItemCategory.Wand, "weapon.wand"],
-  [ItemCategory.Warstaff, "weapon.warstaff"],
-  [ItemCategory.ClusterJewel, "jewel.cluster"],
-  [ItemCategory.HeistBlueprint, "heistmission.blueprint"],
-  [ItemCategory.HeistContract, "heistmission.contract"],
-  [ItemCategory.HeistTool, "heistequipment.heisttool"],
-  [ItemCategory.HeistBrooch, "heistequipment.heistreward"],
-  [ItemCategory.HeistGear, "heistequipment.heistweapon"],
-  [ItemCategory.HeistCloak, "heistequipment.heistutility"],
-  [ItemCategory.Trinket, "accessory.trinket"],
-  [ItemCategory.SanctumRelic, "sanctum.relic"],
-  [ItemCategory.Tincture, "tincture"],
-  [ItemCategory.Charm, "azmeri.charm"],
-  [ItemCategory.Crossbow, "weapon.crossbow"],
-  [ItemCategory.SkillGem, "gem.activegem"],
-  [ItemCategory.SupportGem, "gem.supportgem"],
-  [ItemCategory.MetaGem, "gem.metagem"],
-  [ItemCategory.Focus, "armour.focus"],
-  [ItemCategory.Spear, "weapon.spear"],
-  [ItemCategory.Flail, "weapon.flail"],
-  [ItemCategory.Buckler, "armour.buckler"],
-  [ItemCategory.Tablet, "map.tablet"],
-  [ItemCategory.MapFragment, "map.fragment"],
-  [ItemCategory.Talisman, "weapon.talisman"],
-  [ItemCategory.Waystone, "map.waystone"],
-]);
 
 const TOTAL_MODS_TEXT = {
   EMPTY_MODIFIERS: [
@@ -424,6 +373,7 @@ interface FetchResult {
     sockets: Array<{
       group: number;
       type: string;
+      sColour?: "R" | "G" | "B" | "W" | "A" | "DV";
       // sacred:orange, primal:blue,vivid:yellow, wild:purple
       item?:
         | "rune"
@@ -570,17 +520,15 @@ export function createTradeRequest(
   stats: StatFilter[],
   item: ParsedItem,
 ) {
-  if (filters.trade.listingType === "onlineleague") {
-    console.error(
-      "onlineleague is not supported for trade, you shouldn't ever see this",
-    );
-    filters.trade.listingType = "securable";
-  }
+  const poe1 = AppConfig()?.game === "poe1";
+  const listingType = filters.trade.listingType === "onlineleague"
+    ? (poe1 ? "available" : "securable")
+    : filters.trade.listingType;
 
   const body: TradeRequest = {
     query: {
       status: {
-        option: filters.trade.listingType,
+        option: listingType,
       },
       stats: [{ type: "and", filters: [] }],
       filters: {},
@@ -635,7 +583,7 @@ export function createTradeRequest(
 
   // TYPE FILTERS
   if (activeSearch.category) {
-    const id = CATEGORY_TO_TRADE_ID.get(activeSearch.category);
+    const id = getCategoryToTradeId().get(activeSearch.category);
     if (id) {
       propSet(query.filters, "type_filters.filters.category.option", id);
     } else {
@@ -653,16 +601,19 @@ export function createTradeRequest(
     );
   }
 
+  const itemProperties = poe1 ? "misc_filters" : "type_filters";
+  const armourProperties = poe1 ? "armour_filters" : "equipment_filters";
+  const weaponProperties = poe1 ? "weapon_filters" : "equipment_filters";
   if (filters.itemLevel && !filters.itemLevel.disabled) {
     propSet(
       query.filters,
-      "type_filters.filters.ilvl.min",
+      `${itemProperties}.filters.ilvl.min`,
       filters.itemLevel.value,
     );
     if (filters.itemLevel.max) {
       propSet(
         query.filters,
-        "type_filters.filters.ilvl.max",
+        `${itemProperties}.filters.ilvl.max`,
         filters.itemLevel.max,
       );
     }
@@ -683,14 +634,35 @@ export function createTradeRequest(
   if (filters.quality && !filters.quality.disabled) {
     propSet(
       query.filters,
-      "type_filters.filters.quality.min",
+      `${itemProperties}.filters.quality.min`,
       filters.quality.value,
     );
   }
 
+  if (poe1) {
+    if (filters.linkedSockets && !filters.linkedSockets.disabled) {
+      propSet(query.filters, "socket_filters.filters.links.min", filters.linkedSockets.value);
+    }
+    if (filters.whiteSockets && !filters.whiteSockets.disabled) {
+      propSet(query.filters, "socket_filters.filters.sockets.w", filters.whiteSockets.value);
+    }
+    if (filters.socketNumber && !filters.socketNumber.disabled) {
+      propSet(query.filters, "socket_filters.filters.sockets.min", filters.socketNumber.value);
+    }
+    if (filters.mapBlighted) {
+      const { value } = filters.mapBlighted;
+      if (value !== "Blight-ravaged") {
+        propSet(query.filters, "map_filters.filters.map_blighted.option", String(value === "Blighted"));
+      }
+      if (value !== "Blighted") {
+        propSet(query.filters, "map_filters.filters.map_uberblighted.option", String(value === "Blight-ravaged"));
+      }
+    }
+  }
+
   // EQUIPMENT FILTERS
 
-  if (filters.augmentSockets && !filters.augmentSockets.disabled) {
+  if (!poe1 && filters.augmentSockets && !filters.augmentSockets.disabled) {
     propSet(
       query.filters,
       "equipment_filters.filters.rune_sockets.min",
@@ -739,7 +711,7 @@ export function createTradeRequest(
     }
   }
 
-  if (filters.socketNumber && !filters.socketNumber.disabled) {
+  if (!poe1 && filters.socketNumber && !filters.socketNumber.disabled) {
     propSet(
       query.filters,
       "misc_filters.filters.gem_sockets.min",
@@ -752,13 +724,13 @@ export function createTradeRequest(
       // set max, lower has higher value, so exclude worse(higher area level) items
       propSet(
         query.filters,
-        "misc_filters.filters.area_level.max",
+        `${poe1 ? "map_filters" : "misc_filters"}.filters.area_level.max`,
         filters.areaLevel.value,
       );
     } else {
       propSet(
         query.filters,
-        "misc_filters.filters.area_level.min",
+        `${poe1 ? "map_filters" : "misc_filters"}.filters.area_level.min`,
         filters.areaLevel.value,
       );
     }
@@ -770,7 +742,7 @@ export function createTradeRequest(
   ) {
     propSet(
       query.filters,
-      "misc_filters.filters.area_level.min",
+      `${poe1 ? "map_filters" : "misc_filters"}.filters.area_level.min`,
       areaLevelByAscendancyPoints(
         item.info.refName,
         filters.awardedAscendancyPoints.value,
@@ -795,7 +767,7 @@ export function createTradeRequest(
   }
 
   if (
-    (filters.corrupted?.value === false || filters.corrupted?.exact) &&
+    (poe1 || filters.corrupted?.value === false || filters.corrupted?.exact) &&
     filters.corrupted &&
     (!filters.sanctified || (filters.sanctified && filters.sanctified.disabled))
   ) {
@@ -958,96 +930,96 @@ export function createTradeRequest(
       case "item.armour":
         propSet(
           query.filters,
-          "equipment_filters.filters.ar.min",
+          `${armourProperties}.filters.ar.min`,
           typeof input.min === "number" ? input.min : undefined,
         );
         propSet(
           query.filters,
-          "equipment_filters.filters.ar.max",
+          `${armourProperties}.filters.ar.max`,
           typeof input.max === "number" ? input.max : undefined,
         );
         break;
       case "item.evasion_rating":
         propSet(
           query.filters,
-          "equipment_filters.filters.ev.min",
+          `${armourProperties}.filters.ev.min`,
           typeof input.min === "number" ? input.min : undefined,
         );
         propSet(
           query.filters,
-          "equipment_filters.filters.ev.max",
+          `${armourProperties}.filters.ev.max`,
           typeof input.max === "number" ? input.max : undefined,
         );
         break;
       case "item.energy_shield":
         propSet(
           query.filters,
-          "equipment_filters.filters.es.min",
+          `${armourProperties}.filters.es.min`,
           typeof input.min === "number" ? input.min : undefined,
         );
         propSet(
           query.filters,
-          "equipment_filters.filters.es.max",
+          `${armourProperties}.filters.es.max`,
           typeof input.max === "number" ? input.max : undefined,
         );
         break;
       case "item.runic_ward":
         propSet(
           query.filters,
-          "equipment_filters.filters.ward.min",
+          `${armourProperties}.filters.ward.min`,
           typeof input.min === "number" ? input.min : undefined,
         );
         propSet(
           query.filters,
-          "equipment_filters.filters.ward.max",
+          `${armourProperties}.filters.ward.max`,
           typeof input.max === "number" ? input.max : undefined,
         );
         break;
       case "item.block":
         propSet(
           query.filters,
-          "equipment_filters.filters.block.min",
+          `${armourProperties}.filters.block.min`,
           typeof input.min === "number" ? input.min : undefined,
         );
         propSet(
           query.filters,
-          "equipment_filters.filters.block.max",
+          `${armourProperties}.filters.block.max`,
           typeof input.max === "number" ? input.max : undefined,
         );
         break;
       case "item.total_dps":
         propSet(
           query.filters,
-          "equipment_filters.filters.dps.min",
+          `${weaponProperties}.filters.dps.min`,
           typeof input.min === "number" ? input.min : undefined,
         );
         propSet(
           query.filters,
-          "equipment_filters.filters.dps.max",
+          `${weaponProperties}.filters.dps.max`,
           typeof input.max === "number" ? input.max : undefined,
         );
         break;
       case "item.physical_dps":
         propSet(
           query.filters,
-          "equipment_filters.filters.pdps.min",
+          `${weaponProperties}.filters.pdps.min`,
           typeof input.min === "number" ? input.min : undefined,
         );
         propSet(
           query.filters,
-          "equipment_filters.filters.pdps.max",
+          `${weaponProperties}.filters.pdps.max`,
           typeof input.max === "number" ? input.max : undefined,
         );
         break;
       case "item.elemental_dps":
         propSet(
           query.filters,
-          "equipment_filters.filters.edps.min",
+          `${weaponProperties}.filters.edps.min`,
           typeof input.min === "number" ? input.min : undefined,
         );
         propSet(
           query.filters,
-          "equipment_filters.filters.edps.max",
+          `${weaponProperties}.filters.edps.max`,
           typeof input.max === "number" ? input.max : undefined,
         );
         applyElementalDamageLogicalFilter();
@@ -1055,24 +1027,24 @@ export function createTradeRequest(
       case "item.crit":
         propSet(
           query.filters,
-          "equipment_filters.filters.crit.min",
+          `${weaponProperties}.filters.crit.min`,
           typeof input.min === "number" ? input.min : undefined,
         );
         propSet(
           query.filters,
-          "equipment_filters.filters.crit.max",
+          `${weaponProperties}.filters.crit.max`,
           typeof input.max === "number" ? input.max : undefined,
         );
         break;
       case "item.aps":
         propSet(
           query.filters,
-          "equipment_filters.filters.aps.min",
+          `${weaponProperties}.filters.aps.min`,
           typeof input.min === "number" ? input.min : undefined,
         );
         propSet(
           query.filters,
-          "equipment_filters.filters.aps.max",
+          `${weaponProperties}.filters.aps.max`,
           typeof input.max === "number" ? input.max : undefined,
         );
         break;
@@ -1157,22 +1129,14 @@ export function createTradeRequest(
 
   stats = stats.filter((stat) => !INTERNAL_TRADE_IDS.includes(stat.tradeId[0]));
 
-  // if (filters.influences) {
-  //   for (const influence of filters.influences) {
-  //     stats.push({
-  //       disabled: influence.disabled,
-  //       statRef: undefined!,
-  //       text: undefined!,
-  //       tag: undefined!,
-  //       sources: undefined!,
-  //       tradeId: STAT_BY_REF(INFLUENCE_PSEUDO_TEXT[influence.value])!.trade.ids[
-  //         ModifierType.Pseudo
-  //       ]
-  //     })
-  //   }
-  // }
-
   const qAnd = query.stats[0];
+  if (poe1 && filters.influences) {
+    for (const influence of filters.influences) {
+      const id = STAT_BY_REF("Has " + influence.value + " Influence")?.trade.ids.pseudo?.[0];
+      if (id) qAnd.filters.push({ id, disabled: influence.disabled });
+    }
+  }
+
   for (const stat of stats) {
     if (stat.tradeId[0] === "pseudo.custom_weighted_elemental_resistance") {
       const eleFilters = [
@@ -1249,13 +1213,13 @@ export function createTradeRequest(
     }
 
     if (stat.tradeId.length === 1) {
-      qAnd.filters.push(tradeIdToQuery(stat.tradeId[0], stat));
+      qAnd.filters.push(tradeIdToQuery(stat.tradeId[0], stat, poe1));
     } else {
       query.stats.push({
         type: "count",
         value: { min: 1 },
         disabled: stat.disabled,
-        filters: stat.tradeId.map((id) => tradeIdToQuery(id, stat)),
+        filters: stat.tradeId.map((id) => tradeIdToQuery(id, stat, poe1)),
       });
     }
   }
@@ -1294,7 +1258,10 @@ export async function requestTradeResultList(
   body: TradeRequest,
   leagueId: string,
 ): Promise<SearchResult> {
-  let data = cache.get<SearchResult>([body, leagueId]);
+  const endpoint = getTradeEndpoint();
+  const tradePath = getTradeEndpointPath();
+  const cacheKey = [endpoint, tradePath, leagueId, body];
+  let data = cache.get<SearchResult>(cacheKey);
 
   if (!data) {
     preventQueueCreation([
@@ -1305,7 +1272,7 @@ export async function requestTradeResultList(
     await RateLimiter.waitMulti(RATE_LIMIT_RULES.SEARCH);
 
     const response = await Host.proxy(
-      `${getTradeEndpoint()}/api/trade2/search/${leagueId}`,
+      `${endpoint}/api/${tradePath}/search/${encodeURIComponent(leagueId)}`,
       {
         method: "POST",
         headers: {
@@ -1325,7 +1292,7 @@ export async function requestTradeResultList(
     }
 
     cache.set<SearchResult>(
-      [body, leagueId],
+      cacheKey,
       data,
       Cache.deriveTtl(...RATE_LIMIT_RULES.SEARCH, ...RATE_LIMIT_RULES.FETCH),
     );
@@ -1343,13 +1310,16 @@ export async function requestResults(
   // Solves cached results showing random incorrect values
   cache.purgeIfDifferentCurrency(xchgRateCurrency.value?.id);
 
-  let data = cache.get<FetchResult[]>(resultIds);
+  const endpoint = getTradeEndpoint();
+  const tradePath = getTradeEndpointPath();
+  const cacheKey = [endpoint, tradePath, queryId, ...resultIds];
+  let data = cache.get<FetchResult[]>(cacheKey);
 
   if (!data) {
     await RateLimiter.waitMulti(RATE_LIMIT_RULES.FETCH);
 
     const response = await Host.proxy(
-      `${getTradeEndpoint()}/api/trade2/fetch/${resultIds.join(",")}?query=${queryId}`,
+      `${endpoint}/api/${tradePath}/fetch/${resultIds.join(",")}?query=${encodeURIComponent(queryId)}`,
     );
     adjustRateLimits(RATE_LIMIT_RULES.FETCH, response.headers);
 
@@ -1363,7 +1333,7 @@ export async function requestResults(
     }
 
     cache.set<FetchResult[]>(
-      resultIds,
+      cacheKey,
       data,
       Cache.deriveTtl(...RATE_LIMIT_RULES.SEARCH, ...RATE_LIMIT_RULES.FETCH),
     );
@@ -1442,54 +1412,37 @@ export async function requestResults(
   });
 }
 
-function getMinMax(roll: StatFilter["roll"]) {
+function getMinMax(roll: StatFilter["roll"], divisor = 1) {
   if (!roll) {
     return { min: undefined, max: undefined };
   }
 
-  const sign = roll.tradeInvert ? -1 : 1;
-  const a = typeof roll.min === "number" ? roll.min * sign : undefined;
-  const b = typeof roll.max === "number" ? roll.max * sign : undefined;
+  const scale = (roll.tradeInvert ? -1 : 1) / divisor;
+  const a = typeof roll.min === "number" ? roll.min * scale : undefined;
+  const b = typeof roll.max === "number" ? roll.max * scale : undefined;
 
   return !roll.tradeInvert ? { min: a, max: b } : { min: b, max: a };
 }
 
-function tradeIdToQuery(id: string, stat: StatFilter) {
-  // NOTE: if there will be too many overrides in the future,
-  //       consider moving them to stats.ndjson
-
-  const roll = stat.roll;
+function tradeIdToQuery(id: string, stat: StatFilter, poe1 = false) {
+  let roll = stat.roll;
   let tradeId = id;
-  if (stat.option != null) {
-    tradeId += `|${stat.option.value}`;
+  let divisor = 1;
+  if (poe1) {
+    if (id.startsWith("{div_by_100}")) divisor = 100;
+    if (id.startsWith("{empty}") || (id.startsWith("{empty_if_100}") && roll?.value === 100)) {
+      roll = undefined;
+    }
+    if (id.startsWith("{")) tradeId = id.slice(id.indexOf("}") + 1);
+  } else if (stat.option != null) {
+    tradeId += "|" + stat.option.value;
   }
-
-  // NOTE: poe1 overrides, leaving until any for poe2 are added
-  // fixes Corrupted Implicit "Bleeding cannot be inflicted on you"
-  // if (id === "implicit.stat_1901158930") {
-  //   if (stat.roll?.value === 100) {
-  //     roll = undefined; // stat semantic type is flag
-  //   }
-  //   // fixes "Cannot be Poisoned" from Essence
-  // } else if (id === "explicit.stat_3835551335") {
-  //   if (stat.roll?.value === 100) {
-  //     roll = undefined; // stat semantic type is flag
-  //   }
-  //   // fixes "Instant Recovery" on Flasks
-  // } else if (id.endsWith("stat_1526933524")) {
-  //   if (stat.roll?.value === 100) {
-  //     roll = undefined; // stat semantic type is flag
-  //   }
-  //   // fixes Delve "Reservation Efficiency of Skills"
-  // } else if (id.endsWith("stat_1269219558")) {
-  //   roll = { ...roll!, tradeInvert: !roll!.tradeInvert };
-  // }
 
   return {
     id: tradeId,
     value: {
-      ...getMinMax(roll),
-      // option: stat.option != null ? stat.option.value : undefined,
+      ...getMinMax(roll, divisor),
+      option: poe1 ? stat.option?.value : undefined,
     },
     disabled: stat.disabled,
   };
@@ -1571,13 +1524,18 @@ function parseFetchResult(result: FetchResult): PricingResult["displayItem"] {
 
   const displayItem: PricingResult["displayItem"] = {
     title,
-    rarity: result.item.rarity,
+    rarity: result.item.rarity ?? ({
+      [DisplayFrameType.Normal]: ItemRarity.Normal,
+      [DisplayFrameType.Magic]: ItemRarity.Magic,
+      [DisplayFrameType.Rare]: ItemRarity.Rare,
+      [DisplayFrameType.Unique]: ItemRarity.Unique,
+    } as Partial<Record<DisplayFrameType, ItemRarity>>)[result.item.frameType ?? DisplayFrameType.Normal] ?? ItemRarity.Normal,
     frameType: result.item.frameType,
     nameBlock: buildNameBlock(result.item.extended, result.item.properties),
     itemProps: buildItemProps(result.item.ilvl, result.item.requirements),
     grantSkill: buildGrantSkillBlock(result.item.grantedSkills),
     ...parseMods(result),
-    sockets: result.item.sockets,
+    sockets: result.item.sockets?.map((socket) => ({ ...socket, type: socket.sColour ?? socket.type })) ?? [],
     itemTags,
     icon: {
       url: result.item.icon,

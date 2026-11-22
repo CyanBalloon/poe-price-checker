@@ -1,9 +1,11 @@
+import { AppConfig } from "@/web/Config";
+import { getCategoryToTradeId } from "../trade/trade-constants";
 import type { ItemFilters } from "./interfaces";
 import { ParsedItem, ItemCategory, ItemRarity } from "@/parser";
 import { tradeTag } from "../trade/common";
 import { ModifierType } from "@/parser/modifiers";
 import { BaseType, ITEM_BY_REF } from "@/assets/data";
-import { CATEGORY_TO_TRADE_ID } from "../trade/pathofexile-trade";
+
 import { PriceCheckWidget } from "@/web/overlay/widgets";
 import { isArmourOrWeaponOrCaster } from "@/parser/Parser";
 import { ARMOUR, WEAPON } from "@/parser/meta";
@@ -44,6 +46,7 @@ export function createFilters(
   opts: CreateOptions,
 ): ItemFilters {
   performance.mark("create-item-filters-start");
+  const poe1 = AppConfig()?.game === "poe1";
   const filters: ItemFilters = {
     searchExact: {},
     trade: {
@@ -148,20 +151,25 @@ export function createFilters(
         baseType: item.info.name,
         baseTypeTrade: t(opts, item.info),
       };
-      filters.searchRelaxed = {
-        category: item.category,
-        disabled: false,
-      };
+      if (!poe1) {
+        filters.searchRelaxed = {
+          category: item.category,
+          disabled: false,
+        };
+      }
     }
 
     if (item.mapBlighted) {
       filters.mapBlighted = { value: item.mapBlighted };
+    } else if (poe1 && item.info.refName === "Map") {
+      filters.mapBlighted = { value: false };
     }
-
-    filters.mapTier = {
-      value: item.mapTier!,
-      disabled: false,
-    };
+    if (poe1 && (item.info.refName === "Map" || item.info.unique?.base === "Map")) {
+      filters.discriminator = { trade: "map" };
+    }
+    if (item.mapTier != null) {
+      filters.mapTier = { value: item.mapTier, disabled: false };
+    }
   } else if (item.info.refName === "Expedition Logbook") {
     filters.searchExact = {
       baseType: item.info.name,
@@ -205,7 +213,7 @@ export function createFilters(
       baseType: item.info.name,
       baseTypeTrade: t(opts, item.info),
     };
-    if (item.category && CATEGORY_TO_TRADE_ID.has(item.category)) {
+    if (item.category && getCategoryToTradeId().has(item.category)) {
       let disabled = opts.exact;
       if (item.category === ItemCategory.ClusterJewel) {
         disabled = true;
@@ -258,7 +266,7 @@ export function createFilters(
   if (item.gemSockets?.linked) {
     filters.linkedSockets = {
       value: item.gemSockets.linked,
-      disabled: false,
+      disabled: poe1 && item.gemSockets.linked < 5,
     };
   } else if (item.gemSockets?.number) {
     filters.linkedSockets = {

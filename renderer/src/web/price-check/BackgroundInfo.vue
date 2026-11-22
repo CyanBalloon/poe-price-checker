@@ -23,6 +23,7 @@ import { useI18n } from "vue-i18n";
 import { useLeagues } from "@/web/background/Leagues";
 import { Host } from "@/web/background/IPC";
 import { poeWebApi } from "@/web/Config";
+import { getTradeEndpointPath } from "./trade/common";
 
 import UiErrorBox from "@/web/ui/UiErrorBox.vue";
 
@@ -56,6 +57,6 @@ const updateInfo = computed(() => {
 const leagues = useLeagues();
 
 function openCaptcha() {
-  showBrowser(`https://${poeWebApi()}/api/trade2/data/leagues`);
+  showBrowser(`https://${poeWebApi()}/api/${getTradeEndpointPath()}/data/leagues`);
 }
 </script>

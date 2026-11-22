@@ -1,12 +1,17 @@
 <template>
-  <div :class="[$style.btn, { [$style.active]: !filter.disabled }]">
-    <button @click="filter.disabled = !filter.disabled" class="pl-2">
+  <div :class="standalone ? 'property-field' : [$style.btn, { [$style.active]: !filter.disabled }]">
+    <label v-if="standalone" class="property-toggle">
+      <input type="checkbox" :checked="!filter.disabled" @change="filter.disabled = !filter.disabled">
+      {{ name.trim().replace(/[:：]$/, '') }}
+    </label>
+    <button v-else type="button" @click="filter.disabled = !filter.disabled" class="pl-2">
       {{ name }}
     </button>
     <input
-      :class="$style.input"
+      :class="standalone ? 'property-value' : $style.input"
       step="any"
       type="number"
+      :aria-label="name + ' minimum'"
       v-model.number="inputMin"
       @focus="inputFocus"
       @blur="inputMinBlur"
@@ -16,9 +21,10 @@
     <template v-if="'max' in filter">
       <span>–</span>
       <input
-        :class="$style.input"
+        :class="standalone ? 'property-value' : $style.input"
         step="any"
         type="number"
+        :aria-label="name + ' maximum'"
         v-model.number="inputMax"
         @focus="inputFocus"
         @mousewheel.stop
@@ -36,6 +42,7 @@ import { FilterNumeric } from "./interfaces";
 export default defineComponent({
   emits: [], // mutates filter
   props: {
+    standalone: Boolean,
     filter: {
       type: Object as PropType<FilterNumeric>,
       required: true,
@@ -72,6 +79,7 @@ export default defineComponent({
         set(value) {
           _inputMin.value = value;
           if (typeof value === "number") {
+            props.filter.disabled = false;
             props.filter.value = value;
           } else {
             props.filter.value = 0;
@@ -85,6 +93,7 @@ export default defineComponent({
         set(value) {
           _inputMax.value = value;
           if (typeof value === "number") {
+            props.filter.disabled = false;
             props.filter.max = value;
           } else {
             props.filter.max = undefined;
@@ -94,7 +103,7 @@ export default defineComponent({
       inputFocus(e: FocusEvent) {
         const target = e.target as HTMLInputElement;
         target.select();
-        props.filter.disabled = false;
+        if (!props.standalone) props.filter.disabled = false;
       },
       inputMinBlur() {
         if (typeof _inputMin.value !== "number") {
@@ -138,5 +147,22 @@ export default defineComponent({
   &:focus {
     cursor: none;
   }
+}
+</style>
+
+<style scoped>
+.property-field { display: flex; align-items: center; gap: 0.4rem; min-height: 2.45rem; border-top: 1px solid var(--line); }
+.property-toggle { flex: 1; display: flex; align-items: center; gap: 0.6rem; color: var(--muted); font-size: 0.81rem; cursor: pointer; }
+.property-toggle input { accent-color: var(--accent); width: 0.95rem; height: 0.95rem; }
+.property-value {
+  min-width: 3rem;
+  max-width: 5rem;
+  padding: 0.24rem;
+  border: 1px solid var(--line);
+  border-radius: 0.3rem;
+  background: var(--page);
+  color: var(--ink);
+  text-align: center;
+  font-size: 0.8rem;
 }
 </style>

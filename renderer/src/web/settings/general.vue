@@ -69,29 +69,8 @@
       />
     </div>
     <hr class="mb-4 mx-8 border-gray-700" />
-    <div class="mb-2">
-      <div class="mb-1">{{ t(":overlay_bg") }}</div>
-      <div class="flex gap-4 items-baseline">
-        <input
-          v-model="overlayBackground"
-          class="rounded bg-gray-900 px-1 block w-48 font-poe text-center"
-        />
-        <ui-radio v-model="overlayBackground" value="rgba(255, 255, 255, 0)">{{
-          t(":overlay_bg_none")
-        }}</ui-radio>
-      </div>
-    </div>
-    <ui-checkbox
-      class="mb-2"
-      v-if="overlayBackground !== 'rgba(255, 255, 255, 0)'"
-      v-model="overlayBackgroundClose"
-      >{{ t(":overlay_bg_focus_game") }}</ui-checkbox
-    >
     <ui-checkbox class="mb-4" v-model="showAttachNotification">{{
       t(":show_overlay_ready")
-    }}</ui-checkbox>
-    <ui-checkbox class="mb-4" v-model="overlayAlwaysClose">{{
-      t(":overlay_always_close")
     }}</ui-checkbox>
     <div class="mb-4">
       <div class="flex-1 mb-1">
@@ -159,14 +138,6 @@ export default defineComponent({
     return {
       t,
       fontSize: configModelValue(() => props.config, "fontSize"),
-      overlayBackgroundClose: configModelValue(
-        () => props.config,
-        "overlayBackgroundClose",
-      ),
-      overlayBackground: configModelValue(
-        () => props.config,
-        "overlayBackground",
-      ),
       clientLog: configModelValue(() => props.config, "clientLog"),
       gameConfig: configModelValue(() => props.config, "gameConfig"),
       language: computed<typeof props.config.language>({
@@ -232,10 +203,6 @@ export default defineComponent({
       showAttachNotification: configModelValue(
         () => props.config,
         "showAttachNotification",
-      ),
-      overlayAlwaysClose: configModelValue(
-        () => props.config,
-        "overlayAlwaysClose",
       ),
       windowTitle: configModelValue(() => props.config, "windowTitle"),
       enableAlphas: configModelValue(() => props.config, "enableAlphas"),

@@ -2,6 +2,8 @@ import { computed, shallowRef, readonly } from "vue";
 import { createGlobalState } from "@vueuse/core";
 import { AppConfig, poeWebApi } from "@/web/Config";
 import { Host } from "./IPC";
+import type { GameVersion } from "@ipc/types";
+import { getTradeEndpointPath } from "@/web/price-check/trade/common";
 
 // pc-ggg, pc-garena
 // const PERMANENT_SC = ['Standard', '標準模式']
@@ -22,59 +24,69 @@ export const useLeagues = createGlobalState(() => {
   const isLoading = shallowRef(false);
   const error = shallowRef<string | null>(null);
   const tradeLeagues = shallowRef<League[]>([]);
+  const loadedGame = shallowRef<GameVersion>();
+  const list = computed(() => {
+    const game = AppConfig()?.game;
+    return game && loadedGame.value === game ? tradeLeagues.value : [];
+  });
+  let request = 0;
 
   const selectedId = computed<string | undefined>({
     get() {
-      return tradeLeagues.value.length ? AppConfig().leagueId : undefined;
+      return list.value.length ? AppConfig()?.leagueId : undefined;
     },
     set(id) {
-      AppConfig().leagueId = id;
+      const config = AppConfig();
+      if (!config) return;
+      config.leagueId = id;
+      config.leagueByGame ??= {};
+      config.leagueByGame[config.game] = id;
     },
   });
 
   const selected = computed(() => {
-    const { leagueId } = AppConfig();
-    if (!tradeLeagues.value || !leagueId) return undefined;
-    const listed = tradeLeagues.value.find((league) => league.id === leagueId);
+    const leagueId = selectedId.value;
+    const config = AppConfig();
+    if (!leagueId || !config) return undefined;
+    const listed = list.value.find((league) => league.id === leagueId);
     return {
       id: leagueId,
-      realm: AppConfig().realm,
+      realm: config.realm,
       isPopular: !isPrivateLeague(leagueId) && Boolean(listed?.isPopular),
     };
   });
 
   async function load() {
+    const game = AppConfig()?.game;
+    if (!game) return;
+
+    const loadId = ++request;
     isLoading.value = true;
     error.value = null;
 
     try {
-      // TODO: swap back to /api/leagues?realm=poe2 when available (allows detection of Hardcore leagues)
       const response = await Host.proxy(
-        `${poeWebApi()}/api/trade2/data/leagues`,
+        poeWebApi() + "/api/" + getTradeEndpointPath(game) + "/data/leagues",
       );
-      if (!response.ok)
-        throw new Error(JSON.stringify(Object.fromEntries(response.headers)));
+      if (!response.ok) throw new Error("League request failed: " + response.status);
       const leagues: { result: TradeLeague[] } = await response.json();
-      tradeLeagues.value = leagues.result.map((league) => {
-        return { id: league.id, isPopular: true, text: league.text };
-      });
+      const config = AppConfig();
+      if (loadId !== request || config?.game !== game) return;
+      if (!leagues.result.length) throw new Error("The trade site returned no leagues");
 
-      const leagueIsAlive = tradeLeagues.value.some(
-        (league) => league.id === selectedId.value,
-      );
-      if (!leagueIsAlive && !isPrivateLeague(selectedId.value ?? "")) {
-        if (tradeLeagues.value.length > 2) {
-          const TMP_CHALLENGE = 2;
-          selectedId.value = tradeLeagues.value[TMP_CHALLENGE].id;
-        } else {
-          const STANDARD = 0;
-          selectedId.value = tradeLeagues.value[STANDARD].id;
-        }
+      tradeLeagues.value = leagues.result.map(({ id, text }) => ({
+        id, isPopular: true, text,
+      }));
+      loadedGame.value = game;
+
+      const chosen = config.leagueId;
+      if (!tradeLeagues.value.some((league) => league.id === chosen) && !isPrivateLeague(chosen ?? "")) {
+        selectedId.value = (tradeLeagues.value[2] ?? tradeLeagues.value[0]).id;
       }
     } catch (e) {
-      error.value = (e as Error).message;
+      if (loadId === request) error.value = (e as Error).message;
     } finally {
-      isLoading.value = false;
+      if (loadId === request) isLoading.value = false;
     }
   }
 
@@ -83,7 +95,7 @@ export const useLeagues = createGlobalState(() => {
     error,
     selectedId,
     selected,
-    list: readonly(tradeLeagues),
+    list: readonly(list),
     load,
   };
 });

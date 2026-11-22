@@ -1,64 +1,19 @@
 <template>
-  <div v-if="isStandalone">
-    <!-- Redesigned UI for Standalone mode -->
-    <div class="text-[10px] text-gray-400 flex flex-col gap-1">
-      <!-- Mod Info / Title Row -->
-      <div class="flex items-center gap-1.5 flex-wrap">
-        <span class="text-violet-400 font-bold select-none">•</span>
-        <!-- Type Tag -->
-        <span :class="tagClass">
-          {{ modTypeTranslated }}
-        </span>
-        <!-- Name if present (with rune lookup) -->
-        <span v-if="runeName" class="font-medium text-gray-300">
-          "{{ runeName }}"
-        </span>
-        <span v-else-if="info.name" class="font-medium text-gray-300">
-          "{{ info.name }}"
-        </span>
-        <!-- Tier Tag if present -->
-        <span v-if="info.tier != null" :class="tierClass">
-          {{ t("filters.tier", [info.tier]) }}
-        </span>
-        <!-- Rank Tag if present -->
-        <span v-if="info.rank != null" class="px-1.5 py-0.5 rounded bg-[#1b1c26] text-gray-400 border border-[#2b2e40]/40 font-medium text-[9px]">
-          {{ t("item.mod_rank", [info.rank]) }}
-        </span>
-        
-        <!-- Range badge -->
-        <span 
-          v-if="rollRange" 
-          class="bg-[#1a1c28] border border-[#2d314c]/40 text-gray-400 px-1.5 py-0.5 rounded text-[9px] font-mono select-all"
-        >
-          Range: {{ rollRange }}
-        </span>
-      </div>
-      
-      <!-- Component Stats for multi-source/pseudo mods -->
-      <div v-if="!isSingleSource" class="pl-3 mt-0.5 flex flex-col gap-1.5">
-        <div 
-          v-for="stat of stats" 
-          :key="stat.text" 
-          class="flex items-center justify-between text-xs py-0.5"
-        >
-          <ItemModifierText
-            :text="stat.text"
-            :roll="stat.roll"
-            :class="[
-              stat.contributes ? 'text-gray-300 font-medium' : 'text-gray-600 line-through'
-            ]"
-          />
-          <div
-            v-if="stat.contributes && stat.contribution"
-            class="bg-[#07080b] border border-[#222538]/60 text-violet-400 rounded-md px-1.5 py-0.5 font-mono text-[9px] min-w-8 text-center shrink-0 ml-2 shadow-inner"
-          >
-            +{{ stat.contribution }}
-          </div>
-        </div>
+  <div v-if="isStandalone" class="source-line">
+    <div class="source-meta">
+      <span>{{ modTypeTranslated }}</span>
+      <strong v-if="runeName || info.name">{{ runeName || info.name }}</strong>
+      <span v-if="info.tier != null">{{ t("filters.tier", [info.tier]) }}</span>
+      <span v-if="info.rank != null">{{ t("item.mod_rank", [info.rank]) }}</span>
+      <span v-if="rollRange">Roll {{ rollRange }}</span>
+    </div>
+    <div v-if="!isSingleSource">
+      <div v-for="stat of contributingStats" :key="stat.text" class="source-stat">
+        <item-modifier-text :text="stat.text" :roll="stat.roll" />
+        <span v-if="stat.contribution != null && stat.contribution !== stat.roll">{{ stat.contribution > 0 ? '+' : '' }}{{ stat.contribution }}</span>
       </div>
     </div>
   </div>
-  
   <!-- Original UI for non-standalone mode -->
   <div v-else>
     <div :class="$style['modinfo']">{{ modText }}</div>
@@ -158,42 +113,6 @@ const modTypeTranslated = computed(() => {
   return t(`item.mod_${type}`);
 });
 
-const tagClass = computed(() => {
-  const base = "px-1.5 py-0.5 rounded text-[9px] font-bold tracking-wide uppercase border transition-all duration-200 select-none";
-  if (info.value.generation === "corrupted") {
-    return `${base} bg-red-950/20 border-red-900/30 text-red-400`;
-  }
-  const type = info.value.type;
-  switch (type) {
-    case "crafted":
-    case "synthesised":
-    case "rune":
-    case "added-rune":
-      return `${base} bg-blue-950/20 border-blue-900/30 text-blue-400`;
-    case "corrupted":
-      return `${base} bg-red-950/20 border-red-900/30 text-red-400`;
-    case "fractured":
-      return `${base} bg-yellow-950/20 border-yellow-900/30 text-yellow-400`;
-    case "desecrated":
-      return `${base} bg-green-950/20 border-green-900/30 text-green-400`;
-    case "enchant":
-      return `${base} bg-purple-950/20 border-purple-900/30 text-purple-400`;
-    default:
-      return `${base} bg-[#141620] border-[#222538]/60 text-gray-400`;
-  }
-});
-
-const tierClass = computed(() => {
-  const tier = info.value.tier;
-  if (tier === 1) {
-    return "px-1.5 py-0.5 rounded text-[9px] bg-yellow-500/10 text-yellow-400 border border-yellow-500/20 font-medium select-none";
-  } else if (tier === 2) {
-    return "px-1.5 py-0.5 rounded text-[9px] bg-yellow-600/5 text-yellow-400/70 border border-yellow-600/10 font-medium select-none";
-  } else {
-    return "px-1.5 py-0.5 rounded text-[9px] bg-[#1b1c26] text-gray-400 border border-[#2b2e40]/40 font-medium select-none";
-  }
-});
-
 const modText = computed(() => {
   let text = t(`item.mod_${info.value.type}`);
   if (info.value.name) {
@@ -254,6 +173,8 @@ const stats = computed(() => {
   });
 });
 
+const contributingStats = computed(() => stats.value.filter(stat => stat.contributes));
+
 const rollRange = computed(() => {
   const contrib = stats.value.find(s => s.contributes && s.roll != null);
   if (!contrib || contrib.min == null || contrib.max == null || contrib.min === contrib.max) {
@@ -277,4 +198,12 @@ const rollRange = computed(() => {
   text-align: center;
   flex-shrink: 0;
 }
+</style>
+
+<style scoped>
+.source-line { padding: 0.35rem 0; }
+.source-line + .source-line { border-top: 1px solid var(--line); }
+.source-meta, .source-stat { display: flex; gap: 0.5rem; align-items: baseline; font-size: 0.75rem; }
+.source-meta { flex-wrap: wrap; color: var(--muted); }
+.source-stat { justify-content: space-between; margin-top: 0.2rem; }
 </style>

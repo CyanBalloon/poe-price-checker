@@ -28,14 +28,15 @@ export function createPresets(
     searchStatRange: number;
     useEn: boolean;
     defaultAllSelected: boolean;
+    includeSourceModifiers?: boolean;
     autoFillEmptyAugmentSockets: PriceCheckWidget["autoFillEmptyRuneSockets"];
   },
 ): { presets: FilterPreset[]; active: string } {
   const result = (() => {
-    if (item.info.refName === "Expedition Logbook") {
+    if (item.info.refName === "Expedition Logbook" && item.logbookAreaMods?.length) {
       return {
         active: ROMAN_NUMERALS[0],
-        presets: item.logbookAreaMods!.map<FilterPreset>((area, idx) => ({
+        presets: item.logbookAreaMods.map<FilterPreset>((area, idx) => ({
           id: ROMAN_NUMERALS[idx],
           filters: createFilters(item, { ...opts, exact: true }),
           stats: createExactStatFilters(item, sumStatsByModType(area), opts),

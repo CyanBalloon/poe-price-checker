@@ -1,7 +1,7 @@
 <template>
   <div
     v-if="icon"
-    :class="[$style['icon-w-' + itemWidth], $style['icon-container']]"
+    :class="$style['icon-container']"
   >
     <ui-item-img :icon="icon" />
     <div
@@ -19,8 +19,8 @@
       >
         <div
           v-for="socket in sockets"
-          class="w-8 h-8 bg-no-repeat bg-center bg-[size:2rem]"
-          :class="$style[`t-${socket.type}-${socket.item ?? 'empty'}`]"
+          class="bg-no-repeat bg-center"
+          :class="[$style['t-' + socket.type + '-' + (socket.item ?? 'empty')], $style['socket-' + socket.type]]"
         />
       </div>
     </div>
@@ -57,36 +57,33 @@ export default defineComponent({
 </script>
 
 <style lang="postcss" module>
-.icon-w-1 {
-  @apply w-12;
-}
-.icon-w-2 {
-  @apply w-24;
-}
-.icon-w-3 {
-  @apply w-36;
-}
-
-.icon-container {
-  @apply inline-block relative bg-contain bg-no-repeat align-top;
-}
-
-.socket-w1 {
-  @apply w-12;
-}
-.socket-w2 {
-  @apply w-24;
-}
-.socket-w3 {
-  @apply w-36;
+.socket-R,
+.socket-G,
+.socket-B,
+.socket-W,
+.socket-A,
+.socket-DV {
+  width: 1.375rem;
+  height: 1.375rem;
+  margin: 0.3125rem;
+  border: 2px solid var(--socket-color);
+  border-radius: 50%;
+  background-color: #0b0d15;
+  box-shadow: 0 0 0 1px #0b0d15;
 }
 
-.socket-h1 {
-  @apply top-[7.5px];
-}
+.socket-R { --socket-color: #c95c4e; }
+.socket-G { --socket-color: #6eb376; }
+.socket-B { --socket-color: #5f9acf; }
+.socket-W { --socket-color: #e2dfd7; }
+.socket-A { --socket-color: #5bb7be; }
+.socket-DV { --socket-color: #b180d6; }
+
+.icon-container { position: relative; display: inline-grid; width: max-content; }
+.socket-rune, .socket-jewel { width: 62px; height: 62px; }
 
 .socket-grid {
-  @apply grid gap-1;
+  @apply grid;
 }
 .socket-cols-1 {
   @apply grid-cols-1;
@@ -120,7 +117,7 @@ export default defineComponent({
   @apply bg-[url('/images/augments/wildtalisman.png')];
 }
 .t-jewel-empty {
-  @apply bg-[url('/images/augments/empty-socket.png')];
+  @apply bg-[url('/images/augments/empty-jewel.png')];
 }
 .t-jewel-blue {
   @apply bg-[url('/images/augments/blue.png')];

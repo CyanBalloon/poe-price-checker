@@ -1,12 +1,45 @@
 <template>
-  <ui-popover
+  <div v-if="isStandalone" class="workbench-listing-options">
+    <select v-model="filters.trade.listingType" class="ui-select" aria-label="Listing availability">
+      <template v-if="api === 'trade'">
+        <option value="available">{{ t("Instant or Online") }}</option>
+        <option value="securable">{{ t("Instant") }}</option>
+      </template>
+      <option v-else value="onlineleague">{{ t(":in_league_toggle") }}</option>
+      <option value="online">{{ t("Online") }}</option>
+      <option value="any">{{ t(":offline_toggle") }}</option>
+    </select>
+    <details class="listing-options-more" @keydown.esc.stop.prevent="closeOptions" @focusout="leaveOptions">
+      <summary class="ui-icon-button" aria-label="More listing options" title="More listing options"><i class="fa-solid fa-sliders" aria-hidden="true"></i></summary>
+      <div class="listing-options-fields">
+        <label>League<select v-model="filters.trade.league" class="ui-select">
+          <option v-if="filters.trade.league && !tradeLeagues.some(l => l.id === filters.trade.league)" :value="filters.trade.league">{{ filters.trade.league }}</option>
+          <option v-for="league in tradeLeagues" :key="league.id" :value="league.id">{{ league.id }}</option>
+        </select></label>
+        <template v-if="byTime">
+          <label>Listed<select v-model="filters.trade.listed" class="ui-select">
+            <option :value="undefined">{{ t(":listed_any_time") }}</option>
+            <option v-for="age in listingAges" :key="age" :value="age">{{ t(":listed_" + age) }}</option>
+          </select></label>
+          <label>Price currency<select v-model="filters.trade.currency" class="ui-select">
+            <option :value="undefined">{{ t(":currency_any") }}</option>
+            <option value="exalted">{{ t(":currency_only_exalted") }}</option>
+            <option value="chaos">{{ t(":currency_only_chaos") }}</option>
+            <option value="divine">{{ t(":currency_only_div") }}</option>
+            <option value="exalted_divine">{{ t(":currency_exalted_div") }}</option>
+          </select></label>
+        </template>
+      </div>
+    </details>
+  </div>
+  <ui-popover v-else
     :delay="[80, null]"
     placement="bottom-start"
     boundary="#price-window"
   >
     <template #target>
       <button
-        class="rounded mr-1 px-2 truncate"
+        class="ui-button truncate"
         :class="showWarning() ? 'text-orange-500' : 'text-gray-500'"
       >
         <span
@@ -146,6 +179,17 @@ export default defineComponent({
 
     return {
       t,
+      isStandalone: new URLSearchParams(window.location.search).get("mode") === "standalone",
+      listingAges: ["1day", "3days", "1week", "2weeks", "1month", "2months"],
+      closeOptions(event: KeyboardEvent) {
+        const details = event.currentTarget as HTMLDetailsElement;
+        details.open = false;
+        details.querySelector("summary")?.focus();
+      },
+      leaveOptions(event: FocusEvent) {
+        const details = event.currentTarget as HTMLDetailsElement;
+        if (event.relatedTarget instanceof Node && !details.contains(event.relatedTarget)) details.open = false;
+      },
       tradeLeagues: leagues.list,
       showLeagueName: () =>
         leagues.selectedId.value !== props.filters.trade.league,
@@ -192,4 +236,17 @@ export default defineComponent({
     cursor: none;
   }
 }
+</style>
+
+<style scoped>
+.workbench-listing-options { display: flex; align-items: center; gap: 0.2rem; }
+.workbench-listing-options > select { max-width: 12rem; }
+.listing-options-more { position: relative; }
+.listing-options-more summary { cursor: pointer; list-style: none; }
+.listing-options-more summary::-webkit-details-marker { display: none; }
+.listing-options-more[open] summary { color: var(--accent); }
+.listing-options-fields { position: absolute; right: 0; z-index: 3; width: min(18rem, 80vw); padding: 1rem; border-radius: 0.45rem; background: var(--surface); box-shadow: 0 0.5rem 1.7rem #0007; }
+.listing-options-fields label { display: grid; grid-template-columns: 5.5rem minmax(0, 1fr); align-items: center; gap: 0.55rem; }
+.listing-options-fields label + label { margin-top: 0.5rem; }
+.listing-options-fields select { background: var(--raised); }
 </style>

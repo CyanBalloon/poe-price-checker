@@ -1,6 +1,7 @@
 <template>
   <div v-if="isStandalone" class="w-full h-full flex flex-col text-gray-200 pointer-events-auto bg-transparent">
     <div class="grow layout-column min-h-0">
+      <button v-if="item?.isErr() || showUnidentifiedResolver || !isLeagueSelected" type="button" class="ui-button self-start" @click="$emit('paste-item')">Paste item</button>
       <template v-if="item?.isErr()">
         <ui-error-box class="m-4">
           <template #name>{{ t(item.error.name) }}</template>
@@ -9,18 +10,24 @@
           </template>
           <p>{{ t(item.error.message) }}</p>
         </ui-error-box>
-        <pre class="bg-gray-900 rounded m-4 overflow-x-hidden p-2 font-mono">{{ item.error.rawText }}</pre>
+        <details class="ui-surface p-3">
+          <summary class="cursor-pointer text-[var(--muted)]">Copied item text</summary>
+          <pre class="mt-2 max-h-72 overflow-auto whitespace-pre-wrap break-words text-xs">{{ item.error.rawText }}</pre>
+        </details>
       </template>
       <template v-else-if="item?.isOk()">
         <unidentified-resolver
           :item="item.value"
           @identify="handleIdentification($event)"
         />
+        <background-info v-if="!isLeagueSelected" />
         <checked-item
-          v-if="isLeagueSelected && !showUnidentifiedResolver"
+          v-else-if="!showUnidentifiedResolver"
+          :key="leagueId"
           :item="item.value"
           :advanced-check="advancedCheck"
           :rebuild-key="rebuildKey"
+          @paste-item="$emit('paste-item')"
           @item-editor-selection="handleItemEditorSelection"
         />
       </template>
@@ -96,7 +103,7 @@
                   max: stableOrbCost,
                   currency: xchgRateCurrency.id,
                 }"
-                item-img="/images/divine.png"
+                :item-img="currencyIcon('divine')"
               />
               <div v-for="i in 9" :key="i">
                 <div class="pl-1">
@@ -107,18 +114,30 @@
             </template>
           </ui-popover>
 
-          <div v-if="chaosToExalt" class="flex items-center gap-x-1 text-gray-500 text-[11px] cursor-default" title="Chaos to Exalt ratio">
-            <img src="/images/chaos.png" class="w-3.5 h-3.5 object-contain" />
+          <div v-if="!isPoe1 && chaosToExalt" class="flex items-center gap-x-1 text-gray-500 text-[11px] cursor-default" title="Chaos to Exalt ratio">
+            <img :src="currencyIcon('chaos')" class="w-5 h-5 object-contain" />
             <i class="fas fa-arrow-right text-[8px] text-gray-600" />
             <span class="text-gray-400 font-semibold">{{ chaosToExalt.toFixed(1) }}</span>
-            <img src="/images/exa.png" class="w-3.5 h-3.5 object-contain" />
+            <img :src="currencyIcon('exalted')" class="w-5 h-5 object-contain" />
+          </div>
+          <div v-else-if="isPoe1 && chaosToDivine" class="flex items-center gap-x-1 text-gray-500 text-[11px] cursor-default" title="Chaos Orbs per Divine Orb">
+            <img :src="currencyIcon('divine')" class="w-5 h-5 object-contain" />
+            <i class="fas fa-arrow-right text-[8px] text-gray-600" />
+            <span class="text-gray-400 font-semibold">{{ chaosToDivine.toFixed(1) }}</span>
+            <img :src="currencyIcon('chaos')" class="w-5 h-5 object-contain" />
           </div>
 
-          <div v-if="annulToExalt" class="flex items-center gap-x-1 text-gray-500 text-[11px] cursor-default" title="Annulment to Exalt ratio">
-            <img src="/images/annul.png" class="w-3.5 h-3.5 object-contain" />
+          <div v-if="!isPoe1 && annulToExalt" class="flex items-center gap-x-1 text-gray-500 text-[11px] cursor-default" title="Annulment to Exalt ratio">
+            <img :src="currencyIcon('annul')" class="w-5 h-5 object-contain" />
             <i class="fas fa-arrow-right text-[8px] text-gray-600" />
             <span class="text-gray-400 font-semibold">{{ annulToExalt.toFixed(1) }}</span>
-            <img src="/images/exa.png" class="w-3.5 h-3.5 object-contain" />
+            <img :src="currencyIcon('exalted')" class="w-5 h-5 object-contain" />
+          </div>
+          <div v-else-if="isPoe1 && annulInChaos" class="flex items-center gap-x-1 text-gray-500 text-[11px] cursor-default" title="Chaos Orbs per Orb of Annulment">
+            <img :src="currencyIcon('annul')" class="w-5 h-5 object-contain" />
+            <i class="fas fa-arrow-right text-[8px] text-gray-600" />
+            <span class="text-gray-400 font-semibold">{{ annulInChaos.toFixed(1) }}</span>
+            <img :src="currencyIcon('chaos')" class="w-5 h-5 object-contain" />
           </div>
 
           <i v-else-if="xchgRateLoading()" class="fas fa-dna fa-spin px-2 text-xs" />
@@ -158,13 +177,7 @@
             @item-editor-selection="handleItemEditorSelection"
           />
         </template>
-        <div v-if="isBrowserShown" class="bg-gray-900 px-6 py-2 truncate">
-          <i18n-t keypath="app.toggle_browser_hint" tag="div">
-            <span class="bg-gray-400 text-gray-900 rounded px-1">{{
-              overlayKey
-            }}</span>
-          </i18n-t>
-        </div>
+
       </div>
     </div>
     <webview
@@ -218,6 +231,7 @@ import { useLeagues } from "@/web/background/Leagues";
 import { AppConfig } from "@/web/Config";
 import { ItemCategory, ItemRarity, parseClipboard, ParsedItem } from "@/parser";
 import RelatedItems from "./related-items/RelatedItems.vue";
+import { selectGame } from "@/web/background/Game";
 import RateLimiterState from "./trade/RateLimiterState.vue";
 import UnidentifiedResolver from "./unidentified-resolver/UnidentifiedResolver.vue";
 import CheckPositionCircle from "./CheckPositionCircle.vue";
@@ -236,6 +250,7 @@ import {
 import { ItemEditorType } from "@/parser/meta";
 import { getItemEditorType } from "./filters/util";
 import ReloadTradeData from "./fallback/ReloadTradeData.vue";
+import { currencyIcon } from "@/web/ui/currency-icons";
 
 type ParseError = {
   name: string;
@@ -244,6 +259,7 @@ type ParseError = {
 };
 
 export default defineComponent({
+  emits: ["paste-item"],
   widget: {
     type: "price-check",
     instances: "single",
@@ -328,6 +344,8 @@ export default defineComponent({
       queuePricesFetch,
       chaosToExalt,
       annulToExalt,
+      chaosToDivine,
+      annulInChaos,
     } = usePoeninja();
 
     nextTick(() => {
@@ -336,6 +354,10 @@ export default defineComponent({
     });
 
     const item = shallowRef<null | Result<ParsedItem, ParseError>>(null);
+    watch(() => AppConfig().game, () => {
+      item.value = null;
+      wm.hide(props.config.wmId);
+    });
     const rebuildKey = shallowRef(2);
     const advancedCheck = shallowRef(false);
     const checkPosition = shallowRef({ x: 1, y: 1 });
@@ -347,10 +369,12 @@ export default defineComponent({
       disabled: true,
     });
 
-    MainProcess.onEvent("MAIN->CLIENT::item-text", (e) => {
+    MainProcess.onEvent("MAIN->CLIENT::item-text", async (e) => {
       if (e.target !== "price-check") return;
       if (isStandalone.value && !(e as { isManual?: boolean }).isManual) return;
       performance.mark("price-check-event");
+
+      if (e.activeGame && !await selectGame(e.activeGame)) return;
 
       const parsedTemp = e.item ? ok(e.item as ParsedItem) : parseClipboard(e.clipboard);
       if (parsedTemp.isOk()) {
@@ -362,7 +386,7 @@ export default defineComponent({
           isLineageSupport ||
           itemTemp.info.tradeTag != null) && !isUnidentifiedUnique;
 
-        if (isListingsDisabled && !isStandalone.value) {
+        if (AppConfig().game === "poe2" && isListingsDisabled && !isStandalone.value) {
           const searchWidget = wm.widgets.value.find(w => w.wmType === 'item-search');
           if (searchWidget) {
             wm.show(searchWidget.wmId);
@@ -377,29 +401,7 @@ export default defineComponent({
 
       if (Host.isElectron && !e.focusOverlay && !isStandalone.value) {
         // everything in CSS pixels
-        const width = 28.75 * AppConfig().fontSize;
-        const screenX =
-          e.position.x - window.screenX > window.innerWidth / 2
-            ? window.screenX +
-              window.innerWidth -
-              wm.poePanelWidth.value -
-              width
-            : window.screenX + wm.poePanelWidth.value;
-        MainProcess.sendEvent({
-          name: "OVERLAY->MAIN::track-area",
-          payload: {
-            holdKey: props.config.hotkeyHold,
-            closeThreshold: 2.5 * AppConfig().fontSize,
-            from: e.position,
-            area: {
-              x: screenX,
-              y: window.screenY,
-              width,
-              height: window.innerHeight,
-            },
-            dpr: window.devicePixelRatio,
-          },
-        });
+        // Tracking area removed as overlay mode is deprecated
       }
       closeBrowser();
       wm.show(props.config.wmId);
@@ -420,17 +422,16 @@ export default defineComponent({
     function handleItemPaste(e: { clipboard: string; item: ParsedItem }) {
       const newItem = (e.item ? ok(e.item) : parseClipboard(e.clipboard))
         .andThen((item) =>
-          (item.category === ItemCategory.HeistContract &&
-            item.rarity !== ItemRarity.Unique) ||
-          (item.category === ItemCategory.Sentinel &&
-            item.rarity !== ItemRarity.Unique)
+          AppConfig().game === "poe2" &&
+          item.rarity !== ItemRarity.Unique &&
+          (item.category === ItemCategory.HeistContract || item.category === ItemCategory.Sentinel)
             ? err("item.unknown")
             : ok(item),
         )
         .mapErr((err) => ({
           name: `${err}`,
           message: `${err}_help`,
-          rawText: e.clipboard,
+          rawText: e.clipboard + "\n\nDEBUG INFO: " + String(err),
         }));
       performance.mark("price-check-parse-end");
       return newItem;
@@ -439,10 +440,6 @@ export default defineComponent({
     function handleIdentification(identified: ParsedItem) {
       item.value = ok(identified);
     }
-
-    MainProcess.onEvent("MAIN->OVERLAY::hide-exclusive-widget", () => {
-      wm.hide(props.config.wmId);
-    });
 
     watch(
       () => props.config.wmWants,
@@ -463,7 +460,6 @@ export default defineComponent({
     const isBrowserShown = computed(() =>
       props.config.wmFlags.includes("has-browser"),
     );
-    const overlayKey = computed(() => AppConfig().overlayKey);
     const showCheckPos = computed(
       () => wm.active.value && props.config.showCursor,
     );
@@ -490,19 +486,7 @@ export default defineComponent({
     });
 
     function closePriceCheck() {
-      if (AppConfig().overlayAlwaysClose) {
-        Host.sendEvent({
-          name: "OVERLAY->MAIN::focus-game",
-          payload: undefined,
-        });
-      } else if (isBrowserShown.value || !Host.isElectron) {
-        wm.hide(props.config.wmId);
-      } else {
-        Host.sendEvent({
-          name: "OVERLAY->MAIN::focus-game",
-          payload: undefined,
-        });
-      }
+      wm.hide(props.config.wmId);
     }
 
     function openLeagueSelection() {
@@ -535,7 +519,9 @@ export default defineComponent({
     const { t } = useI18n();
 
     return {
+      currencyIcon,
       t,
+      isPoe1: computed(() => AppConfig().game === "poe1"),
       isStandalone,
       clickPosition,
       isBrowserShown,
@@ -547,13 +533,15 @@ export default defineComponent({
       xchgRateLoading,
       chaosToExalt,
       annulToExalt,
+      chaosToDivine,
+      annulInChaos,
       showCheckPos,
       checkPosition,
       item,
       advancedCheck,
       handleIdentification,
-      overlayKey,
       isLeagueSelected,
+      leagueId,
       openLeagueSelection,
       rebuildKey,
       showUnidentifiedResolver: computed(() => {

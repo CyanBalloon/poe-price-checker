@@ -7,7 +7,7 @@ import { Host } from "./web/background/IPC";
 (async function () {
   await initConfig();
   const i18nPlugin = await I18n.init(AppConfig().language);
-  await Data.init(AppConfig().language);
+  await Data.init(AppConfig().language, AppConfig().game);
   await Host.init();
 
   watch(

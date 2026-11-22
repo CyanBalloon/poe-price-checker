@@ -89,6 +89,14 @@ export function parseModInfoLine(
     }
 
     switch (match.groups!.type) {
+      case _$.CRAFTED_PREFIX:
+        type = ModifierType.Crafted;
+        generation = "prefix";
+        break;
+      case _$.CRAFTED_SUFFIX:
+        type = ModifierType.Crafted;
+        generation = "suffix";
+        break;
       case _$.PREFIX_MODIFIER:
         generation = "prefix";
         break;

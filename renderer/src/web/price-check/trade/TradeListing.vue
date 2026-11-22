@@ -1,29 +1,21 @@
 <template>
-  <div v-if="!error && isStandalone" class="flex flex-col gap-4 w-full h-full min-h-0 text-gray-200">
-    <!-- Header of listings -->
-    <div class="flex items-center justify-between text-[11px] font-semibold text-gray-500 uppercase tracking-wider px-3 select-none shrink-0">
-      <div class="flex items-baseline text-gray-400 mr-2 shrink-0">
-        <span class="mr-1">{{ t(":matched") }}</span>
-        <span v-if="!list" class="text-gray-600">...</span>
-        <span v-else class="font-mono text-gray-300">{{ list.total }}{{ list.inexact ? "+" : "" }}</span>
-      </div>
-      <div class="flex gap-2">
-        <online-filter v-if="list" :by-time="true" :filters="filters" api="trade" />
-      </div>
+  <div v-if="!error && isStandalone" class="listing-view">
+    <header class="listing-toolbar">
+      <span aria-live="polite">{{ list ? list.total + (list.inexact ? '+' : '') + ' matched' : 'Searching listings…' }}</span>
+      <online-filter v-if="list" :by-time="true" :filters="filters" api="trade" />
+    </header>
+    <div v-if="list && !list.total" class="ui-empty">
+      <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+      <strong>No matching listings</strong>
+      <p>Try broadening your filters.</p>
     </div>
-
-    <!-- Listings list -->
-    <div class="flex-grow flex flex-col gap-2.5 overflow-y-auto overflow-x-hidden pr-1">
+    <div v-else class="listing-rows">
+      <div v-if="list?.total" class="listing-columns" aria-hidden="true">
+        <span>Price</span><span>Item details</span><span>Listed</span>
+      </div>
       <template v-for="(res, idx) in groupedResults">
-        <!-- Loader / skeleton row if not ready -->
-        <div 
-          v-if="!res" 
-          :key="`skele-${idx}`"
-          class="h-14 rounded-xl bg-[#0f111a]/40 animate-pulse border border-[#1b1c26]/20 shrink-0"
-        />
-        
-        <!-- Premium modern card for each listing -->
-        <trade-listing-row 
+        <div v-if="!res" :key="'placeholder-' + idx" class="listing-skeleton" aria-hidden="true"></div>
+        <trade-listing-row
           v-else
           :key="res.id"
           :res="res"
@@ -34,21 +26,10 @@
           @open-link="openExactTradeLink(res)"
         />
       </template>
-
-      <!-- Price Fixed Alert -->
-      <div v-if="isLikelyPriceFixed" class="p-4 bg-yellow-500/5 border border-yellow-500/20 rounded-xl flex items-center justify-between gap-4 mt-3 shrink-0">
-        <span class="text-xs text-yellow-400/80 leading-relaxed font-medium">
-          <i class="fas fa-exclamation-triangle mr-1.5 text-yellow-400"></i>
-          {{ t(":likely_price_fixed") }}
-        </span>
-        <button 
-          @click="execFilterExaltDivine" 
-          class="px-3 py-1.5 bg-[#1c1d29] hover:bg-[#26283a] border border-[#2d2f44] text-[10px] font-semibold text-gray-300 rounded-lg transition-colors flex items-center gap-1.5 shadow-sm"
-        >
-          {{ t(":filter_exalt_divine") }}
-          <i class="fas fa-history text-[9px]" />
-        </button>
-      </div>
+    </div>
+    <div v-if="isLikelyPriceFixed" class="ui-alert listing-warning">
+      <span>{{ t(":likely_price_fixed") }}</span>
+      <button type="button" class="ui-button" @click="execFilterExaltDivine">{{ t(":filter_exalt_divine") }}</button>
     </div>
   </div>
 
@@ -183,8 +164,8 @@ import { useI18nNs } from "@/web/i18n";
 import { Host } from "@/web/background/IPC";
 import UiPopover from "@/web/ui/Popover.vue";
 import UiErrorBox from "@/web/ui/UiErrorBox.vue";
-import { createTradeRequest } from "./pathofexile-trade";
-import { getTradeEndpoint } from "./common";
+import { createTradeRequest, type PricingResult } from "./pathofexile-trade";
+import { getTradeEndpoint, getTradeEndpointPath, getTradeUrlSegment } from "./common";
 import { AppConfig } from "@/web/Config";
 import { PriceCheckWidget } from "@/web/overlay/interfaces";
 import { ItemFilters, StatFilter, ItemHasEmptyModifier } from "../filters/interfaces";
@@ -238,27 +219,12 @@ export default defineComponent({
 
     function makeTradeLink() {
       return searchResult.value
-        ? `https://${getTradeEndpoint()}/trade2/search/poe2/${props.filters.trade.league}/${searchResult.value.id}`
-        : `https://${getTradeEndpoint()}/trade2/search/poe2/${props.filters.trade.league}?q=${JSON.stringify(createTradeRequest(props.filters, props.stats, props.item))}`;
+        ? `https://${getTradeEndpoint()}/${getTradeEndpointPath()}/search/${getTradeUrlSegment()}${encodeURIComponent(props.filters.trade.league)}/${searchResult.value.id}`
+        : `https://${getTradeEndpoint()}/${getTradeEndpointPath()}/search/${getTradeUrlSegment()}${encodeURIComponent(props.filters.trade.league)}?q=${encodeURIComponent(JSON.stringify(createTradeRequest(props.filters, props.stats, props.item)))}`;
     }
 
     // Shift Key Detection
     const isShiftPressed = ref(false);
-
-    function getCurrencyImg(currency: string) {
-      if (!currency) return "";
-      const cur = currency.toLowerCase();
-      if (cur === "div" || cur === "divine" || cur.startsWith("div")) {
-        return "/images/divine.png";
-      } else if (cur === "chaos" || cur.startsWith("ch")) {
-        return "/images/chaos.png";
-      } else if (cur === "annul" || cur.startsWith("ann")) {
-        return "/images/annul.png";
-      } else if (cur === "exalted" || cur === "exa" || cur.startsWith("ex")) {
-        return "/images/exa.png";
-      }
-      return "";
-    }
 
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Shift") {
@@ -328,13 +294,13 @@ export default defineComponent({
         });
       },
       makeTradeLink,
-      getCurrencyImg,
       openTradeLink() {
         showBrowser(makeTradeLink());
       },
       openExactTradeLink(res: PricingResult & { listedTimes: number }) {
         const raw = res.rawResult;
         if (!raw) return;
+        const poe1 = AppConfig().game === "poe1";
 
         const query: {
           status: { option: string };
@@ -354,6 +320,13 @@ export default defineComponent({
               filters: {
                 corrupted?: { option: string };
                 gem_sockets?: { min?: number };
+                ilvl?: { min?: number; max?: number };
+              };
+            };
+            socket_filters?: {
+              filters: {
+                links?: { min: number };
+                sockets?: { min: number; w?: number };
               };
             };
           };
@@ -384,7 +357,7 @@ export default defineComponent({
           2: "rare",
           3: "unique"
         };
-        const rarityOption = rarityMap[frameType];
+        const rarityOption = frameType == null ? undefined : rarityMap[frameType];
         if (rarityOption) {
           query.filters.type_filters = {
             filters: {
@@ -393,15 +366,10 @@ export default defineComponent({
           };
         }
 
-        // Item Level (ilvl)
         if (typeof raw.item.ilvl === "number") {
-          if (!query.filters.type_filters) {
-            query.filters.type_filters = { filters: {} };
-          }
-          query.filters.type_filters!.filters.ilvl = {
-            min: raw.item.ilvl,
-            max: raw.item.ilvl
-          };
+          const group = poe1 ? "misc_filters" : "type_filters";
+          query.filters[group] ??= { filters: {} };
+          query.filters[group].filters.ilvl = { min: raw.item.ilvl, max: raw.item.ilvl };
         }
 
         // Corruption
@@ -414,14 +382,23 @@ export default defineComponent({
           };
         }
 
-        // Sockets (gemSockets)
-        if (raw.item.gemSockets && raw.item.gemSockets.length) {
-          if (!query.filters.misc_filters) {
-            query.filters.misc_filters = { filters: {} };
+        if (poe1 && raw.item.sockets?.length) {
+          const groups = new Map<number, number>();
+          let white = 0;
+          for (const socket of raw.item.sockets) {
+            groups.set(socket.group, (groups.get(socket.group) ?? 0) + 1);
+            if (socket.sColour === "W") white++;
           }
-          query.filters.misc_filters!.filters.gem_sockets = {
-            min: raw.item.gemSockets.length
+          const linked = Math.max(...groups.values());
+          query.filters.socket_filters = {
+            filters: {
+              links: { min: linked },
+              sockets: { min: raw.item.sockets.length, w: white || undefined },
+            },
           };
+        } else if (raw.item.gemSockets?.length) {
+          query.filters.misc_filters ??= { filters: {} };
+          query.filters.misc_filters.filters.gem_sockets = { min: raw.item.gemSockets.length };
         }
 
         // Exact mods values (min/max rolls matching the item exactly)
@@ -445,7 +422,7 @@ export default defineComponent({
                 for (let i = 0; i < hashList.length; i++) {
                   const entry = hashList[i];
                   const statId = entry[0];
-                  if (!statId) continue;
+                  if (typeof statId !== "string" || !statId) continue;
 
                   const filterEntry: { id: string; value?: { min?: number; max?: number } } = { id: statId };
 
@@ -533,7 +510,7 @@ export default defineComponent({
           sort: { price: "asc" }
         };
 
-        const exactUrl = `https://${getTradeEndpoint()}/trade2/search/poe2/${props.filters.trade.league}?q=${JSON.stringify(body)}`;
+        const exactUrl = `https://${getTradeEndpoint()}/${getTradeEndpointPath()}/search/${getTradeUrlSegment()}${encodeURIComponent(props.filters.trade.league)}?q=${encodeURIComponent(JSON.stringify(body))}`;
         showBrowser(exactUrl);
       },
       // Shift key state and methods

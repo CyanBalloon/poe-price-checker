@@ -2,6 +2,8 @@ import path from "path";
 import { defineConfig } from "vite";
 import vue from "@vitejs/plugin-vue";
 
+const backend = "http://127.0.0.1:" + (process.env.EXILE_TRADE_DEV_BACKEND_PORT ?? 8584);
+
 // https://vitejs.dev/config/
 export default defineConfig({
   build: {
@@ -33,8 +35,8 @@ export default defineConfig({
   },
   server: {
     proxy: {
-      "^/(config|uploads|proxy|custom-icons)": { target: "http://127.0.0.1:8584" },
-      "/events": { ws: true, target: "http://127.0.0.1:8584" },
+      "^/(config|uploads|proxy|custom-icons)": { target: backend },
+      "/events": { ws: true, target: backend },
     },
   },
 });

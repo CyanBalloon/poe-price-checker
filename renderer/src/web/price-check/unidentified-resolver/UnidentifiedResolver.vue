@@ -11,12 +11,11 @@
         >
           <img
             :src="
-              CUSTOM_ICONS[item.refName] ||
               (item.icon !== '%NOT_FOUND%' && item.icon !== ''
                 ? item.icon
                 : '/images/404.png')
             "
-            class="w-12"
+            alt=""
           />
           <div class="leading-tight text-left">{{ item.name }}</div>
         </button>
@@ -28,7 +27,7 @@
 <script lang="ts">
 import { defineComponent, PropType, computed } from "vue";
 import { useI18n } from "vue-i18n";
-import { BaseType, ITEMS_ITERATOR, CUSTOM_ICONS } from "@/assets/data";
+import { BaseType, ITEMS_ITERATOR } from "@/assets/data";
 import { ItemRarity, ParsedItem } from "@/parser";
 
 export default defineComponent({
@@ -83,7 +82,6 @@ export default defineComponent({
       show,
       baseType: computed(() => props.item!.info.name),
       select,
-      CUSTOM_ICONS,
     };
   },
 });

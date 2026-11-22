@@ -121,6 +121,7 @@ server.on("upgrade", (req, socket, head) => {
 export async function startServer(
   appUpdater: AppUpdater,
   logger: Logger,
+  port = process.env.VITE_DEV_SERVER_URL ? 8584 : 0,
 ): Promise<number> {
   const configStore = new ConfigStore(eventPipe);
   const customIconsStore = new CustomIconsStore(eventPipe);
@@ -130,9 +131,7 @@ export async function startServer(
     socket.on("message", (bytes) => {
       // eslint-disable-next-line @typescript-eslint/no-base-to-string
       const event = JSON.parse(bytes.toString("utf-8")) as IpcEvent;
-      if (event.name === "CLIENT->MAIN::used-recently") {
-        lastActiveClient = socket;
-      }
+
       evBus.emit(event.name, event.payload);
     });
     socket.on("close", () => {
@@ -165,7 +164,6 @@ export async function startServer(
     }
   });
 
-  let port = process.env.VITE_DEV_SERVER_URL ? 8584 : 0;
   let host = "127.0.0.1";
   // --listen=[host][:port]
   const listenOpt = process.argv.find((arg) => arg.startsWith("--listen"));

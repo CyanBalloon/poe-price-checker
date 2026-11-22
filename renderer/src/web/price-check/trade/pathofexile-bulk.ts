@@ -4,6 +4,7 @@ import {
   TradeResponse,
   Account,
   getTradeEndpoint,
+  getTradeEndpointPath,
   RATE_LIMIT_RULES,
   adjustRateLimits,
   tradeTag,
@@ -68,7 +69,10 @@ async function requestTradeResultList(
   body: TradeRequest,
   leagueId: string,
 ): Promise<SearchResult> {
-  let data = cache.get<SearchResult>([body, leagueId]);
+  const endpoint = getTradeEndpoint();
+  const tradePath = getTradeEndpointPath();
+  const cacheKey = [endpoint, tradePath, leagueId, body];
+  let data = cache.get<SearchResult>(cacheKey);
 
   if (!data) {
     preventQueueCreation([{ count: 1, limiters: RATE_LIMIT_RULES.EXCHANGE }]);
@@ -76,7 +80,7 @@ async function requestTradeResultList(
     await RateLimiter.waitMulti(RATE_LIMIT_RULES.EXCHANGE);
 
     const response = await Host.proxy(
-      `${getTradeEndpoint()}/api/trade2/exchange/${leagueId}`,
+      `${endpoint}/api/${tradePath}/exchange/${encodeURIComponent(leagueId)}`,
       {
         method: "POST",
         headers: {
@@ -96,7 +100,7 @@ async function requestTradeResultList(
     }
 
     cache.set<SearchResult>(
-      [body, leagueId],
+      cacheKey,
       data,
       Cache.deriveTtl(...RATE_LIMIT_RULES.EXCHANGE),
     );

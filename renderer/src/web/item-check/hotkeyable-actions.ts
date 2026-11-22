@@ -1,3 +1,4 @@
+import { selectGame } from "@/web/background/Game";
 import { Host } from "@/web/background/IPC";
 import { AppConfig } from "@/web/Config";
 import { ItemRarity, ParsedItem, parseClipboard } from "@/parser";
@@ -83,7 +84,7 @@ const POE2DB_CONVERSIONS = new Map([
 ]);
 
 export function registerActions() {
-  Host.onEvent("MAIN->CLIENT::item-text", (e) => {
+  Host.onEvent("MAIN->CLIENT::item-text", async (e) => {
     if (
       ![
         "open-wiki",
@@ -95,6 +96,7 @@ export function registerActions() {
     ) {
       return;
     }
+    if (e.activeGame && !await selectGame(e.activeGame)) return;
     const parsed = parseClipboard(e.clipboard);
     if (!parsed.isOk()) return;
 
@@ -113,16 +115,19 @@ export function registerActions() {
 }
 
 export function openWiki(item: ParsedItem) {
-  window.open(`https://www.poe2wiki.net/wiki/${item.info.refName}`);
+  const host = AppConfig().game === "poe1" ? "www.poewiki.net" : "www.poe2wiki.net";
+  window.open(`https://${host}/wiki/${encodeURIComponent(item.info.refName)}`);
 }
 export function openPoedb(item: ParsedItem) {
-  const path = getPoe2dbPath(item);
-  window.open(`https://poe2db.tw/${POEDB_LANGS[AppConfig().language]}/${path}`);
+  const { game, language } = AppConfig();
+  const host = game === "poe1" ? "poedb.tw" : "poe2db.tw";
+  const path = game === "poe1" ? encodeURIComponent(item.info.refName) : getPoe2dbPath(item);
+  window.open(`https://${host}/${POEDB_LANGS[language]}/${path}`);
 }
 export function openCoE(item: ParsedItem) {
   const encodedClipboard = encodeURIComponent(item.rawText);
   window.open(
-    `https://craftofexile.com/?game=poe2&eimport=${encodedClipboard}`,
+    `https://craftofexile.com/?game=${AppConfig().game}&eimport=${encodedClipboard}`,
   );
 }
 

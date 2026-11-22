@@ -1,3 +1,4 @@
+import { AppConfig } from "@/web/Config";
 import { ParsedItem } from "@/parser";
 import { useLeagues } from "@/web/background/Leagues";
 import { Host } from "@/web/background/IPC";
@@ -21,7 +22,7 @@ export interface RareItemPrice {
   max: number;
   min: number;
   confidence: number;
-  currency: "exalted" | "div";
+  currency: "chaos" | "exalted" | "div";
   explanation: Array<{
     name: string;
     contrib: number;
@@ -55,32 +56,24 @@ export async function requestPoeprices(
     cache.set<PoepricesApiResponse>(query, data, 300);
   }
 
-  if (data.currency === "exalt") {
+  let currency: RareItemPrice["currency"];
+  let { min, max } = data;
+  if (data.currency === "exalt" || (data.currency === "divine" && AppConfig().game === "poe1")) {
     const { findPriceByQuery, autoCurrency } = usePoeninja();
-    const xchgExalted = findPriceByQuery({
-      ns: "ITEM",
-      name: "Exalted Orb",
-      variant: undefined,
-    });
-    if (!xchgExalted) {
-      throw new Error("poeprices.info gave the price in Exalted Orbs.");
-    }
-    const converted = autoCurrency([
-      // FIXME: check this if poeprices ever gets poe2 support
-      data.min * xchgExalted.primaryValue,
-      data.max * xchgExalted.primaryValue,
-    ]);
-    data.min = converted.min;
-    data.max = converted.max;
-    data.currency = converted.currency === "div" ? "divine" : "chaos";
-  } else if (data.currency !== "divine" && data.currency !== "chaos") {
+    const name = data.currency === "exalt" ? "Exalted Orb" : "Divine Orb";
+    const rate = findPriceByQuery({ ns: "ITEM", name });
+    if (!rate) throw new Error("Missing market rate for " + name + ".");
+    ({ min, max, currency } = autoCurrency([min * rate.primaryValue, max * rate.primaryValue]));
+  } else if (data.currency === "chaos" || data.currency === "divine") {
+    currency = data.currency === "divine" ? "div" : "chaos";
+  } else {
     throw new Error("poeprices.info gave the price in unknown currency.");
   }
 
   return {
-    currency: data.currency === "divine" ? "div" : "exalted",
-    min: data.min,
-    max: data.max,
+    currency,
+    min,
+    max,
     confidence: Math.round(data.pred_confidence_score),
     explanation: data.pred_explanation.map((expl) => ({
       name: expl[0],

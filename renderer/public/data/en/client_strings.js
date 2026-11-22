@@ -58,6 +58,8 @@ export default {
   SUFFIX_MODIFIER: 'Suffix Modifier',
   IMPLICIT_MODIFIER: 'Implicit Modifier',
   CRAFTED_MODIFIER: 'Crafted',
+  CRAFTED_PREFIX: 'Master Crafted Prefix Modifier',
+  CRAFTED_SUFFIX: 'Master Crafted Suffix Modifier',
   FRACTURED_MODIFIER: 'Fractured',
   DESECRATED_MODIFIER: 'Desecrated',
   UNSCALABLE_VALUE: ' — Unscalable Value',

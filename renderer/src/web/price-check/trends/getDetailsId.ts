@@ -1,14 +1,20 @@
 import { ParsedItem, ItemRarity, ItemCategory } from "@/parser";
-import { floorToBracket } from "../filters/create-item-filters";
+import { SPECIAL_SUPPORT_GEM, floorToBracket } from "../filters/create-item-filters";
 import { ACCESSORY, ARMOUR, WEAPON } from "@/parser/meta";
 import { TRADE_TAG_TO_REF } from "@/assets/data";
+import { AppConfig } from "@/web/Config";
 
 export function getCurrencyDetailsId(id: string) {
-  if (!TRADE_TAG_TO_REF.has(id)) {
+  const coreCurrencies: Record<string, string> = {
+    chaos: "Chaos Orb",
+    exalted: "Exalted Orb",
+    divine: "Divine Orb",
+  };
+  const refName = TRADE_TAG_TO_REF.get(id) ?? coreCurrencies[id];
+  if (!refName) {
     // setting to not a value to get correct type
     return { ns: "nan ns", name: "nan item", variant: undefined };
   }
-  const refName = TRADE_TAG_TO_REF.get(id)!;
   return {
     ns: "ITEM",
     name: refName,
@@ -38,6 +44,14 @@ export function isValuableBasetype(item: ParsedItem): boolean {
 export function getDetailsId(item: ParsedItem) {
   if (item.category === ItemCategory.Gem) {
     return forSkillGem(item);
+  }
+  if (item.category === ItemCategory.Map && AppConfig()?.game === "poe1") {
+    const name = item.mapBlighted ? item.mapBlighted + " " + item.info.refName : item.info.refName;
+    return {
+      ns: item.info.namespace,
+      name,
+      variant: item.rarity !== ItemRarity.Unique && item.mapTier ? "T" + item.mapTier : undefined,
+    };
   }
   if (item.category === ItemCategory.Map) {
     return {
@@ -78,31 +92,16 @@ export function getDetailsId(item: ParsedItem) {
 }
 
 function forSkillGem(item: ParsedItem) {
-  let variant;
-  // if (
-  //   SPECIAL_SUPPORT_GEM.includes(item.info.refName) ||
-  //   item.info.refName === "Portal" ||
-  //   item.info.refName === "Brand Recall" ||
-  //   item.info.refName === "Blood and Sand" ||
-  //   item.gemLevel! >= 20
-  // ) {
-  //   variant += `${item.gemLevel}`;
-  // } else {
-  //   variant += "1";
-  // }
-  // if (
-  //   item.quality &&
-  //   !SPECIAL_SUPPORT_GEM.includes(item.info.refName) &&
-  //   !(item.info.refName === "Brand Recall" && item.isCorrupted)
-  //   // @TODO(poe.ninja blocking): !(item.info.refName === 'Blood and Sand' && item.isCorrupted)
-  // ) {
-  //   // Gem Q20 with up to 4xGCP (TODO: should this rule apply to corrupted gems?)
-  //   const q = item.quality >= 16 && item.quality <= 20 ? 20 : item.quality;
-  //   variant += `/${q}`;
-  // }
-  // if (item.isCorrupted && item.info.refName !== "Portal") {
-  //   variant += "c";
-  // }
+  let variant: string | undefined;
+  if (AppConfig()?.game === "poe1") {
+    const special = SPECIAL_SUPPORT_GEM.includes(item.info.refName) || item.info.gem?.awakened;
+    const level = item.gemLevel ?? 1;
+    variant = String(special || level >= 20 ? level : 1);
+    if (!special && item.quality) {
+      variant += "/" + (item.quality >= 16 && item.quality <= 20 ? 20 : item.quality);
+    }
+    if (item.isCorrupted) variant += "c";
+  }
 
   return {
     ns: item.info.namespace,
@@ -131,13 +130,13 @@ function forUniqueItem(item: ParsedItem) {
     ns: item.info.namespace,
     name: item.info.refName,
     variant: variant([
-      //   getUniqueVariant(item),
+      AppConfig()?.game === "poe1" ? getUniqueVariant(item) ?? null : null,
       item.category === ItemCategory.Flask
         ? null
         : item.category === ItemCategory.SanctumRelic
           ? "Relic"
           : item.info.unique.base,
-      //   item.gemSockets?.linked ? `${item.gemSockets.linked}L` : null,
+      AppConfig()?.game === "poe1" && (item.gemSockets?.linked ?? 0) >= 5 ? item.gemSockets!.linked + "L" : null,
     ]),
   };
 }
@@ -238,8 +237,8 @@ function getUniqueVariant(item: ParsedItem) {
   ) {
     const sockets = item.statsByType.find(
       (m) => m.type === "explicit" && m.stat.ref === "Has # Abyssal Sockets",
-    )!;
-    const roll = sockets.sources[0].contributes!.value;
+    );
+    const roll = sockets?.sources[0]?.contributes?.value;
     if (roll === 2) {
       return "2 Jewels";
     } else if (roll === 1) {
@@ -303,8 +302,8 @@ function getUniqueVariant(item: ParsedItem) {
   } else if (uniqueName === "Voices") {
     const passives = item.statsByType.find(
       (m) => m.stat.ref === "Adds # Small Passive Skills which grant nothing",
-    )!;
-    const roll = passives.sources[0].contributes!.value;
+    );
+    const roll = passives?.sources[0]?.contributes?.value;
     if (roll === 7) {
       return "7 passives";
     } else if (roll === 5) {

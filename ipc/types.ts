@@ -1,10 +1,12 @@
+import type { ItemIcon } from "./item-icons";
+export type GameVersion = "poe1" | "poe2";
+
 export interface HostConfig {
   shortcuts: ShortcutAction[];
   restoreClipboard: boolean;
   clientLog: string | null;
   gameConfig: string | null;
   stashScroll: boolean;
-  overlayKey: string;
   logKeys: boolean;
   windowTitle: string;
   language: string;
@@ -36,9 +38,7 @@ export interface ShortcutAction {
     type: "stash-search";
     text: string;
   }
-  | {
-    type: "toggle-overlay";
-  }
+
   | {
     type: "paste-in-chat";
     text: string;
@@ -75,18 +75,10 @@ export interface HostState {
 }
 
 export type IpcEvent =
-  // events that have meaning only in Overlay mode:
-  | IpcOverlayAttached
-  | IpcFocusChange
-  | IpcVisibility
-  | IpcFocusGame
-  | IpcHideExclusiveWidget
-  | IpcTrackArea
   // events used by any type of Client:
   | IpcSaveConfig
   | IpcUpdaterState
   | IpcGameLog
-  | IpcClientIsActive
   | IpcLogEntry
   | IpcHostConfig
   | IpcWidgetAction
@@ -108,47 +100,11 @@ export type IpcEventPayload<
   T extends IpcEvent = IpcEvent,
 > = T extends { name: Name; payload: infer P } ? P : never;
 
-type IpcOverlayAttached = Event<"MAIN->OVERLAY::overlay-attached">;
 
-type IpcFocusChange = Event<
-  "MAIN->OVERLAY::focus-change",
-  {
-    game: boolean;
-    overlay: boolean;
-    usingHotkey: boolean;
-  }
->;
-
-type IpcVisibility = Event<
-  "MAIN->OVERLAY::visibility",
-  {
-    isVisible: boolean;
-  }
->;
-
-type IpcFocusGame = Event<"OVERLAY->MAIN::focus-game">;
-
-type IpcHideExclusiveWidget = Event<"MAIN->OVERLAY::hide-exclusive-widget">;
-
-type IpcTrackArea = Event<
-  "OVERLAY->MAIN::track-area",
-  {
-    holdKey: string;
-    closeThreshold: number;
-    from: { x: number; y: number };
-    area: { x: number; y: number; width: number; height: number };
-    dpr: number;
-  }
->;
 
 type IpcHostConfig = Event<"CLIENT->MAIN::update-host-config", HostConfig>;
 
-type IpcClientIsActive = Event<
-  "CLIENT->MAIN::used-recently",
-  {
-    isOverlay: boolean;
-  }
->;
+
 
 type IpcSaveConfig = Event<
   "CLIENT->MAIN::save-config",
@@ -188,6 +144,7 @@ type IpcItemText = Event<
     position: { x: number; y: number };
     focusOverlay: boolean;
     isManual?: boolean;
+    activeGame?: GameVersion;
   }
 >;
 
@@ -353,18 +310,12 @@ interface Event<TName extends string, TPayload = undefined> {
 
 type IpcSaveCustomIcon = Event<
   "CLIENT->MAIN::save-custom-icon",
-  {
-    refName: string;
-    iconUrl: string;
-  }
+  ItemIcon
 >;
 
 type IpcCustomIconAdded = Event<
   "MAIN->CLIENT::custom-icon-added",
-  {
-    refName: string;
-    iconUrl: string;
-  }
+  ItemIcon
 >;
 
 type IpcAuthStatus = Event<

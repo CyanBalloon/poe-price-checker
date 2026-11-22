@@ -1,131 +1,69 @@
 <template>
-  <div v-if="noUniqueSelection && isStandalone" class="flex-1 flex gap-4 min-h-0 p-5 select-none w-full h-full text-gray-200">
-    <!-- Left Panel: Item Summary & Stat Filters -->
-    <div :style="{ width: leftPanelWidth + 'px' }" class="flex flex-col gap-5 shrink-0 min-h-0 h-full">
-      <!-- Item Info Box -->
-      <div class="bg-[#0e1017] border border-[#191b22] rounded-2xl p-5 flex flex-col gap-4 shadow-lg shadow-black/45">
-        <filter-name :filters="itemFilters" :item="item" />
-        <price-trend :item="item" :filters="itemFilters" class="border-t border-[#1d202e]/60 pt-3" />
-        <stack-value :filters="itemFilters" :item="item" />
-      </div>
+  <div v-if="noUniqueSelection && isStandalone" class="checked-workspace">
+    <section class="checked-item-summary" aria-label="Item and market estimate">
+      <div class="checked-summary-main">
+        <div class="checked-identity" :data-rarity="item.rarity">
+          <div class="checked-art">
+            <ui-item-img :icon="item.info.icon" :item-name="item.info.refName" :namespace="item.info.namespace" alt="" />
+          </div>
+          <div class="checked-identity-text">
+            <h2>{{ item.rarity === ItemRarity.Rare ? item.name || item.info.name : item.info.name }}</h2>
 
-      <!-- Filters Block (scrollable) -->
-      <div class="flex-1 bg-[#0e1017] border border-[#191b22] rounded-2xl p-5 flex flex-col gap-4 shadow-lg shadow-black/45 overflow-hidden min-h-0">
-        <div class="flex items-center justify-between border-b border-[#1d202e]/60 pb-3 shrink-0">
-          <span class="text-xs font-semibold text-gray-400 uppercase tracking-wider">Stat Filters</span>
-          <div class="flex gap-2" v-if="presets.length > 1 && !isListingsDisabled">
-            <button 
-              v-for="preset in presets" 
-              :key="preset.id"
-              @click="selectPreset(preset.id)"
-              :class="[
-                'px-2.5 py-1 text-[10px] font-semibold tracking-wide rounded-lg border transition-all duration-200',
-                preset.active 
-                  ? 'bg-violet-600 border-violet-500 text-white shadow-sm' 
-                  : 'bg-[#151722] border-[#222538] text-gray-400 hover:text-gray-200'
-              ]"
-            >
-              {{ t(preset.id) }}
+            <div class="checked-item-meta">
+              <span v-if="summaryBase">{{ summaryBase }}</span>
+              <span v-else-if="item.rarity">{{ item.rarity }}</span>
+              <span v-if="!summaryBase && item.category && String(item.category) !== String(item.rarity)">{{ item.category }}</span>
+              <span v-if="item.itemLevel" title="Item level">Item level {{ item.itemLevel }}</span>
+              <span v-if="item.gemLevel">Level {{ item.gemLevel }}</span>
+              <span v-if="item.quality">{{ item.quality }}% Quality</span>
+              <span v-if="item.isCorrupted" class="checked-corrupted">Corrupted</span>
+            </div>
+            <button type="button" class="ui-button checked-paste" @click="$emit('paste-item')">
+              <i class="fa-regular fa-clipboard" aria-hidden="true"></i> Paste item
             </button>
           </div>
         </div>
-        
-        <div v-if="isListingsDisabled" class="flex-1 flex flex-col items-center justify-center p-8 text-center select-none">
-          <div class="w-14 h-14 rounded-full bg-violet-500/5 flex items-center justify-center mb-4 border border-violet-500/10">
-            <i class="fas fa-filter text-[#8b5cf6] text-xl" v-if="item.category !== ItemCategory.Gem"></i>
-            <i class="fas fa-gem text-[#8b5cf6] text-xl" v-else></i>
-          </div>
-          <h4 class="text-xs font-semibold text-gray-300 uppercase tracking-wider">Stat Filters Disabled</h4>
-          <p class="text-xs text-gray-500 max-w-xs mt-1.5 leading-relaxed">
-            Stat filters are disabled for {{ item.category === ItemCategory.Currency ? 'currency' : (item.info.tradeTag ? 'commodity items' : 'lineage supports') }}.
-          </p>
-        </div>
-        <div v-else class="flex-1 overflow-y-auto pr-1">
-          <filters-block
-            ref="filtersComponent"
-            :filters="itemFilters"
-            :stats="itemStats"
-            :item="item"
-            :presets="presets"
-            @preset="selectPreset"
-            @submit="doSearch = true"
-            :rebuild-key="rebuildKey"
-          />
-        </div>
+        <price-trend :item="item" :filters="itemFilters" summary />
       </div>
+      <stack-value :filters="itemFilters" :item="item" class="checked-stacks" />
+    </section>
 
-      <!-- Search CTA Button -->
-      <div v-if="!doSearch && !isListingsDisabled" class="bg-[#0e1017] border border-[#191b22] rounded-2xl p-4 flex justify-center shadow-lg shadow-black/45 shrink-0">
-        <button 
-          @click="doSearch = true" 
-          class="w-full py-2.5 bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 rounded-xl text-xs font-semibold text-white tracking-wide transition-all shadow-md shadow-violet-950/20"
-        >
-          SEARCH TRADE DATABASE
+    <div v-if="!isListingsDisabled" class="workbench-comparison">
+      <section class="checked-filters" aria-label="Search filters">
+        <button v-if="compact" class="compact-filter-toggle" type="button" aria-controls="workbench-filters"
+          :aria-expanded="compactFiltersOpen" @click="compactFiltersOpen = !compactFiltersOpen">
+          <strong>Filters</strong><span v-if="selectedStats">{{ selectedStats }} selected</span>
+          <i class="fa-solid" :class="compactFiltersOpen ? 'fa-chevron-up' : 'fa-chevron-down'" aria-hidden="true"></i>
         </button>
-      </div>
-    </div>
-
-    <!-- Resizer Divider Splitter -->
-    <div 
-      class="w-1.5 hover:w-2.5 hover:bg-violet-500/50 bg-[#161822] cursor-col-resize self-stretch transition-all duration-150 shrink-0 rounded-full flex items-center justify-center group"
-      @mousedown="startResize"
-    >
-      <div class="w-0.5 h-8 bg-gray-700/40 group-hover:bg-violet-400 rounded transition-colors"></div>
-    </div>
-
-    <!-- Right Panel: Trade Listings -->
-    <div class="flex-1 bg-[#0e1017] border border-[#191b22] rounded-2xl flex flex-col shadow-lg shadow-black/45 overflow-hidden min-h-0 h-full">
-      <div class="h-14 border-b border-[#191b22] px-6 flex items-center justify-between bg-[#11121a] shrink-0">
-        <div class="flex items-center gap-2.5">
-          <span class="w-2 h-2 rounded-full bg-teal-400 animate-pulse"></span>
-          <span class="text-xs font-semibold text-gray-300 uppercase tracking-wider">Live Listings</span>
+        <div id="workbench-filters" v-show="!compact || compactFiltersOpen">
+          <div v-if="presets.length > 1" class="checked-presets" role="group" aria-label="Filter preset">
+            <button v-for="preset in presets" :key="preset.id" type="button" :aria-pressed="preset.active" @click="selectPreset(preset.id)">
+              {{ t(preset.id) }}
+            </button>
+          </div>
+          <filters-block ref="filtersComponent" :filters="itemFilters" :stats="itemStats" :item="item"
+            :presets="presets" :rebuild-key="rebuildKey" @preset="selectPreset" @submit="applySearch">
+            <template #search-criteria><filter-name :filters="itemFilters" :item="item" /></template>
+          </filters-block>
         </div>
-        <div class="flex items-center gap-2">
+        <button v-if="!compact || compactFiltersOpen || !doSearch" type="button" class="ui-button ui-button--primary checked-search-button" :disabled="doSearch" @click="applySearch">
+          {{ appliedFilters ? 'Apply filters' : 'Search listings' }}
+        </button>
+      </section>
+      <section class="checked-results" aria-label="Listing results">
+        <header class="workbench-results-head">
+          <h2>{{ tradeAPI === 'bulk' ? 'Bulk listings' : 'Trade listings' }}</h2>
           <trade-links v-if="tradeAPI === 'trade'" :get-link="makeTradeLink" />
-        </div>
-      </div>
-
-      <!-- Trade Listings content -->
-      <div class="flex-1 overflow-y-auto p-5 relative min-h-0">
-        <div v-if="isListingsDisabled" class="absolute inset-0 flex flex-col items-center justify-center p-8 text-center select-none">
-          <div class="w-14 h-14 rounded-full bg-violet-500/5 flex items-center justify-center mb-4 border border-violet-500/10">
-            <i class="fas fa-coins text-[#8b5cf6] text-xl" v-if="item.category !== ItemCategory.Gem"></i>
-            <i class="fas fa-gem text-[#8b5cf6] text-xl" v-else></i>
-          </div>
-          <h4 class="text-xs font-semibold text-gray-300 uppercase tracking-wider">Listings Disabled</h4>
-          <p class="text-xs text-gray-500 max-w-xs mt-1.5 leading-relaxed">
-            Live listings are disabled for this item type.
-          </p>
-        </div>
-        <template v-else>
-          <trade-listing
-            v-slot="listingsProps"
-            v-if="tradeAPI === 'trade' && doSearch"
-            ref="tradeService"
-            :filters="itemFilters"
-            :stats="itemStats"
-            :item="item"
-          />
-          <trade-bulk
-            v-slot="bulkProps"
-            v-if="tradeAPI === 'bulk' && doSearch"
-            ref="tradeService"
-            :filters="itemFilters"
-            :item="item"
-          />
-
-          <div v-if="!doSearch" class="absolute inset-0 flex flex-col items-center justify-center p-8 text-center select-none">
-            <div class="w-14 h-14 rounded-full bg-violet-500/5 flex items-center justify-center mb-4 border border-violet-500/10">
-              <i class="fas fa-search text-[#8b5cf6] text-xl"></i>
-            </div>
-            <h4 class="text-xs font-semibold text-gray-300 uppercase tracking-wider">Ready to Search</h4>
-            <p class="text-xs text-gray-500 max-w-xs mt-1.5 leading-relaxed">
-              Click search to view current active trade database listings for this item.
-            </p>
-          </div>
+        </header>
+        <template v-if="appliedFilters">
+          <trade-listing v-if="tradeAPI === 'trade'" ref="tradeService" :filters="appliedFilters" :stats="appliedStats" :item="item" />
+          <trade-bulk v-else ref="tradeService" :filters="appliedFilters" :item="item" />
+          <p v-if="!doSearch" class="workbench-status" role="status">Showing listings for the last applied filters.</p>
         </template>
-      </div>
+        <p v-else class="workbench-status">Search listings to compare prices for this item.</p>
+      </section>
     </div>
+    <p v-else class="checked-estimate-only">Use Item Search to look up this item type.</p>
   </div>
 
   <div v-else-if="noUniqueSelection" class="p-4 layout-column min-h-0 flex-1">
@@ -195,17 +133,16 @@
     <tip v-else-if="showTip" :selected="showTip" />
   </div>
 
-  <!-- Beautiful Floating Tooltip Overlay Panel -->
+
   <transition name="fade">
     <div 
       v-if="hoveredListing && widget.itemHoverTooltip !== 'off'" 
       :class="[
-        'fixed z-[100] bg-[#0c0d12]/95 border border-violet-500/30 rounded-2xl shadow-2xl p-4 pointer-events-none max-w-sm backdrop-blur-md',
+        'fixed z-[100] bg-[var(--surface)] rounded-lg shadow-2xl p-3 pointer-events-none max-w-sm backdrop-blur-md',
         hoveredListing.mouseY < screenHeight / 2 ? 'bottom-6 left-1/2 -translate-x-1/2' : 'top-6 left-1/2 -translate-x-1/2'
       ]"
-      style="box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.8), 0 0 20px 2px rgba(139, 92, 246, 0.15);"
     >
-      <div class="scale-[0.93] origin-center overflow-hidden rounded-xl">
+      <div class="overflow-auto">
         <tooltip-item :result="hoveredListing.res" />
       </div>
     </div>
@@ -224,11 +161,13 @@
 </style>
 
 <script lang="ts">
+import { getCategoryToTradeId } from "./trade/trade-constants";
 import {
   defineComponent,
   PropType,
   watch,
   ref,
+  shallowRef,
   nextTick,
   computed,
   ComponentPublicInstance,
@@ -236,13 +175,13 @@ import {
   onMounted,
   onUnmounted,
 } from "vue";
+import { useMediaQuery } from "@vueuse/core";
 import { useI18n } from "vue-i18n";
-import { useStorage } from "@vueuse/core";
 import { ItemRarity, ItemCategory, ParsedItem } from "@/parser";
 import TradeListing from "./trade/TradeListing.vue";
 import TradeBulk from "./trade/TradeBulk.vue";
 import TradeLinks from "./trade/TradeLinks.vue";
-import { apiToSatisfySearch, getTradeEndpoint } from "./trade/common";
+import { apiToSatisfySearch, getTradeEndpoint, getTradeEndpointPath, getTradeUrlSegment } from "./trade/common";
 import PriceTrend from "./trends/PriceTrend.vue";
 import FiltersBlock from "./filters/FiltersBlock.vue";
 import { createPresets } from "./filters/create-presets";
@@ -252,31 +191,29 @@ import FilterName from "./filters/FilterName.vue";
 import Tip from "../help/Tip.vue";
 import TooltipItem from "./trade/TooltipItem.vue";
 import {
-  CATEGORY_TO_TRADE_ID,
   createTradeRequest,
   PricingResult,
-  requestTradeResultList,
-  requestResults,
 } from "./trade/pathofexile-trade";
 import { AppConfig, TipsFrequency } from "@/web/Config";
-import { Host } from "@/web/background/IPC";
-import { FilterPreset } from "./filters/interfaces";
+import { FilterPreset, ItemFilters, StatFilter } from "./filters/interfaces";
 import { PriceCheckWidget } from "../overlay/interfaces";
 import { useLeagues } from "@/web/background/Leagues";
 import { randomTip, TIP_FREQUENCY_MAP } from "../help/tips";
+import UiItemImg from "@/web/ui/UiItemImg.vue";
 
 let _showSupportLinksCounter = 0;
 let _showTipCounter = 15;
 
 export default defineComponent({
   name: "CheckedItem",
-  emits: ["item-editor-selection"],
+  emits: ["item-editor-selection", "paste-item"],
   components: {
     PricePrediction,
     TradeListing,
     TradeBulk,
     TradeLinks,
     PriceTrend,
+    UiItemImg,
     FiltersBlock,
     FilterName,
     StackValue,
@@ -311,7 +248,7 @@ export default defineComponent({
     });
 
     const isListingsDisabled = computed(() => {
-      return (
+      return AppConfig().game === "poe2" && (
         props.item.category === ItemCategory.Currency ||
         isLineageSupport.value ||
         props.item.info.tradeTag != null
@@ -344,6 +281,20 @@ export default defineComponent({
           (preset) => preset.id === presets.value.active,
         )!.stats,
     );
+    const compact = useMediaQuery("(max-width: 49rem)");
+    const compactFiltersOpen = ref(false);
+    const selectedStats = computed(() => itemStats.value.filter(stat => !stat.disabled).length);
+    const appliedFilters = shallowRef<ItemFilters | null>(null);
+    const appliedStats = shallowRef<StatFilter[]>([]);
+    function applySearch() {
+      doSearch.value = true;
+    }
+
+    const summaryBase = computed(() => {
+      const { item } = props;
+      const base = item.baseType || item.info.unique?.base;
+      return base !== item.info.name ? base : undefined;
+    });
     const doSearch = ref(false);
     const tradeAPI = ref<"trade" | "bulk">("bulk");
 
@@ -356,6 +307,10 @@ export default defineComponent({
       () => props.item,
       (item, prevItem) => {
         performance.mark("checked-item-item-changed");
+        compactFiltersOpen.value = false;
+        hoveredListing.value = null;
+        appliedFilters.value = null;
+        appliedStats.value = [];
         const prevCurrency =
           presets.value != null ? itemFilters.value.trade.currency : undefined;
         const prevListingType =
@@ -364,6 +319,7 @@ export default defineComponent({
             : undefined;
 
         presets.value = createPresets(item, {
+          includeSourceModifiers: isStandalone.value,
           league: leagues.selectedId.value!,
           collapseListings: widget.value.collapseListings,
           activateStockFilter: widget.value.activateStockFilter,
@@ -398,7 +354,7 @@ export default defineComponent({
               item.category === ItemCategory.HeistBlueprint ||
               item.category === ItemCategory.SanctumRelic ||
               item.category === ItemCategory.Charm ||
-              !CATEGORY_TO_TRADE_ID.has(item.category!) ||
+              !getCategoryToTradeId().has(item.category!) ||
               item.isUnidentified ||
               item.isVeiled ||
               (item.rarity === ItemRarity.Magic && presets.value.active === "filters.preset_base_item")
@@ -415,42 +371,9 @@ export default defineComponent({
           itemFilters.value.trade.listingType = "online";
         }
 
-        if (item.info && (item.info.icon === "%NOT_FOUND%" || !item.info.icon)) {
-          (async () => {
-            try {
-              const league = itemFilters.value?.trade?.league;
-              if (!league) return;
-              const request = createTradeRequest(itemFilters.value, itemStats.value, item);
-              request.query.status.option = "any";
-              const searchResult = await requestTradeResultList(request, league);
-              if (searchResult.result.length > 0) {
-                const results = await requestResults(
-                  searchResult.id,
-                  searchResult.result.slice(0, 1),
-                  { accountName: AppConfig().accountName }
-                );
-                const firstResult = results[0];
-                const iconUrl = firstResult?.rawResult?.item?.icon;
-                if (iconUrl && iconUrl !== "%NOT_FOUND%") {
-                  item.info.icon = iconUrl;
-                  Host.sendEvent({
-                    name: "CLIENT->MAIN::save-custom-icon",
-                    payload: {
-                      refName: item.info.refName,
-                      iconUrl,
-                    },
-                  });
-                }
-              }
-            } catch (e) {
-              console.error("Failed to auto-fetch missing icon in background:", e);
-            }
-          })();
-        }
-
         performance.mark("checked-item-switch-item-end");
       },
-      { immediate: true, deep: true },
+      { immediate: true },
     );
 
     watch(
@@ -464,6 +387,14 @@ export default defineComponent({
           itemFilters.value,
         );
 
+        if (isStandalone.value && !isListingsDisabled.value) {
+          // Keep the displayed query independent of edits until the user applies them.
+          const filters: ItemFilters = JSON.parse(JSON.stringify(itemFilters.value));
+          filters.trade = itemFilters.value.trade;
+          appliedFilters.value = filters;
+          appliedStats.value = JSON.parse(JSON.stringify(itemStats.value));
+        }
+
         // NOTE: child `trade-xxx` component renders/receives props on nextTick
         nextTick(() => {
           if (tradeService.value) {
@@ -474,37 +405,27 @@ export default defineComponent({
       { deep: false, immediate: true },
     );
 
+    let previousItem = props.item;
     watch(
-      () => [props.item, doSearch.value, itemStats.value, itemFilters.value],
-      (curr, prev) => {
-        const cItem = curr[0];
-        const pItem = prev[0];
-        const cIntaracted = curr[1];
-        const pIntaracted = prev[1];
-
-        if (cItem === pItem && cIntaracted === true && pIntaracted === true) {
-          // force user to press Search button on change
-          doSearch.value = false;
-        }
+      () => {
+        const { trade, ...criteria } = itemFilters.value;
+        return [itemStats.value, criteria];
+      },
+      () => {
+        if (props.item === previousItem) doSearch.value = false;
+        previousItem = props.item;
       },
       { deep: true },
     );
 
+    // Availability, league, and currency refine the displayed results independently of draft modifiers.
     watch(
-      () => [props.item, JSON.stringify(itemFilters.value.trade)],
-      (curr, prev) => {
-        const cItem = curr[0];
-        const pItem = prev[0];
-        const cTrade = curr[1];
-        const pTrade = prev[1];
-
-        if (cItem === pItem && cTrade !== pTrade) {
-          nextTick(() => {
-            doSearch.value = true;
-          });
-        }
+      () => [props.item, JSON.stringify((appliedFilters.value ?? itemFilters.value).trade)] as const,
+      ([item, trade], [oldItem, oldTrade]) => {
+        if (item !== oldItem || trade === oldTrade) return;
+        if (tradeService.value) tradeService.value.execSearch();
+        else doSearch.value = true;
       },
-      { deep: false },
     );
 
     const noUniqueSelection = computed(() => {
@@ -571,26 +492,6 @@ export default defineComponent({
 
     const { t } = useI18n();
 
-    const leftPanelWidth = useStorage("priceCheckLeftPanelWidth", 800);
-    function startResize(e: MouseEvent) {
-      e.preventDefault();
-      const startX = e.clientX;
-      const startWidth = leftPanelWidth.value;
-      
-      function onMouseMove(moveEvent: MouseEvent) {
-        const newWidth = startWidth + (moveEvent.clientX - startX);
-        leftPanelWidth.value = Math.max(300, Math.min(800, newWidth));
-      }
-      
-      function onMouseUp() {
-        document.removeEventListener("mousemove", onMouseMove);
-        document.removeEventListener("mouseup", onMouseUp);
-      }
-      
-      document.addEventListener("mousemove", onMouseMove);
-      document.addEventListener("mouseup", onMouseUp);
-    }
-
     return {
       t,
       isStandalone,
@@ -606,8 +507,14 @@ export default defineComponent({
       noUniqueSelection,
       handleSearchMouseenter,
       showSupportLinks,
-      leftPanelWidth,
-      startResize,
+      compact,
+      compactFiltersOpen,
+      selectedStats,
+      appliedFilters,
+      appliedStats,
+      applySearch,
+      summaryBase,
+      ItemRarity,
       hoveredListing,
       screenHeight,
       widget,
@@ -621,9 +528,41 @@ export default defineComponent({
         presets.value.active = id;
       },
       makeTradeLink() {
-        return `https://${getTradeEndpoint()}/trade2/search/poe2/${itemFilters.value.trade.league}?q=${JSON.stringify(createTradeRequest(itemFilters.value, itemStats.value, props.item))}`;
+        const filters = appliedFilters.value ?? itemFilters.value;
+        const stats = appliedFilters.value ? appliedStats.value : itemStats.value;
+        return `https://${getTradeEndpoint()}/${getTradeEndpointPath()}/search/${getTradeUrlSegment()}${encodeURIComponent(filters.trade.league)}?q=${encodeURIComponent(JSON.stringify(createTradeRequest(filters, stats, props.item)))}`;
       },
     };
   },
 });
 </script>
+
+<style scoped>
+.checked-workspace { display: grid; gap: clamp(2rem, 4vw, 3.8rem); }
+.checked-item-summary { min-width: 0; container: item-summary / inline-size; }
+.checked-summary-main { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 1.2rem 2rem; }
+.checked-identity { display: flex; align-items: center; gap: clamp(1rem, 2vw, 2rem); min-width: 0; }
+.checked-art { flex: none; max-width: 50%; overflow: auto; }
+.checked-identity-text { min-width: 0; overflow-wrap: anywhere; }
+.checked-identity h2 { color: var(--ink); font: 500 clamp(1.8rem, 3.4vw, 3rem)/1.1 var(--display); letter-spacing: -0.02em; }
+.checked-item-meta { display: flex; flex-wrap: wrap; gap: 0.35rem 0.7rem; margin-block: 0.4rem 0.85rem; color: var(--muted); font-size: 1rem; }
+.checked-item-meta span + span::before { margin-right: 0.7rem; color: var(--quiet); content: "·"; }
+.checked-corrupted { color: var(--danger); }
+.trade-app .checked-paste { border: 1px solid var(--accent); color: var(--accent); }
+.checked-stacks { margin-top: 1rem; }
+.workbench-comparison { display: grid; grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr); align-items: start; gap: clamp(2rem, 5vw, 5rem); }
+.compact-filter-toggle { width: 100%; display: flex; align-items: center; gap: 0.6rem; min-height: 2.8rem; color: var(--ink); }
+.compact-filter-toggle span, .compact-filter-toggle i { color: var(--muted); font-size: 0.8rem; }
+.compact-filter-toggle i { margin-left: auto; }
+.checked-filters, .checked-results { min-width: 0; }
+.checked-results { container: listing-panel / inline-size; }
+.workbench-results-head { display: flex; align-items: center; justify-content: space-between; gap: 1rem; margin-bottom: 0.5rem; }
+.workbench-results-head h2 { font: 500 clamp(1.55rem, 2.4vw, 2.15rem)/1.25 var(--display); }
+.checked-search-button { margin-top: 0.9rem; }
+.checked-presets { display: flex; flex-wrap: wrap; gap: 0.8rem; margin-bottom: 1rem; }
+.checked-presets button { padding-block: 0.35rem; color: var(--muted); }
+.checked-presets button:hover, .checked-presets button[aria-pressed="true"] { color: var(--accent); }
+.workbench-status, .checked-estimate-only { color: var(--muted); margin-block: 0.8rem; }
+@container item-summary (max-width: 38rem) { .checked-summary-main { grid-template-columns: minmax(0, 1fr); } }
+@media (max-width: 49rem) { .workbench-comparison { grid-template-columns: minmax(0, 1fr); gap: 2rem; } }
+</style>

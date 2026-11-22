@@ -61,6 +61,7 @@ const parsers: Array<ParserFn | { virtual: VirtualParserFn }> = [
   { virtual: parseExceptional },
   { virtual: parseRuneforged },
   parseSynthesised,
+  { virtual: parseMapTierPoe1 },
   parseCategoryByHelpText,
   { virtual: normalizeName },
   parseVaalGemName,
@@ -188,18 +189,13 @@ function normalizeName(item: ParserState) {
   }
 
   if (item.rarity === ItemRarity.Normal || item.rarity === ItemRarity.Rare) {
-    if (item.baseType) {
-      if (_$.MAP_BLIGHTED.test(item.baseType)) {
-        item.baseType = _$REF.MAP_BLIGHTED.exec(item.baseType)![1];
-      } else if (_$.MAP_BLIGHT_RAVAGED.test(item.baseType)) {
-        item.baseType = _$REF.MAP_BLIGHT_RAVAGED.exec(item.baseType)![1];
-      }
-    } else {
-      if (_$.MAP_BLIGHTED.test(item.name)) {
-        item.name = _$REF.MAP_BLIGHTED.exec(item.name)![1];
-      } else if (_$.MAP_BLIGHT_RAVAGED.test(item.name)) {
-        item.name = _$REF.MAP_BLIGHT_RAVAGED.exec(item.name)![1];
-      }
+    const name = item.baseType ?? item.name;
+    const ravaged = _$.MAP_BLIGHT_RAVAGED.exec(name);
+    const blighted = ravaged ?? _$.MAP_BLIGHTED.exec(name);
+    if (blighted) {
+      if (item.baseType) item.baseType = blighted[1];
+      else item.name = blighted[1];
+      item.mapBlighted = ravaged ? "Blight-ravaged" : "Blighted";
     }
   }
 
@@ -224,11 +220,11 @@ function findInDatabase(item: ParserState) {
   performance.mark("findInDatabase");
   let info: BaseType[] | undefined;
   if (item.category === ItemCategory.DivinationCard) {
-    info = ITEM_BY_REF("DIVINATION_CARD", item.name);
+    info = ITEM_BY_TRANSLATED("DIVINATION_CARD", item.name);
   } else if (item.category === ItemCategory.CapturedBeast) {
-    info = ITEM_BY_REF("CAPTURED_BEAST", item.baseType ?? item.name);
+    info = ITEM_BY_TRANSLATED("CAPTURED_BEAST", item.baseType ?? item.name);
   } else if (item.category === ItemCategory.Gem) {
-    info = ITEM_BY_REF("GEM", item.name);
+    info = ITEM_BY_TRANSLATED("GEM", item.name);
   } else if (item.category === ItemCategory.MetamorphSample) {
     info = ITEM_BY_REF("ITEM", item.name);
   } else if (item.category === ItemCategory.Voidstone) {
@@ -304,11 +300,26 @@ function findInDatabase(item: ParserState) {
 
 function parseMap(section: string[], item: ParsedItem) {
   performance.mark("parseMap");
-  if (section[0].startsWith(_$.MAP_TIER)) {
-    item.mapTier = Number(section[0].slice(_$.MAP_TIER.length));
-    return "SECTION_PARSED";
+  if (typeof _$.MAP_TIER === "string") {
+    if (section[0].startsWith(_$.MAP_TIER)) {
+      item.mapTier = Number(section[0].slice(_$.MAP_TIER.length));
+      return "SECTION_PARSED";
+    }
   }
   return "SECTION_SKIPPED";
+}
+
+function parseMapTierPoe1(item: ParserState) {
+  if (typeof _$.MAP_TIER !== "string") {
+    const execResult = _$.MAP_TIER.exec(item.baseType || item.name);
+    if (!execResult) return;
+    item.mapTier = Number(execResult[1]);
+    if (item.baseType) {
+      item.baseType = item.baseType.replace(execResult[0], "");
+    } else {
+      item.name = item.name.replace(execResult[0], "");
+    }
+  }
 }
 
 function parseWaystone(section: string[], item: ParsedItem) {
@@ -603,6 +614,29 @@ function parseItemLevel(section: string[], item: ParsedItem) {
 
 function parseRequirements(section: string[], item: ParsedItem) {
   performance.mark("parseRequirements");
+  if (
+    _$.MAP_TIER instanceof RegExp &&
+    section[0].replace(/[:：]\s*$/, "").trim() === _$.REQUIREMENTS.replace(/[:：]\s*$/, "").trim()
+  ) {
+    const requires = { level: 0, str: 0, dex: 0, int: 0 };
+    for (const line of section.slice(1)) {
+      if (line.startsWith(_$.GEM_LEVEL)) {
+        requires.level = parseInt(line.slice(_$.GEM_LEVEL.length), 10) || 0;
+        continue;
+      }
+
+      const attribute = line.match(/^(.+?)[:：]\s*(\d+)/);
+      if (!attribute) continue;
+      const [, label, value] = attribute;
+      const groups = (_$.REQUIRES + value + " " + label.trim()).match(_$.REQUIRES_LINE)?.groups;
+      if (groups?.str) requires.str = Number(groups.str);
+      if (groups?.dex) requires.dex = Number(groups.dex);
+      if (groups?.int) requires.int = Number(groups.int);
+    }
+    item.requires = requires;
+    return "SECTION_PARSED";
+  }
+
   if (!section[0].startsWith(_$.REQUIRES)) {
     return "SECTION_SKIPPED";
   }
@@ -659,14 +693,9 @@ function parseGem(section: string[], item: ParsedItem) {
     return "PARSER_SKIPPED";
   }
 
-  const gemLevelLineNumber = item.category === ItemCategory.Gem ? 1 : 0;
-
-  if (section[gemLevelLineNumber]?.startsWith(_$.GEM_LEVEL)) {
-    // "Level: 20 (Max)"
-    item.gemLevel = parseInt(
-      section[gemLevelLineNumber].slice(_$.GEM_LEVEL.length),
-      10,
-    );
+  const gemLevel = section.find((line) => line.startsWith(_$.GEM_LEVEL));
+  if (gemLevel) {
+    item.gemLevel = parseInt(gemLevel.slice(_$.GEM_LEVEL.length), 10);
 
     parseQualityNested(section, item);
 
@@ -704,6 +733,7 @@ function parseStackSize(section: string[], item: ParsedItem) {
 
 function parseAugmentSockets(section: string[], item: ParsedItem) {
   performance.mark("parseAugmentSockets");
+  if (_$.MAP_TIER instanceof RegExp) return "PARSER_SKIPPED";
   const categoryMax = getMaxSockets(item);
   const armourOrWeapon =
     categoryMax &&
@@ -741,6 +771,16 @@ function parseAugmentSockets(section: string[], item: ParsedItem) {
 
 function parseSockets(section: string[], item: ParsedItem) {
   performance.mark("parseSockets");
+  if (_$.MAP_TIER instanceof RegExp && section[0].startsWith(_$.SOCKETS)) {
+    const groups = section[0].slice(_$.SOCKETS.length).trim().split(/\s+/);
+    const sockets = groups.flatMap((group) => group.split("-")).filter(Boolean);
+    item.gemSockets = {
+      number: sockets.length,
+      white: sockets.filter((socket) => socket === "W").length,
+      linked: Math.max(...groups.map((group) => group.split("-").length)),
+    };
+    return "SECTION_PARSED";
+  }
   if (item.category === ItemCategory.Gem && section[0].startsWith(_$.SOCKETS)) {
     let sockets = section[0].slice(_$.SOCKETS.length).trimEnd();
     sockets = sockets.replace(/[^ -]/g, "#");
@@ -1115,7 +1155,22 @@ function parseModifiers(section: string[], item: ParsedItem) {
   );
 
   if (!recognizedLine) {
-    return parseModifiersPoe2(section, item);
+    if (!(_$.MAP_TIER instanceof RegExp) ||
+      section.some((line) => line.endsWith(SCOURGE_LINE) || line.endsWith(ADDED_AUGMENT_LINE))) {
+      return parseModifiersPoe2(section, item);
+    }
+
+    const firstMod = item.newMods.length;
+    const firstUnknown = item.unknownModifiers.length;
+    parseModifiersPoe2(section, item);
+    if (item.newMods.slice(firstMod).some((mod) => mod.stats.length || mod.info.type === ModifierType.Veiled)) {
+      return "SECTION_PARSED";
+    }
+
+    // Untagged sections without any recognized stats can be item descriptions.
+    item.newMods.length = firstMod;
+    item.unknownModifiers.length = firstUnknown;
+    return "SECTION_SKIPPED";
   }
 
   if (isModInfoLine(recognizedLine)) {

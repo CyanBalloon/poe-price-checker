@@ -1,7 +1,5 @@
-import {
-  STAT_BY_REF,
-} from "@/assets/data";
-// import { STAT_BY_REF } from "@/assets/data";
+import { STAT_BY_REF } from "@/assets/data";
+import { AppConfig } from "@/web/Config";
 import { ModifierType, StatCalculated, StatSource } from "@/parser/modifiers";
 import {
   calculatedStatToFilter,
@@ -11,57 +9,6 @@ import { type StatFilter } from "../interfaces";
 import { ARMOUR_STATS, WEAPON_STATS } from "./item-property";
 import { tryParseTranslation } from "@/parser/stat-translations";
 
-/*
-const RESISTANCES_INFO = [
-  {
-    ref: stat("#% to All Resistances"),
-    elements: ["fire", "cold", "lightning"],
-    chaos: true,
-  },
-  {
-    ref: stat("#% to all Elemental Resistances"),
-    elements: ["fire", "cold", "lightning"],
-  },
-  { ref: stat("#% to Fire Resistance"), elements: ["fire"] },
-  { ref: stat("#% to Cold Resistance"), elements: ["cold"] },
-  { ref: stat("#% to Lightning Resistance"), elements: ["lightning"] },
-  {
-    ref: stat("#% to Fire and Lightning Resistances"),
-    elements: ["fire", "lightning"],
-  },
-  { ref: stat("#% to Fire and Cold Resistances"), elements: ["fire", "cold"] },
-  {
-    ref: stat("#% to Cold and Lightning Resistances"),
-    elements: ["cold", "lightning"],
-  },
-  { ref: stat("#% to Chaos Resistance"), elements: [], chaos: true },
-  {
-    ref: stat("#% to Fire and Chaos Resistances"),
-    elements: ["fire"],
-    chaos: true,
-  },
-  {
-    ref: stat("#% to Cold and Chaos Resistances"),
-    elements: ["cold"],
-    chaos: true,
-  },
-  {
-    ref: stat("#% to Lightning and Chaos Resistances"),
-    elements: ["lightning"],
-    chaos: true,
-  },
-];
-
-const ATTRIBUTES_INFO = [
-  { ref: stat("# to all Attributes"), attributes: ["str", "dex", "int"] },
-  { ref: stat("# to Strength"), attributes: ["str"] },
-  { ref: stat("# to Dexterity"), attributes: ["dex"] },
-  { ref: stat("# to Intelligence"), attributes: ["int"] },
-  { ref: stat("# to Strength and Intelligence"), attributes: ["str", "int"] },
-  { ref: stat("# to Strength and Dexterity"), attributes: ["str", "dex"] },
-  { ref: stat("# to Dexterity and Intelligence"), attributes: ["dex", "int"] },
-];
-*/
 
 interface PseudoRule {
   group?: string;
@@ -76,15 +23,44 @@ interface PseudoRule {
   mutate?: (filter: StatFilter) => void;
 }
 
-const PSEUDO_RULES: PseudoRule[] = [];
+const elementalResistances = ["Fire", "Cold", "Lightning"];
+const poe1PseudoRules: PseudoRule[] = [
+  {
+    pseudo: "+#% total Elemental Resistance",
+    stats: [
+      ...elementalResistances.map((element) => ({ ref: "+#% to " + element + " Resistance" })),
+      { ref: "+#% to all Elemental Resistances", multiplier: 3 },
+      { ref: "+#% to All Resistances", multiplier: 3 },
+      ...["Fire and Cold", "Fire and Lightning", "Cold and Lightning"].map((pair) => ({
+        ref: "+#% to " + pair + " Resistances",
+        multiplier: 2,
+      })),
+    ],
+  },
+  {
+    pseudo: "+# total maximum Life",
+    stats: [{ ref: "+# to maximum Life" }],
+  },
+  {
+    pseudo: "+#% total to Chaos Resistance",
+    stats: [{ ref: "+#% to Chaos Resistance" }, { ref: "+#% to All Resistances" }],
+  },
+];
+
+function activeRules() {
+  return AppConfig()?.game === "poe1" ? poe1PseudoRules : [];
+}
 
 export function filterPseudo(ctx: FiltersCreationContext) {
   const filterByGroup = new Map<string, StatFilter[]>();
 
-  rulesLoop: for (const rule of PSEUDO_RULES) {
+  const appliedRefs = new Set<string>();
+  rulesLoop: for (const rule of activeRules()) {
+    const pseudo = STAT_BY_REF(rule.pseudo);
+    if (!pseudo?.trade.ids.pseudo?.length) continue;
     const sources = filterPseudoSources(ctx.statsByType, ({ stat }, source) => {
       const info = rule.stats.find((info) => info.ref === stat.ref);
-      if (!info) return null;
+      if (!info || !source.contributes) return null;
 
       const multi = info.multiplier ?? 1;
       return {
@@ -111,7 +87,7 @@ export function filterPseudo(ctx: FiltersCreationContext) {
 
     const filter = calculatedStatToFilter(
       {
-        stat: STAT_BY_REF(rule.pseudo)!,
+        stat: pseudo,
         type: ModifierType.Pseudo,
         sources,
       },
@@ -126,6 +102,7 @@ export function filterPseudo(ctx: FiltersCreationContext) {
     }
 
     ctx.filters.push(filter);
+    for (const { ref } of rule.stats) appliedRefs.add(ref);
 
     if (rule.replaces && filterByGroup.has(rule.replaces)) {
       const replacedFilters = filterByGroup.get(rule.replaces)!;
@@ -147,9 +124,7 @@ export function filterPseudo(ctx: FiltersCreationContext) {
     (m) =>
       m.type === ModifierType.Augment ||
       m.type === ModifierType.AddedAugment ||
-      !PSEUDO_RULES.some((rule) =>
-        rule.stats.some(({ ref }) => m.stat.ref === ref),
-      ),
+      !appliedRefs.has(m.stat.ref),
   );
 
   if (filterByGroup.has("to_x_ele_res")) {
@@ -225,18 +200,18 @@ function filterPseudoSources(
   return out;
 }
 const PSEUDO_REF_SET = new Set([
-  ...PSEUDO_RULES.flatMap((rule) => rule.stats.map((stat) => stat.ref)),
-  ...PSEUDO_RULES.flatMap((rule) => rule.stats.map((stat) => stat.ref)).map(
+  ...poe1PseudoRules.flatMap((rule) => rule.stats.map((stat) => stat.ref)),
+  ...poe1PseudoRules.flatMap((rule) => rule.stats.map((stat) => stat.ref)).map(
     (i) => i.replaceAll("+#", "#"),
   ),
-  ...PSEUDO_RULES.flatMap((rule) => rule.stats.map((stat) => stat.ref)).map(
+  ...poe1PseudoRules.flatMap((rule) => rule.stats.map((stat) => stat.ref)).map(
     (i) => i.replaceAll("-#", "#"),
   ),
 ]);
 export function refEffectsPseudos(ref: string): boolean {
   // If it is in these pseudos
   return (
-    PSEUDO_REF_SET.has(ref) ||
+    (AppConfig()?.game === "poe1" && PSEUDO_REF_SET.has(ref)) ||
     ARMOUR_STATS.has(ref) ||
     WEAPON_STATS.has(ref) ||
     ref === "Adds # to # Chaos Damage"

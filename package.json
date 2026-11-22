@@ -1,13 +1,13 @@
 {
   "name": "poe2-price-checker-root",
-  "version": "1.0.6",
+  "version": "1.1.0",
   "private": true,
   "description": "Root workspace runner for Poe2 Price Checker",
   "scripts": {
     "install:all": "npm install --prefix renderer && npm install --prefix main",
     "dev:renderer": "npm run dev --prefix renderer",
     "dev:main": "npm run dev --prefix main",
-    "dev:standalone": "npm run dev --prefix main -- -- --standalone",
+    "dev:standalone": "npm run make-index-files && npm run dev --prefix main -- --standalone --with-renderer",
     "make-index-files": "npm run make-index-files --prefix renderer"
   }
 }

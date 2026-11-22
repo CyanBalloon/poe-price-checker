@@ -1,23 +1,9 @@
 <template>
-  <div id="app" class="text-sm font-poe-sc">
-    <StandaloneWindow />
-  </div>
+  <standalone-window />
 </template>
 
 <script setup lang="ts">
-import { watchEffect } from "vue";
 import StandaloneWindow from "./standalone/StandaloneWindow.vue";
-import { AppConfig } from "./Config";
-
-watchEffect(() => {
-  const config = AppConfig();
-  document.body.classList.remove("theme-dark-fantasy");
-  if (config) {
-    if (config.theme === "dark-fantasy") {
-      document.body.classList.add("theme-dark-fantasy");
-    }
-  }
-});
 </script>
 
 <style lang="postcss">
@@ -35,15 +21,7 @@ watchEffect(() => {
 
 #app {
   height: 100vh;
-  display: flex;
-  flex-direction: column;
-  /* align-items: center; */
   overflow: hidden;
-  justify-content: space-between;
-
-  :focus {
-    outline: 0;
-  }
 }
 
 .layout-column {

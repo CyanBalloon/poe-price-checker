@@ -3,7 +3,7 @@ import { app, Tray, Menu, shell, nativeImage, dialog } from "electron";
 import type { ServerEvents } from "./server";
 
 export class AppTray {
-  public overlayKey = "Shift + Space";
+
   private tray: Tray;
   serverPort = 0;
 

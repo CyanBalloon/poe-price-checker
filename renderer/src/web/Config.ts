@@ -1,3 +1,4 @@
+import type { GameVersion } from "@ipc/types";
 import { reactive as deepReactive, shallowRef, toRaw } from "vue";
 import isDeepEqual from "fast-deep-equal";
 import { Host } from "@/web/background/IPC";
@@ -18,7 +19,7 @@ export function AppConfig(type?: string) {
   if (!type) {
     return _config.value!;
   } else {
-    return _config.value!.widgets.find((w) => w.wmType === type);
+    return _config.value?.widgets.find((w) => w.wmType === type);
   }
 }
 
@@ -89,8 +90,9 @@ export async function initConfig() {
 }
 
 export function poeWebApi() {
-  const { realm, preferredTradeSite, language } = AppConfig();
-  if (preferredTradeSite === "www") {
+  const { realm, preferredTradeSite, language, game } = AppConfig();
+  if (preferredTradeSite === "www" ||
+      (game === "poe1" && !["en", "ru", "cmn-Hant", "ko"].includes(language))) {
     return "www.pathofexile.com";
   }
   switch (language) {
@@ -127,9 +129,7 @@ export enum TipsFrequency {
 export interface Config {
   configVersion: number;
   leagueId?: string;
-  overlayKey: string;
-  overlayBackground: string;
-  overlayBackgroundClose: boolean;
+  leagueByGame?: Partial<Record<GameVersion, string>>;
   restoreClipboard: boolean;
   commands: Array<{
     text: string;
@@ -143,13 +143,13 @@ export interface Config {
   accountName: string;
   stashScroll: boolean;
   language: "en" | "ru" | "cmn-Hant" | "ko" | "ja" | "de" | "es" | "pt" | "fr";
+  game: GameVersion;
   theme: "default" | "dark-fantasy";
   preferredTradeSite: "default" | "www";
   realm: "pc-ggg" | "pc-garena";
   widgets: widget.Widget[];
   fontSize: number;
   showAttachNotification: boolean;
-  overlayAlwaysClose: boolean;
   enableAlphas: boolean;
   alphas: Array<"library">;
   tipsFrequency: TipsFrequency;
@@ -159,11 +159,7 @@ export interface Config {
 }
 
 export const defaultConfig = (): Config => ({
-  configVersion: 32,
-  overlayKey: "Shift + Space",
-  overlayBackground: "rgba(129, 139, 149, 0.15)",
-  overlayBackgroundClose: true,
-  overlayAlwaysClose: false,
+  configVersion: 33,
   restoreClipboard: false,
   showAttachNotification: true,
   commands: [
@@ -205,7 +201,8 @@ export const defaultConfig = (): Config => ({
   accountName: "",
   stashScroll: true,
   language: "en",
-  theme: "dark-fantasy",
+  game: "poe2",
+  theme: "default",
   preferredTradeSite: "default",
   realm: "pc-ggg",
   fontSize: 16,
@@ -636,7 +633,12 @@ function upgradeConfig(_config: Config): Config {
     config.destroyHotkeyEnabled = false;
     config.configVersion = 32;
   }
-  
+
+  if (config.configVersion < 33) {
+    config.game = "poe2";
+    config.configVersion = 33;
+  }
+
   if ((config as any).theme === "pastel") {
     config.theme = "default";
   }
@@ -669,10 +671,7 @@ function getConfigForHost(): HostConfig {
       action: { type: "copy-item", target: "price-check", focusOverlay: true },
     });
   }
-  actions.push({
-    shortcut: config.overlayKey,
-    action: { type: "toggle-overlay" },
-  });
+
   const itemCheck = AppConfig("item-check") as ItemCheckWidget;
   if (itemCheck.wikiKey) {
     actions.push({
@@ -785,7 +784,6 @@ function getConfigForHost(): HostConfig {
     clientLog: config.clientLog,
     gameConfig: config.gameConfig,
     stashScroll: config.stashScroll,
-    overlayKey: config.overlayKey,
     logKeys: config.logKeys,
     windowTitle: config.windowTitle,
     language: config.language,

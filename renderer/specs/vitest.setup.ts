@@ -7,6 +7,8 @@ import { Config, TipsFrequency } from "@/web/Config";
 vi.mock("@/web/Config", async () => {
   return {
     AppConfig: vi.fn(() => mockConfig),
+    poeWebApi: () => "www.pathofexile.com",
+    saveConfig: vi.fn(),
     TipsFrequency: {
       Always: 1,
     },
@@ -14,8 +16,7 @@ vi.mock("@/web/Config", async () => {
 });
 let mockConfig: Config;
 // Mock client-string-loader
-export const setupClientStringLoaderMock = () => {
-  vi.mock("@/assets/client-string-loader", () => ({
+vi.mock("@/assets/client-string-loader", () => ({
     loadClientStrings: vi.fn(async (lang) => {
       const basePath = path.resolve(__dirname, "../public/data/");
       const filePath = path.join(basePath, `${lang}/client_strings.js`);
@@ -28,8 +29,19 @@ export const setupClientStringLoaderMock = () => {
         );
       }
     }),
-  }));
-};
+    loadPoe1ClientStrings: vi.fn(async (lang) => {
+      const basePath = path.resolve(__dirname, "../public/poe1-data/");
+      const filePath = path.join(basePath, `${lang}/client_strings.js`);
+
+      try {
+        return (await import(/* @vite-ignore */ `${filePath}`)).default;
+      } catch (error: unknown) {
+        throw new Error(
+          `Error loading client_strings.js for ${lang}: ${(error as Error).message}`,
+        );
+      }
+    }),
+}));
 
 // Mock fetch
 export const setupFetchMock = () => {
@@ -55,7 +67,10 @@ export const setupFetchMock = () => {
       bodyUsed: false,
       json: async () => JSON.parse(body as string),
       text: async () => body,
-      arrayBuffer: async () => Buffer.from(body as string).buffer,
+      arrayBuffer: async () => {
+        const buf = Buffer.isBuffer(body) ? body : Buffer.from(body as string);
+        return buf.buffer.slice(buf.byteOffset, buf.byteOffset + buf.byteLength);
+      },
       blob: async () => new Blob([body as string]),
       formData: async () => {
         throw new Error("formData not implemented");
@@ -104,6 +119,9 @@ vi.mock("@/web/background/IPC", () => ({
           text: async () => data,
         };
       }
+      if (/\/api\/trade\/data\/(stats|items)$/.test(url)) {
+        return new Response(JSON.stringify({ result: [] }));
+      }
       return global.fetch(url, init);
     }),
     onEvent: vi.fn(() => new AbortController()),
@@ -120,9 +138,6 @@ vi.mock("@/web/background/IPC", () => ({
 export const defaultConfigMock = (overrides: Partial<Config> = {}) => {
   const defaultConfig: Config = {
     configVersion: 99999999,
-    overlayKey: "default",
-    overlayBackground: "",
-    overlayBackgroundClose: false,
     restoreClipboard: false,
     commands: [],
     clientLog: null,
@@ -132,13 +147,13 @@ export const defaultConfigMock = (overrides: Partial<Config> = {}) => {
     accountName: "TestAccount",
     stashScroll: false,
     language: "en", // Default language
+    game: "poe2",
     theme: "default",
     preferredTradeSite: "default",
     realm: "pc-ggg",
     widgets: [],
     fontSize: 12,
     showAttachNotification: true,
-    overlayAlwaysClose: false,
     enableAlphas: false,
     alphas: [],
     tipsFrequency: TipsFrequency.Always,
@@ -153,6 +168,5 @@ export const defaultConfigMock = (overrides: Partial<Config> = {}) => {
 // Consolidate setup
 export const setupTests = (configOverrides: Partial<Config> = {}) => {
   defaultConfigMock(configOverrides); // Pass overrides here
-  setupClientStringLoaderMock();
   setupFetchMock();
 };

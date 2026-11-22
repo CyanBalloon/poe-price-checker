@@ -39,7 +39,7 @@ export interface FiltersCreationContext {
 export function createExactStatFilters(
   item: ParsedItem,
   statsByType: StatCalculated[],
-  opts: { searchStatRange: number; defaultAllSelected: boolean },
+  opts: { searchStatRange: number; defaultAllSelected: boolean; includeSourceModifiers?: boolean },
 ): StatFilter[] {
   performance.mark("create-exact-filters-start");
   if (item.mapBlighted || item.category === ItemCategory.Invitation) return [];
@@ -81,7 +81,7 @@ export function createExactStatFilters(
     keepByType.push(ModifierType.Explicit);
   }
 
-  if (item.category === ItemCategory.Flask) {
+  if (item.category === ItemCategory.Flask || opts.includeSourceModifiers) {
     keepByType.push(ModifierType.Crafted);
   }
   let searchInRange = Math.min(2, opts.searchStatRange);
@@ -121,6 +121,13 @@ export function createExactStatFilters(
     // show all mods for exact
     filter.hidden = undefined;
 
+    if (item.category !== ItemCategory.Flask && filter.sources.length &&
+        filter.sources.every(source => source.modifier.info.type === ModifierType.Crafted)) {
+      // Keep removable crafts optional when searching for a crafting base.
+      filter.disabled = true;
+      continue;
+    }
+
     // skip these
     if (
       // Should select only fractured explicit
@@ -154,6 +161,7 @@ export function createExactStatFilters(
   // fractured but no mods are actually fractured
   // game bug associated with this is fixed, nearly no cost to keeping this though
   if (
+    !opts.includeSourceModifiers &&
     ctx.item.isFractured &&
     !ctx.filters.some((f) => f.tag === FilterTag.Fractured)
   ) {
@@ -215,6 +223,7 @@ export function initUiModFilters(
   opts: {
     searchStatRange: number;
     defaultAllSelected: boolean;
+    includeSourceModifiers?: boolean;
   },
 ): StatFilter[] {
   performance.mark("create-ui-filters-start");
@@ -225,7 +234,7 @@ export function initUiModFilters(
       item.rarity === ItemRarity.Normal ? 100 : opts.searchStatRange,
     statsByType: item.statsByType.map((calc) => {
       if (
-        (calc.type === ModifierType.Fractured ||
+        ((calc.type === ModifierType.Fractured && !opts.includeSourceModifiers) ||
           calc.type === ModifierType.Desecrated) &&
         calc.stat.trade.ids[ModifierType.Explicit]
       ) {
@@ -236,6 +245,7 @@ export function initUiModFilters(
     }),
   };
 
+  const individualStats = ctx.statsByType;
   if (item.info.refName !== "Split Personality") {
     filterItemProp(ctx);
     // TODO: see if there are other options here, don't want to include trade site uniques with random augments
@@ -246,6 +256,11 @@ export function initUiModFilters(
       filterBasePercentile(ctx);
     }
   }
+
+  // The property and pseudo builders consume their component stats.
+  const consumedStats = opts.includeSourceModifiers
+    ? individualStats.filter(stat => !ctx.statsByType.includes(stat))
+    : [];
 
   if (itemIsModifiable(item)) {
     ctx.statsByType = ctx.statsByType.filter(
@@ -280,10 +295,20 @@ export function initUiModFilters(
     });
   }
 
-  finalFilterTweaks(ctx);
+  finalFilterTweaks(ctx, opts.includeSourceModifiers);
 
   if (opts.defaultAllSelected) {
     enableAllFilters(ctx.filters);
+  }
+
+  const usedIds = new Set(ctx.filters.flatMap(filter => filter.tradeId));
+  for (const stat of consumedStats) {
+    const filter = calculatedStatToFilter(stat, ctx.searchInRange, item);
+    if (!filter.tradeId.length || filter.tradeId.some(id => usedIds.has(id))) continue;
+    // Offer the exact affix alongside its total without narrowing the initial search.
+    filter.disabled = true;
+    ctx.filters.push(filter);
+    for (const id of filter.tradeId) usedIds.add(id);
   }
 
   return ctx.filters;
@@ -458,7 +483,7 @@ function getTradeIds(
 ): TradeIdsResult {
   const ids = stat.stat.trade.ids[
     type === ModifierType.AddedAugment ? ModifierType.Augment : type
-  ] ?? [];
+  ] ?? (type === ModifierType.Fractured ? stat.stat.trade.ids.explicit : undefined) ?? [];
 
   if (ids.length > 1) {
     // Find which ID is the variant and which is the base
@@ -492,7 +517,8 @@ export function calculatedStatToFilter(
 
   const nonAugmentSources = sources.filter(s => s.modifier.info.type !== ModifierType.Augment && s.modifier.info.type !== ModifierType.AddedAugment);
 
-  if (nonAugmentSources.length > 1 && stat.trade.ids[ModifierType.Pseudo]) {
+  if (nonAugmentSources.length > 1 && stat.trade.ids[ModifierType.Pseudo] &&
+      !([ModifierType.Crafted, ModifierType.Fractured].includes(type) && stat.trade.ids[type]?.length)) {
     type = ModifierType.Pseudo;
   }
 
@@ -776,7 +802,7 @@ function filterAdjustmentForNegate(roll: NonNullable<StatFilter["roll"]>) {
   roll.max = typeof swap.min === "number" ? -1 * swap.min : undefined;
 }
 
-export function finalFilterTweaks(ctx: FiltersCreationContext) {
+export function finalFilterTweaks(ctx: FiltersCreationContext, includeSourceModifiers = false) {
   const { item } = ctx;
 
   if (
@@ -831,7 +857,7 @@ export function finalFilterTweaks(ctx: FiltersCreationContext) {
 
   for (const filter of ctx.filters) {
     if (
-      filter.tag === FilterTag.Fractured ||
+      (filter.tag === FilterTag.Fractured && !includeSourceModifiers) ||
       filter.tag === FilterTag.Desecrated
     ) {
       const mod = ctx.item.statsByType.find(
@@ -854,7 +880,9 @@ export function finalFilterTweaks(ctx: FiltersCreationContext) {
         filter.tag !== FilterTag.Desecrated
       ) {
         filter.disabled = true;
-        filter.hidden = "filters.hide_for_map";
+        if (!includeSourceModifiers || filter.tag !== FilterTag.Fractured) {
+          filter.hidden = "filters.hide_for_map";
+        }
       }
     }
   }

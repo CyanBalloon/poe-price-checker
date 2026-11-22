@@ -1,29 +1,21 @@
 <template>
-  <div
-    v-if="show"
-    class="p-2 border-dashed border border-gray-600 rounded mt-2"
-  >
-    <div class="flex text-gray-400 leading-none">
-      <div class="w-1/2">
-        {{ t("trade_result.you_have") }} <span class="font-sans">×</span>
-        {{ value.have.amount }}
-        <i class="fas fa-arrow-right text-gray-600 px-1 text-xs"></i>
-        {{ value.have.price }}
-      </div>
-      <div class="w-1/2 pl-2" v-if="value.oneStack">
-        {{ t("trade_result.stack") }} <span class="font-sans">×</span>
-        {{ value.oneStack.amount }}
-        <i class="fas fa-arrow-right text-gray-600 px-1 text-xs"></i>
-        {{ value.oneStack.price }}
-      </div>
+  <dl v-if="show" class="stack-estimates">
+    <div>
+      <dt>{{ t("trade_result.you_have") }} · {{ value.have.amount }}</dt>
+      <dd>{{ value.have.price.primary }}<small v-if="value.have.price.chaos">≈ {{ value.have.price.chaos }}</small></dd>
     </div>
-  </div>
+    <div v-if="value.oneStack">
+      <dt>{{ t("trade_result.stack") }} · {{ value.oneStack.amount }}</dt>
+      <dd>{{ value.oneStack.price.primary }}<small v-if="value.oneStack.price.chaos">≈ {{ value.oneStack.price.chaos }}</small></dd>
+    </div>
+  </dl>
 </template>
 
 <script lang="ts">
 import { defineComponent, PropType, computed } from "vue";
+import { AppConfig } from "@/web/Config";
 import { useI18n } from "vue-i18n";
-import { usePoeninja, displayRounding } from "@/web/background/Prices";
+import { usePoeninja, displayRounding, formatChaosOrDivineAmount } from "@/web/background/Prices";
 import { getDetailsId } from "../trends/getDetailsId";
 import { ParsedItem, ItemCategory } from "@/parser";
 import { ItemFilters } from "../filters/interfaces";
@@ -40,7 +32,7 @@ export default defineComponent({
     },
   },
   setup(props) {
-    const { findPriceByQuery, autoCurrency } = usePoeninja();
+    const { findPriceByQuery, autoCurrency, displayPrice } = usePoeninja();
 
     function getPriceFor(n: number) {
       const one = findPriceByQuery(getDetailsId(props.item)!)!;
@@ -48,10 +40,15 @@ export default defineComponent({
       const price = autoCurrency(
         n * one.primaryValue,
         isCurrency,
-        isCurrency ? "exalted" : undefined,
+        isCurrency && AppConfig().game === "poe2" ? "exalted" : undefined,
       );
 
-      return `${displayRounding(price.min)} ${price.currency}`;
+      const { primary, chaosEquivalent } = displayPrice(price);
+      const amount = AppConfig().game === "poe1" ? formatChaosOrDivineAmount(primary.min) : displayRounding(primary.min);
+      return {
+        primary: amount + " " + primary.currency,
+        chaos: chaosEquivalent && formatChaosOrDivineAmount(chaosEquivalent.min) + " chaos",
+      };
     }
 
     const { t } = useI18n();
@@ -63,10 +60,11 @@ export default defineComponent({
         return Boolean(props.filters.stackSize && id && findPriceByQuery(id));
       }),
       value: computed(() => {
+        const owned = props.item.stackSize?.value ?? props.filters.stackSize!.value;
         return {
           have: {
-            amount: props.filters.stackSize!.value,
-            price: getPriceFor(props.filters.stackSize!.value),
+            amount: owned,
+            price: getPriceFor(owned),
           },
           oneStack: props.item.stackSize
             ? {
@@ -80,3 +78,29 @@ export default defineComponent({
   },
 });
 </script>
+
+<style scoped>
+.stack-estimates small { display: block; color: var(--muted); font-weight: 400; }
+.stack-estimates {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+  margin-top: 0.65rem;
+}
+
+.stack-estimates > div {
+  min-width: 5rem;
+}
+
+.stack-estimates dt {
+  color: var(--quiet);
+  font-size: 0.7rem;
+}
+
+.stack-estimates dd {
+  margin-top: 0.1rem;
+  color: var(--ink);
+  font-size: 0.79rem;
+  font-variant-numeric: tabular-nums;
+}
+</style>

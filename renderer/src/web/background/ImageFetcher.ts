@@ -1,4 +1,8 @@
+import { itemIconKey, legacyItemIcon } from "@ipc/item-icons";
 import { Host } from "./IPC";
+import { AppConfig } from "@/web/Config";
+import type { GameVersion } from "@ipc/types";
+import { getTradeEndpointPath } from "@/web/price-check/trade/common";
 
 const CACHE_KEY = "exchanged-dynamic-icons";
 let cache: Record<string, string> = {};
@@ -20,6 +24,8 @@ try {
 }
 
 interface FetchRequest {
+  key: string;
+  game: GameVersion;
   itemName: string;
   namespace: string;
   resolve: (url: string | null) => void;
@@ -33,13 +39,14 @@ function saveCache() {
 }
 
 export async function getDynamicIcon(itemName: string, namespace: string): Promise<string | null> {
-  if (cache[itemName]) {
-    return cache[itemName] === "404" ? null : cache[itemName];
-  }
+  const { game } = AppConfig();
+  const key = itemIconKey(game, namespace, itemName);
+  const cached = cache[key] ?? legacyItemIcon(cache[itemName], game);
+  if (cached) return cached === "404" ? null : cached;
 
   return new Promise((resolve) => {
     // Avoid duplicate queue entries
-    const existing = queue.find(q => q.itemName === itemName);
+    const existing = queue.find((request) => request.key === key);
     if (existing) {
       const oldResolve = existing.resolve;
       existing.resolve = (url) => {
@@ -47,7 +54,7 @@ export async function getDynamicIcon(itemName: string, namespace: string): Promi
         resolve(url);
       };
     } else {
-      queue.push({ itemName, namespace, resolve });
+      queue.push({ key, game, itemName, namespace, resolve });
       processQueue();
     }
   });
@@ -61,20 +68,20 @@ async function processQueue() {
     const req = queue.shift()!;
     
     // Check if another request fetched it while it was in queue
-    if (cache[req.itemName]) {
-      req.resolve(cache[req.itemName] === "404" ? null : cache[req.itemName]);
+    if (cache[req.key]) {
+      req.resolve(cache[req.key] === "404" ? null : cache[req.key]);
       continue;
     }
 
     try {
-      const url = await fetchIconFromTradeApi(req.itemName, req.namespace);
+      const url = await fetchIconFromTradeApi(req);
       if (url) {
-        cache[req.itemName] = url;
+        cache[req.key] = url;
         saveCache();
         req.resolve(url);
       } else {
         // Cache misses as "404" so we don't spam the API for impossible items
-        cache[req.itemName] = "404";
+        cache[req.key] = "404";
         // Do NOT saveCache() for 404s, so it tries again on next app start
         req.resolve(null);
       }
@@ -92,7 +99,8 @@ async function processQueue() {
   isProcessing = false;
 }
 
-async function fetchIconFromTradeApi(itemName: string, namespace: string): Promise<string | null> {
+async function fetchIconFromTradeApi({ game, itemName, namespace }: FetchRequest): Promise<string | null> {
+  const tradeApi = "www.pathofexile.com/api/" + getTradeEndpointPath(game);
   const query: Record<string, unknown> = {
     status: { option: "any" },
     stats: [{ type: "and", filters: [] }]
@@ -109,7 +117,7 @@ async function fetchIconFromTradeApi(itemName: string, namespace: string): Promi
     sort: { price: "asc" }
   };
 
-  const searchRes = await Host.proxy("www.pathofexile.com/api/trade2/search/poe2/Standard", {
+  const searchRes = await Host.proxy(`${tradeApi}/search/${game === "poe1" ? "" : "poe2/"}Standard`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -132,10 +140,10 @@ async function fetchIconFromTradeApi(itemName: string, namespace: string): Promi
     return null;
   }
 
-  const fetchId = searchData.result[0];
+  const fetchIds = searchData.result.slice(0, 5).join(",");
   const queryId = searchData.id;
 
-  const fetchRes = await Host.proxy(`www.pathofexile.com/api/trade2/fetch/${fetchId}?query=${queryId}`, {
+  const fetchRes = await Host.proxy(`${tradeApi}/fetch/${fetchIds}?query=${queryId}`, {
     method: "GET",
     headers: {
       "User-Agent": "Poe2PriceChecker/1.0"
@@ -145,6 +153,21 @@ async function fetchIconFromTradeApi(itemName: string, namespace: string): Promi
   if (!fetchRes.ok) return null;
 
   const fetchData = await fetchRes.json();
-  const itemData = fetchData.result?.[0]?.item;
-  return itemData?.icon || null;
+  for (const result of fetchData.result ?? []) {
+    const icon = matchingTradeIcon(result.item, namespace, [itemName]);
+    if (icon) return icon;
+  }
+  return null;
+}
+
+export function matchingTradeIcon(
+  item: { icon?: string; name?: string; baseType?: string; typeLine?: string; frameType?: number } | undefined,
+  namespace: string,
+  names: string[],
+) {
+  if (!item?.icon || item.icon === "%NOT_FOUND%") return;
+  const unique = namespace === "UNIQUE";
+  if (!unique && item.frameType === 3) return;
+  const candidates = unique ? [item.name] : [item.baseType, item.typeLine];
+  if (candidates.some(name => name && names.includes(name))) return item.icon;
 }

@@ -1,151 +1,94 @@
 <template>
-  <div class="flex-1 flex flex-col w-full h-full bg-transparent overflow-y-auto custom-scrollbar p-8">
-    <div class="w-full flex flex-col gap-8 mt-2 mb-16">
-      
-      <!-- Hero Header -->
-      <div class="text-center flex flex-col items-center select-none">
-        <h1 class="text-3xl font-black tracking-widest uppercase text-transparent bg-clip-text bg-gradient-to-r from-violet-400 to-indigo-400 mb-2 drop-shadow-sm">Item Search</h1>
-        <p class="text-gray-500 text-sm">Search the compendium of Wraeclast for any base item, unique, or gem.</p>
-      </div>
-      
-      <!-- Standalone Starred Items -->
-      <transition-group
-        v-if="starred.length"
-        tag="div"
-        :enter-active-class="$style.starredItemEnter"
-        class="flex flex-wrap justify-center gap-4 animate-fade-in"
-      >
-        <div
-          v-for="item in starred"
-          :key="item.info.refName + (item.discr || '')"
-          class="flex items-center gap-5 bg-[#0d0e12]/80 border border-[#191b22] hover:border-violet-500/40 rounded-3xl p-5 shadow-2xl w-[28rem] backdrop-blur-md relative overflow-hidden transition-all duration-300"
-        >
-          <!-- Left side (clickable: opens ninja Url if available) -->
-          <div 
-            @click="starredItemClick($event, item)"
-            class="flex items-center gap-4 flex-1 min-w-0"
-            :class="{ 'cursor-pointer group': item.ninjaUrl }"
-          >
-            <div class="w-16 h-16 flex items-center justify-center bg-[#07080a] border border-[#202334] rounded-2xl shrink-0 overflow-hidden group-hover:border-violet-500/40 transition-colors shadow-inner">
-              <UiItemImg
-                :icon="item.info.icon || '%NOT_FOUND%'"
-                :item-name="item.info.name"
-                :namespace="item.info.namespace"
-                class="max-w-[75%] max-h-[75%] object-contain drop-shadow-lg transform group-hover:scale-110 transition-transform"
-              />
-            </div>
-            <div class="flex flex-col text-left min-w-0 flex-1 justify-center gap-1">
-              <div class="text-sm font-bold truncate" :class="isUnique(item) ? 'text-orange-300' : 'text-gray-200'">{{ item.info.name }}</div>
-              <div class="flex items-center flex-wrap gap-2 mt-0.5">
-                <span v-if="item.price" class="text-xs font-semibold text-teal-400 bg-teal-400/10 px-2 py-0.5 rounded border border-teal-400/20 truncate">{{ formatPrice(item.price) }}</span>
-                <span v-if="item.price && item.price.currency === 'div' && exaltedRate" class="flex items-center gap-1 text-xs font-semibold text-violet-400 bg-violet-400/10 px-2 py-0.5 rounded border border-violet-400/20 truncate">
-                  {{ Math.round(item.price.min * exaltedRate) }} <img src="/images/exa.png" class="w-3.5 h-3.5 inline-block opacity-90" />
-                </span>
-                <span class="text-xs text-gray-500 truncate">{{ item.discr ? t(item.discr) : item.info.namespace === 'GEM' ? 'Skill Gem' : isUnique(item) ? 'Unique' : 'Base Item' }}</span>
-              </div>
-            </div>
-          </div>
+  <div class="item-search">
+    <header class="view-heading">
+      <h1>Item Search</h1>
+    </header>
 
-          <!-- Right side: Actions -->
-          <div class="flex items-center gap-2 shrink-0">
-            <!-- Price Check exact rolls / Switch to price-check tab -->
-            <button
-              v-if="isUnique(item)"
-              @click="triggerPriceCheck(item)"
-              class="px-3 py-2 bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 border border-violet-500/30 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-md shadow-violet-950/40 hover:shadow-[0_0_15px_rgba(139,92,246,0.4)] transition-all duration-300"
-              title="Check price with exact mods values"
-            >
-              <i class="fas fa-search-dollar"></i>
-              <span>{{ item.rawItem ? 'Check Rolls' : 'Check' }}</span>
+    <label class="item-search-field">
+      <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+      <input
+        v-model="searchValue"
+        type="search"
+        placeholder="Search items by name"
+        aria-label="Search items by name"
+        autocomplete="off"
+        spellcheck="false"
+      />
+    </label>
+
+    <section v-if="starred.length" class="item-search-section" aria-labelledby="selected-items-title">
+      <header class="item-search-section-header">
+        <h2 id="selected-items-title">Selected items</h2>
+        <button type="button" class="ui-button" @click="clearSelectedItems">Clear</button>
+      </header>
+      <div class="item-search-list">
+        <div v-for="item in starred" :key="item.info.refName + (item.discr || '')" class="item-search-row">
+          <div class="item-search-art">
+            <ui-item-img :icon="item.info.icon || '%NOT_FOUND%'" :item-name="item.info.refName" :namespace="item.info.namespace" />
+          </div>
+          <div class="item-search-copy">
+            <strong :class="{ 'item-search-unique': isUnique(item) }">{{ item.info.name }}</strong>
+            <small>{{ item.discr ? t(item.discr) : itemKind(item.info) }}</small>
+          </div>
+          <div class="item-search-price">
+            <strong v-if="item.display" class="ui-value">{{ formatPrice(item.display.primary) }}</strong>
+            <small v-else>No estimate</small>
+            <small v-if="item.display?.chaosEquivalent">≈ {{ formatPrice(item.display.chaosEquivalent) }}</small>
+            <small v-if="item.price?.currency === 'div' && AppConfig().game === 'poe2' && exaltedRate">{{ Math.round(item.price.min * exaltedRate) }} ex</small>
+          </div>
+          <div class="item-search-actions">
+            <button v-if="isUnique(item) && (item.rawItem || item.info.unique)" class="ui-button" type="button" @click="triggerPriceCheck(item)">
+              {{ item.rawItem ? 'Check rolls' : 'Check listings' }}
             </button>
-
-            <!-- Ninja external link icon -->
-            <div 
-              v-if="item.ninjaUrl" 
-              @click="starredItemClick($event, item)"
-              class="cursor-pointer flex items-center justify-center w-8 h-8 rounded-xl bg-[#151722] hover:bg-violet-600 border border-[#202334] hover:border-violet-500 transition-colors shadow-sm text-gray-400 hover:text-white"
-              title="Open on poe.ninja"
-            >
-              <i class="fas fa-external-link-alt text-[10px]"></i>
-            </div>
-          </div>
-        </div>
-      </transition-group>
-
-      <!-- Search Section -->
-      <div class="flex flex-col w-full flex-1">
-        
-        <!-- Search Bar -->
-        <div class="flex items-center gap-4 py-4">
-          <div class="relative flex-1">
-            <i class="fas fa-search absolute left-5 top-1/2 -translate-y-1/2 text-violet-400 text-lg"></i>
-            <input
-              type="text"
-              :placeholder="t(':input')"
-              class="w-full bg-[#151722] border border-[#202334] rounded-2xl pl-14 pr-4 py-4 text-base text-gray-200 placeholder-gray-500 focus:outline-none focus:border-violet-500/60 focus:shadow-[0_0_20px_rgba(139,92,246,0.15)] transition-all"
-              v-model="searchValue"
-              autofocus
-            />
-          </div>
-          <button @click="clearSelectedItems" class="px-5 py-4 bg-[#151722] hover:bg-[#1a1c2a] border border-[#202334] rounded-2xl text-xs font-bold uppercase tracking-wider text-gray-400 hover:text-red-400 transition-colors flex items-center gap-2">
-            <i class="fas fa-times text-sm" /> {{ t(":reset") }}
-          </button>
-        </div>
-
-
-
-        <!-- Results Grid -->
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 py-4 min-h-[20rem]">
-          <div v-for="item in results || []" :key="item.name" class="group">
-            <div class="flex items-center p-3 bg-[#0d0e12]/50 hover:bg-[#151722] border border-[#191b22] hover:border-violet-500/40 rounded-2xl transition-all cursor-pointer shadow-sm hover:shadow-lg" @click="selectItem(item, { unique: item.unique ? true : undefined })">
-              <div class="w-14 h-14 flex items-center justify-center bg-[#07080a] border border-[#191b22] rounded-xl shrink-0 overflow-hidden shadow-inner group-hover:border-violet-500/30 transition-colors">
-                <UiItemImg
-                  :icon="item.icon || '%NOT_FOUND%'"
-                  :item-name="item.name"
-                  :namespace="item.namespace"
-                  class="max-w-[75%] max-h-[75%] object-contain drop-shadow-md"
-                />
-              </div>
-              <div class="flex flex-col ml-4 flex-1 min-w-0">
-                <div class="text-base font-semibold text-gray-200 truncate" :class="{ 'text-orange-300': item.unique, 'text-teal-300': item.namespace === 'GEM' }">
-                  {{ item.name }}
-                </div>
-                <div v-if="item.unique" class="text-xs text-gray-500 truncate mt-0.5">
-                  {{ item.unique.base }}
-                </div>
-              </div>
-              <button 
-                class="ml-3 px-5 py-2 bg-violet-600/10 hover:bg-violet-600 text-violet-400 hover:text-white rounded-xl text-sm font-bold opacity-0 group-hover:opacity-100 transition-all border border-violet-500/20 hover:border-violet-500 shadow-md"
-              >
-                {{ t("Select") }}
-              </button>
-            </div>
-          </div>
-          
-          <!-- Empty States -->
-          <div v-if="results === false" class="col-span-full flex flex-col items-center justify-center py-16 text-center text-gray-500">
-            <div class="w-16 h-16 rounded-full bg-[#151722] border border-[#202334] flex items-center justify-center mb-4">
-              <i class="fas fa-search text-gray-400 text-2xl"></i>
-            </div>
-            <span class="text-sm font-medium">{{ t(":too_many_") }}</span>
-          </div>
-          <div v-else-if="!results.length" class="col-span-full flex flex-col items-center justify-center py-16 text-center text-gray-500">
-            <div class="w-16 h-16 rounded-full bg-red-500/10 border border-red-500/20 flex items-center justify-center mb-4">
-              <i class="fas fa-exclamation-triangle text-red-400/80 text-2xl"></i>
-            </div>
-            <span class="text-sm font-medium">{{ t(":not_found") }}</span>
+            <a v-if="item.ninjaUrl" :href="item.ninjaUrl" target="_blank" rel="noopener noreferrer" class="ui-icon-button" aria-label="Open on poe.ninja" title="Open on poe.ninja">
+              <i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i>
+            </a>
           </div>
         </div>
       </div>
+    </section>
+
+    <section v-if="results && results.length" class="item-search-section" aria-labelledby="search-matches-title">
+      <header class="item-search-section-header">
+        <h2 id="search-matches-title">Matches</h2>
+      </header>
+      <div class="item-search-matches">
+        <button
+          v-for="item in results"
+          :key="item.namespace + ':' + item.refName"
+          type="button"
+          class="item-search-row"
+          @click="selectItem(item, { unique: item.unique ? true : undefined })"
+        >
+          <span class="item-search-art">
+            <ui-item-img :icon="item.icon || '%NOT_FOUND%'" :item-name="item.refName" :namespace="item.namespace" />
+          </span>
+          <span class="item-search-copy">
+            <strong :class="{ 'item-search-unique': item.unique }">{{ item.name }}</strong>
+            <small>{{ item.unique?.base || itemKind(item) }}</small>
+          </span>
+          <i class="fa-solid fa-plus" aria-hidden="true"></i>
+        </button>
+      </div>
+    </section>
+
+    <div v-else-if="searchValue.trim() || !starred.length" class="ui-empty item-search-empty" role="status">
+      <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+      <p v-if="isMarketLoading">Loading market data…</p>
+      <p v-else-if="searchValue.trim().length < 3">Type at least three characters to search.</p>
+      <p v-else>No matching items.</p>
     </div>
   </div>
 </template>
 
 <script lang="ts">
+import { getDetailsId } from "@/web/price-check/trends/getDetailsId";
 import { ref } from "vue";
+import type { GameVersion } from "@ipc/types";
 import { distance } from "fastest-levenshtein";
 import {
   BaseType,
+  ITEM_BY_REF,
   ITEM_BY_TRANSLATED,
   CLIENT_STRINGS as _$,
   GEM_NS_NAMES,
@@ -187,7 +130,11 @@ interface SelectedItem {
 }
 
 function useSelectedItems() {
-  const items = ref<SelectedItem[]>([]);
+  const byGame = ref<Record<GameVersion, SelectedItem[]>>({ poe1: [], poe2: [] });
+  const items = computed({
+    get: () => byGame.value[AppConfig().game],
+    set: (value) => { byGame.value[AppConfig().game] = value; },
+  });
 
   function addItem(newItem: SelectedItem) {
     if (
@@ -251,10 +198,11 @@ function fuzzyFindHeistGem(badStr: string) {
 <script setup lang="ts">
 import { shallowRef, computed, nextTick, onMounted, onUnmounted } from "vue";
 import { useI18nNs } from "@/web/i18n";
-import { usePoeninja } from "@/web/background/Prices";
+import { usePoeninja, formatChaosOrDivineAmount } from "@/web/background/Prices";
 import { Host } from "@/web/background/IPC";
 import { ItemRarity } from "@/parser/ParsedItem";
 import { ParsedItem } from "@/parser";
+import { AppConfig } from "@/web/Config";
 
 import UiItemImg from "@/web/ui/UiItemImg.vue";
 
@@ -263,7 +211,7 @@ const props = defineProps<{
 }>();
 
 const { t } = useI18nNs("item_search");
-const { findPriceByQuery, autoCurrency, queuePricesFetch, exaltedRate } = usePoeninja();
+const { findPriceByQuery, autoCurrency, displayPrice, queuePricesFetch, exaltedRate, searchNinjaItems, isLoading: isMarketLoading } = usePoeninja();
 
 const showTimeout = shallowRef<{ reset: () => void } | null>(null);
 
@@ -272,7 +220,11 @@ nextTick(() => {
 });
 
 const searchValue = shallowRef("");
-const { items: starred, addItem, clearItems } = useSelectedItems();
+const { items, addItem, clearItems } = useSelectedItems();
+const starred = computed(() => items.value.map(item => ({
+  ...item,
+  display: item.price ? displayPrice(item.price) : undefined,
+})));
 
 function isUnique(item: SelectedItem) {
   const ns = item.info.namespace;
@@ -284,8 +236,14 @@ function triggerPriceCheck(item: SelectedItem) {
   if (item.rawItem) {
     clipboardText = item.rawItem.rawText;
   } else {
-    // Construct a mock unique item text so the parser recognizes it
-    clipboardText = `Rarity: Unique\n${item.info.name}\n${item.info.unique?.base || item.info.refName}`;
+    const base = item.info.unique && ITEM_BY_REF("ITEM", item.info.unique.base)?.[0];
+    if (!base) return;
+    clipboardText = [
+      _$.ITEM_CLASS + (base.craftable?.category ?? "Equipment"),
+      _$.RARITY + _$.RARITY_UNIQUE,
+      item.info.name,
+      base.name,
+    ].join("\n");
   }
 
   Host.selfDispatch({
@@ -321,7 +279,15 @@ function selectItem(
   queuePricesFetch();
 
   let price: ReturnType<typeof findPriceByQuery>;
-  if (opts?.unique) {
+  if (opts?.rawItem && AppConfig().game === "poe1") {
+    const details = getDetailsId(opts.rawItem);
+    price = details ? findPriceByQuery(details) : null;
+  } else if (AppConfig().game === "poe1") {
+    const match = searchNinjaItems(item.refName).find((entry) =>
+      entry.name === item.refName && entry.ns === item.namespace,
+    );
+    price = findPriceByQuery(match ?? { ns: item.namespace, name: item.refName });
+  } else if (opts?.unique) {
     price = findPriceByQuery({
       ns: item.namespace,
       name: item.refName,
@@ -346,10 +312,9 @@ function selectItem(
   }
   searchValue.value = "";
 }
-const { searchNinjaItems } = usePoeninja();
 
 const results = computed(() => {
-  const ninjaResults = searchNinjaItems(searchValue.value);
+  const ninjaResults = searchNinjaItems(searchValue.value.trim());
   if (ninjaResults.length === 0 && searchValue.value.length >= 3) return [];
   if (ninjaResults.length === 0) return false;
 
@@ -358,22 +323,17 @@ const results = computed(() => {
     if (localNs === "SkillGem") localNs = "GEM";
     if (localNs === "UniqueWeapon" || localNs === "UniqueArmour" || localNs === "UniqueAccessory" || localNs === "UniqueFlask" || localNs === "UniqueJewel") localNs = "UNIQUE";
     
-    let localMatches = ITEM_BY_TRANSLATED(localNs as BaseType["namespace"], res.name);
+    let localMatches = ITEM_BY_REF(localNs as BaseType["namespace"], res.name);
     if (!localMatches || localMatches.length === 0) {
       localMatches = ITEM_BY_TRANSLATED("ITEM", res.name);
     }
     const localItem = localMatches?.[0];
-
-    if (res.name.includes("Uhtred's Rite")) {
-      console.log("[DEBUG UHTRED] res:", res, "localNs:", localNs, "localMatches length:", localMatches?.length, "localItem icon:", localItem?.icon);
-    }
-
+    if (localItem) return localItem;
     return {
       name: res.name,
       refName: res.name,
       namespace: res.ns,
-      icon: localItem?.icon || "",
-      unique: localItem?.unique,
+      icon: "",
     } as BaseType;
   });
 });
@@ -384,14 +344,17 @@ function clearSelectedItems() {
 }
 
 
-function starredItemClick(e: MouseEvent, item: SelectedItem) {
-  if (item.ninjaUrl) {
-    window.open(item.ninjaUrl, "_blank");
-  }
+function itemKind(item: BaseType) {
+  if (item.unique || item.namespace === "UNIQUE") return "Unique";
+  if (item.namespace === "GEM") return "Gem";
+  if (item.namespace === "DIVINATION_CARD") return "Divination card";
+  if (item.namespace === "CAPTURED_BEAST") return "Captured beast";
+  return item.craftable?.category || (item.tradeTag ? "Trade item" : "Base item");
 }
 
 function formatPrice(price?: CurrencyValue) {
   if (!price) return "";
+  if (price.currency === "chaos") return formatChaosOrDivineAmount(price.min) + " chaos";
   if (price.currency === "div") {
     return `${Number(price.min.toFixed(2))} div`;
   }
@@ -415,34 +378,33 @@ onMounted(() => {
 });
 </script>
 
-<style lang="postcss" module>
-@keyframes starredItemEnter {
-  0% {
-    opacity: 0;
-    transform: translateY(-5px) scale(0.95);
-  }
-  100% {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
-}
-
-.starredItemEnter {
-  animation: starredItemEnter 0.3s ease-out forwards;
-}
-
-/* Custom scrollbar for results list */
-:global(.custom-scrollbar::-webkit-scrollbar) {
-  width: 6px;
-}
-:global(.custom-scrollbar::-webkit-scrollbar-track) {
-  background: transparent;
-}
-:global(.custom-scrollbar::-webkit-scrollbar-thumb) {
-  background-color: #202334;
-  border-radius: 9999px;
-}
-:global(.custom-scrollbar::-webkit-scrollbar-thumb:hover) {
-  background-color: rgba(139, 92, 246, 0.5);
+<style scoped>
+.item-search { max-width: 66rem; margin: 0 auto; }
+.item-search-field { display: flex; align-items: center; gap: 0.8rem; padding: 0 1rem; border-radius: 0.45rem; background: var(--surface); color: var(--muted); }
+.item-search-field:focus-within { outline: 2px solid var(--accent); outline-offset: 2px; }
+.item-search-field input { min-width: 0; flex: 1; min-height: 3.15rem; background: transparent; color: var(--ink); font-size: 1rem; }
+.item-search-field input:focus-visible { outline: 0; }
+.item-search-field input::placeholder { color: var(--quiet); }
+.item-search-section { margin-top: 2rem; }
+.item-search-section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.6rem; }
+.item-search-section-header h2 { font: 500 1.5rem/1.25 var(--display); }
+.item-search-list, .item-search-matches { display: grid; min-width: 0; }
+.item-search-matches { grid-template-columns: repeat(auto-fit, minmax(min(100%, 22rem), 1fr)); gap: 0 2rem; }
+.item-search-row { display: flex; align-items: center; min-width: 0; gap: 0.8rem; padding: 0.6rem 0.4rem; text-align: left; }
+.item-search-art { display: flex; flex: none; min-width: 3.2rem; max-width: 48%; overflow: auto; }
+.item-search-art :deep(img) { margin-inline: auto; }
+.item-search-copy, .item-search-price { display: grid; min-width: 0; gap: 0.25rem; }
+.item-search-copy { flex: 1; overflow-wrap: anywhere; }
+.item-search-copy strong { color: var(--ink); font-size: 1rem; font-weight: 550; }
+.item-search-copy small, .item-search-price small { color: var(--quiet); font-size: 0.8rem; }
+.item-search-copy .item-search-unique { color: #e6ae79; }
+.item-search-price { text-align: right; font-variant-numeric: tabular-nums; }
+.item-search-actions { display: flex; align-items: center; }
+.item-search-matches button:hover { background: var(--surface); }
+.item-search-matches i { color: var(--accent); }
+.item-search-empty { min-height: 7rem; }
+@media (max-width: 42rem) {
+  .item-search-list .item-search-row { flex-wrap: wrap; }
+  .item-search-actions { margin-left: auto; }
 }
 </style>

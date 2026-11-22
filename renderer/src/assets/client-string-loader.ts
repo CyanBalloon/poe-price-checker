@@ -9,3 +9,13 @@ export async function loadClientStrings(
     )
   ).default;
 }
+
+export async function loadPoe1ClientStrings(
+  lang: string,
+): Promise<TranslationDict> {
+  return (
+    await import(
+      /* @vite-ignore */ `${import.meta.env.BASE_URL}poe1-data/${lang}/client_strings.js`
+    )
+  ).default;
+}
