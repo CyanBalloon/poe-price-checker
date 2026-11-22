@@ -1,5 +1,6 @@
 <template>
   <div :class="standalone ? 'property-list' : 'flex flex-wrap items-center gap-2 pb-3'">
+    <poe1-map-properties v-if="filters.mapRewards && !standalone" :filters="filters" />
     <filter-btn-numeric
       :standalone="standalone"
       v-if="filters.socketNumber"
@@ -14,7 +15,7 @@
     />
     <filter-btn-numeric
       :standalone="standalone"
-      v-if="filters.mapTier"
+      v-if="filters.mapTier && !filters.mapRewards"
       :filter="filters.mapTier"
       :name="t('item.map_tier')"
     />
@@ -26,7 +27,7 @@
     />
     <filter-btn-numeric
       :standalone="standalone"
-      v-if="filters.areaLevel"
+      v-if="filters.areaLevel && !filters.mapRewards"
       :filter="filters.areaLevel"
       :name="t('item.area_level')"
     />
@@ -112,7 +113,7 @@
       :filter="filters.quality"
       :name="t('item.quality')"
     />
-    <template v-if="filters.influences && isPoe1">
+    <template v-if="filters.influences && isPoe1 && !filters.mapRewards">
       <filter-btn-logical
       :standalone="standalone"
         v-for="influence of filters.influences"
@@ -184,6 +185,7 @@ import { useI18n } from "vue-i18n";
 import type { ItemFilters } from "./interfaces";
 import FilterBtnNumeric from "./FilterBtnNumeric.vue";
 import FilterBtnLogical from "./FilterBtnLogical.vue";
+import Poe1MapProperties from "./Poe1MapProperties.vue";
 
 defineProps<{ filters: ItemFilters; isPoe1: boolean; standalone?: boolean }>();
 const { t } = useI18n();

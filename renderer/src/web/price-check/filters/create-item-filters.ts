@@ -4,7 +4,8 @@ import type { ItemFilters } from "./interfaces";
 import { ParsedItem, ItemCategory, ItemRarity } from "@/parser";
 import { tradeTag } from "../trade/common";
 import { ModifierType } from "@/parser/modifiers";
-import { BaseType, ITEM_BY_REF } from "@/assets/data";
+import { BaseType, CLIENT_STRINGS, ITEM_BY_REF } from "@/assets/data";
+import { mapRewardKeys } from "@/parser/poe1-map";
 
 import { PriceCheckWidget } from "@/web/overlay/widgets";
 import { isArmourOrWeaponOrCaster } from "@/parser/Parser";
@@ -178,6 +179,13 @@ export function createFilters(
     }
     if (item.mapTier != null) {
       filters.mapTier = { value: item.mapTier, disabled: false };
+    }
+    if (poe1 && item.category === ItemCategory.Map) {
+      filters.mapRewards = mapRewardKeys.flatMap(key => {
+        const value = item.mapRewards?.[key];
+        return value == null ? [] : [{ key, label: CLIENT_STRINGS[key]!.trim(), value, disabled: value <= 0 }];
+      });
+      if (item.areaLevel != null) filters.areaLevel = { value: item.areaLevel, disabled: true };
     }
   } else if (item.info.refName === "Expedition Logbook") {
     filters.searchExact = {
@@ -441,7 +449,7 @@ export function createFilters(
   if (item.influences.length && item.influences.length <= 2) {
     filters.influences = item.influences.map((influence) => ({
       value: influence,
-      disabled: !opts.exact,
+      disabled: !opts.exact && !(poe1 && item.category === ItemCategory.Map),
     }));
   }
 

@@ -10,7 +10,11 @@
       aria-hidden="true"
     >
       <div
-        :class="[$style['socket-grid'], { [$style['linked-grid']]: isPoe1 }]"
+        :class="[$style['socket-grid'], {
+          [$style['linked-grid']]: isPoe1,
+          [$style['sprite-grid']]: isPoe1 && socketSprite,
+        }]"
+        :style="isPoe1 && socketSprite ? { '--socket-sprite': socketSprite } : undefined"
       >
         <div
           v-for="({ socket, row, column, link }, index) in socketLayout"
@@ -31,11 +35,35 @@
 </template>
 
 <script lang="ts">
-import { computed, defineComponent, type PropType } from "vue";
+import { computed, defineComponent, shallowRef, watch, type PropType } from "vue";
 import { AppConfig } from "@/web/Config";
 import type { DisplayItem } from "@/web/price-check/trade/pathofexile-trade";
 import UiItemImg from "./UiItemImg.vue";
 import { layoutItemSockets } from "./item-socket-layout";
+
+// The versioned URL is published in GGG's PoE1 item stylesheet.
+const spriteUrl = import.meta.env.VITE_POE1_SOCKET_SPRITE ||
+  "https://web.poecdn.com/protected/image/gen/socket.png?v=1795108256244&key=mf1B3nj-F9flN8KRLcBQ8A";
+const socketSprite = shallowRef("");
+let loadingSprite = false;
+let retryAfter = 0;
+
+function loadSocketSprite() {
+  if (socketSprite.value || loadingSprite || Date.now() < retryAfter) return;
+  loadingSprite = true;
+  const image = new Image();
+  const useFallback = () => {
+    loadingSprite = false;
+    retryAfter = Date.now() + 60_000;
+  };
+  image.onerror = useFallback;
+  image.onload = () => {
+    if (image.naturalWidth !== 213 || image.naturalHeight !== 175) return useFallback();
+    socketSprite.value = `url(${JSON.stringify(image.src)})`;
+    loadingSprite = false;
+  };
+  image.src = spriteUrl;
+}
 
 export default defineComponent({
   components: {
@@ -58,7 +86,10 @@ export default defineComponent({
   setup(props) {
     const isPoe1 = computed(() => AppConfig()?.game === "poe1");
     const socketLayout = computed(() => layoutItemSockets(props.sockets, props.itemWidth, isPoe1.value));
-    return { isPoe1, socketLayout };
+    watch([isPoe1, () => props.icon, () => props.sockets], ([poe1, icon, sockets]) => {
+      if (poe1 && icon && sockets.length) loadSocketSprite();
+    }, { immediate: true });
+    return { isPoe1, socketLayout, socketSprite };
   },
 });
 </script>
@@ -111,12 +142,43 @@ export default defineComponent({
   transform: translate(-50%, -50%) rotate(45deg);
 }
 
-.socket-R { --socket-color: #ce5b48; }
-.socket-G { --socket-color: #8eb851; }
-.socket-B { --socket-color: #579acb; }
-.socket-W { --socket-color: #cec8b6; }
-.socket-A { --socket-color: #62adad; }
-.socket-DV { --socket-color: #af7cd3; }
+.socket-R { --socket-color: #ce5b48; --rim-position: -140px -35px; }
+.socket-G { --socket-color: #8eb851; --rim-position: -70px -105px; }
+.socket-B { --socket-color: #579acb; --rim-position: -105px -35px; }
+.socket-W { --socket-color: #cec8b6; --rim-position: -140px -70px; }
+.socket-A { --socket-color: #62adad; --rim-position: -35px -70px; }
+.socket-DV { --socket-color: #af7cd3; --rim-position: -105px -70px; }
+
+/* Native PoE1 inventory coordinates. Each link overlays both adjacent rims. */
+.sprite-grid { --socket-pitch: 47.4645px; }
+.sprite-grid .gem-socket, .sprite-grid .socket-link {
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+  background: var(--socket-sprite) no-repeat;
+}
+.sprite-grid .gem-socket {
+  width: 35px;
+  height: 35px;
+  z-index: auto;
+  background-position: var(--rim-position, -140px -70px);
+}
+.sprite-grid .socket-link {
+  z-index: 1;
+  width: 38px;
+  height: 15px;
+  background-position: -175px 0;
+  transform: translate(-50%, -50%);
+}
+.sprite-grid .link-right { left: 100%; }
+.sprite-grid .link-left { left: 0; }
+.sprite-grid .link-down {
+  top: 100%;
+  width: 15px;
+  height: 38px;
+  background-position: -175px -15px;
+}
+.sprite-grid .socket-link::after { content: none; }
 
 .icon-container { position: relative; display: inline-grid; width: max-content; }
 .socketed-art {

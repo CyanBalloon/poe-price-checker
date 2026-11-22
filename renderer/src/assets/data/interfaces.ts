@@ -124,6 +124,16 @@ export interface TranslationDict {
   RARITY_DIVCARD: string;
   RARITY_QUEST: string;
   MAP_TIER: string | RegExp;
+  MAP_TIER_PROPERTY?: string;
+  MAP_MONSTER_LEVEL?: string;
+  MAP_ATLAS_DROPS?: string;
+  MAP_ITEM_QUANTITY?: string;
+  MAP_ITEM_RARITY?: string;
+  MAP_MONSTER_PACK_SIZE?: string;
+  MAP_MORE_MAPS?: string;
+  MAP_MORE_SCARABS?: string;
+  MAP_MORE_CURRENCY?: string;
+  MAP_MORE_DIVINATION_CARDS?: string;
   RARITY: string;
   ITEM_CLASS: string;
   ITEM_LEVEL: string;

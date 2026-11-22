@@ -1,6 +1,9 @@
 // @ts-check
 /** @type{import('../../../src/assets/data/interfaces').TranslationDict} */
 export default {
+  MAP_ATLAS_DROPS: '輿圖掉落物: ',
+  MAP_MONSTER_LEVEL: '怪物等級: ',
+  MAP_TIER_PROPERTY: '地圖階級: ',
   RARITY_NORMAL: '普通',
   RARITY_MAGIC: '魔法',
   RARITY_RARE: '稀有',

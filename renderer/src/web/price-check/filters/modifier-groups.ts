@@ -1,14 +1,16 @@
 import { ItemRarity } from "@/parser/ParsedItem";
 import { ModifierType } from "@/parser/modifiers";
 import { FilterTag, type StatFilter } from "./interfaces";
+import { isMapInfluenceId } from "@/parser/poe1-map";
 
 const groupOrder = [
-  "Pseudo stats", "Base", "Implicit", "Prefix", "Suffix", "Fractured", "Crafted", "Unique modifiers", "Explicit modifiers",
+  "Map influence", "Pseudo stats", "Base", "Implicit", "Prefix", "Suffix", "Fractured", "Crafted", "Unique modifiers", "Explicit modifiers",
   "Enchantments", "Socketed augments", "Skills", "Scourge", "Sanctum", "Necropolis",
 ] as const;
 type ModifierGroup = (typeof groupOrder)[number];
 
 function groupFor(filter: StatFilter, rarity: ItemRarity | undefined): ModifierGroup {
+  if (filter.tradeId.some(isMapInfluenceId)) return "Map influence";
   if (filter.tag === FilterTag.Property) return "Base";
   if (filter.tag === FilterTag.Pseudo) return "Pseudo stats";
 

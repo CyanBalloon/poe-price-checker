@@ -2,6 +2,7 @@ import { BaseType } from "@/assets/data";
 import type { ItemInfluence, ItemCategory } from "@/parser";
 import type { StatCalculated } from "@/parser/modifiers";
 import type { ParsedItem } from "@/parser/ParsedItem";
+import type { MapReward } from "@/parser/poe1-map";
 
 export interface FilterPreset {
   id: string;
@@ -63,6 +64,7 @@ export interface ItemFilters {
   quality?: FilterNumeric;
   gemLevel?: FilterNumeric;
   mapTier?: FilterNumeric;
+  mapRewards?: Array<FilterNumeric & { key: MapReward; label: string }>;
   mapBlighted?: {
     value: NonNullable<ParsedItem["mapBlighted"]> | false;
   };

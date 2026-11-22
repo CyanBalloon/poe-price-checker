@@ -38,6 +38,7 @@ export function apiToSatisfySearch(
   stats: StatFilter[],
   filters: ItemFilters,
 ): "trade" | "bulk" {
+  if (filters.mapRewards) return "trade";
   if (stats.some((s) => !s.disabled)) {
     return "trade";
   }

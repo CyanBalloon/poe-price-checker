@@ -17,6 +17,7 @@ import {
 } from "./stat-translations";
 import { ItemCategory } from "./meta";
 import { matchVisceraImplicit } from "./viscera";
+import { isMapInfluenceId, readMapProperties } from "./poe1-map";
 import {
   IncursionRoom,
   ParsedItem,
@@ -49,7 +50,7 @@ type SectionParseResult =
   | "PARSER_SKIPPED";
 
 type ParserFn = (section: string[], item: ParserState) => SectionParseResult;
-type VirtualParserFn = (item: ParserState) => Result<never, string> | void;
+type VirtualParserFn = (item: ParserState, sections: string[][]) => Result<never, string> | void;
 
 export interface ParserState extends ParsedItem {
   name: string;
@@ -68,6 +69,7 @@ const parsers: Array<ParserFn | { virtual: VirtualParserFn }> = [
   { virtual: normalizeName },
   parseVaalGemName,
   { virtual: findInDatabase },
+  { virtual: (item, sections) => readMapProperties(item, sections, _$) },
   // -----------
   parseItemLevel,
   parseRequirements,
@@ -138,7 +140,7 @@ export function parseClipboard(clipboard: string): Result<ParsedItem, string> {
     // and each parser can only be used to parse one section
     for (const parser of parsers) {
       if (typeof parser === "object") {
-        const error = parser.virtual(parsed.value);
+        const error = parser.virtual(parsed.value, sections);
         if (error) return error;
         continue;
       }
@@ -1133,6 +1135,10 @@ export function parseModifiersPoe2(section: string[], item: ParsedItem) {
   } else {
     for (const statLines of section) {
       let { modType, lines } = parseModType([statLines]);
+      if (modType === ModifierType.Explicit && item.category === ItemCategory.Map && _$.MAP_TIER instanceof RegExp &&
+          STAT_BY_MATCH_STR(lines[0])?.stat.trade.ids.implicit?.some(isMapInfluenceId)) {
+        modType = ModifierType.Implicit;
+      }
       if (
         modType === ModifierType.Explicit &&
         item.category === ItemCategory.Relic

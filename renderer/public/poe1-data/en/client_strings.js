@@ -1,6 +1,9 @@
 // @ts-check
 /** @type{import('../../../src/assets/data/interfaces').TranslationDict} */
 export default {
+  MAP_ATLAS_DROPS: 'Atlas Drops: ',
+  MAP_MONSTER_LEVEL: 'Monster Level: ',
+  MAP_TIER_PROPERTY: 'Map Tier: ',
   RARITY_NORMAL: 'Normal',
   RARITY_MAGIC: 'Magic',
   RARITY_RARE: 'Rare',

@@ -1,6 +1,9 @@
 // @ts-check
 /** @type{import('../../../src/assets/data/interfaces').TranslationDict} */
 export default {
+  MAP_ATLAS_DROPS: 'Награды в Атласе: ',
+  MAP_MONSTER_LEVEL: 'Уровень монстров: ',
+  MAP_TIER_PROPERTY: 'Уровень карты: ',
   RARITY_NORMAL: 'Обычный',
   RARITY_MAGIC: 'Волшебный',
   RARITY_RARE: 'Редкий',

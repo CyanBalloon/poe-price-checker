@@ -12,6 +12,8 @@ From the checkout you want to run, open a PowerShell terminal and launch:
 
 The launcher installs missing dependencies, generates the item indexes, and starts Electron with this checkout’s Vite server. Each checkout uses its own development profile in `main/dist/dev-profile`. Press Ctrl+C in the terminal to end the session.
 
+The first socketed PoE1 preview loads the 213 × 175 socket sheet directly from GGG’s CDN. The installer includes only the URL. If the sheet is unavailable or its dimensions change, the preview draws the sockets and links locally. To test with a local sheet, place it at `renderer/local-art/poe1-sockets.png` and set `VITE_POE1_SOCKET_SPRITE=/local-art/poe1-sockets.png` in `renderer/.env.development.local`.
+
 ## Build the Windows release
 
 ```powershell

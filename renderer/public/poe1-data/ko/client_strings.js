@@ -1,6 +1,9 @@
 // @ts-check
 /** @type{import('../../../src/assets/data/interfaces').TranslationDict} */
 export default {
+  MAP_ATLAS_DROPS: '아틀라스 획득물: ',
+  MAP_MONSTER_LEVEL: '몬스터 레벨: ',
+  MAP_TIER_PROPERTY: '지도 등급: ',
   RARITY_NORMAL: '일반',
   RARITY_MAGIC: '마법',
   RARITY_RARE: '희귀',

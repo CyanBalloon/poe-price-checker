@@ -14,6 +14,7 @@ import { loadPoe1Prices, poe1PriceKey } from "@/web/background/Poe1Prices";
 import { createFilters } from "@/web/price-check/filters/create-item-filters";
 import { createExactStatFilters, initUiModFilters } from "@/web/price-check/filters/create-stat-filters";
 import { groupModifierFilters } from "@/web/price-check/filters/modifier-groups";
+import { createPresets } from "@/web/price-check/filters/create-presets";
 import { createTradeRequest, requestTradeResultList } from "@/web/price-check/trade/pathofexile-trade";
 import { RateLimiter } from "@/web/price-check/trade/RateLimiter";
 import { apiToSatisfySearch } from "@/web/price-check/trade/common";
@@ -405,6 +406,106 @@ describe("POE1 Parser", () => {
       map_tier: { min: 16, max: 16 },
       map_blighted: { option: "false" },
     });
+  });
+
+  it("prices a Tier 16 Planar Challenge by its rewards and influence, with optional affixes", () => {
+    const item = parseClipboard([
+      "Item Class: Maps", "Rarity: Rare", "Planar Challenge", "Map (Tier 16)", "--------",
+      "Monster Level: 83", "Atlas Drops: +84% (augmented)", "Item Rarity: +51% (augmented)",
+      "Monster Pack Size: +32% (augmented)", "More Maps: +35% (augmented)", "--------",
+      "Item Level: 83", "--------", "{ Implicit Modifier }",
+      "Area is Influenced by the Originator's Memories", "--------",
+      '{ Prefix Modifier "Abundant" (Tier: 1) }', "41% increased number of Rare Monsters",
+      '{ Suffix Modifier "of Frenzy" (Tier: 1) }', "Monsters have +1 to Maximum Frenzy Charges",
+    ].join("\r\n"))._unsafeUnwrap();
+    const { presets: [preset] } = createPresets(item, { ...options, searchStatRange: 10, defaultAllSelected: false });
+    expect(item).toMatchObject({ mapTier: 16, areaLevel: 83, itemLevel: 83 });
+    expect(item.unknownModifiers).toEqual([]);
+    expect(apiToSatisfySearch(item, preset.stats, preset.filters)).toBe("trade");
+    expect(exchangeItem(item)).toBeUndefined();
+    const groups = groupModifierFilters(preset.stats, item.rarity);
+    expect(groups.map(group => group.label)).toEqual(["Map influence", "Prefix", "Suffix"]);
+    expect(preset.stats.filter(stat => !stat.disabled).map(stat => stat.tradeId[0])).toEqual(["implicit.stat_2696470877"]);
+    const request = () => createTradeRequest(preset.filters, preset.stats, item).query;
+    const query = request();
+    expect(query.filters.map_filters?.filters).toMatchObject({
+      map_tier: { min: 16, max: 16 }, map_bonus: { min: 84 }, map_iir: { min: 51 }, map_packsize: { min: 32 },
+    });
+    expect(query.filters.map_filters?.filters).not.toHaveProperty("area_level");
+    expect(query.stats[0].filters.filter(stat => !stat.disabled)).toEqual([
+      expect.objectContaining({ id: "pseudo.pseudo_map_more_map_drops", value: { min: 35 } }),
+      expect.objectContaining({ id: "implicit.stat_2696470877" }),
+    ]);
+    preset.filters.mapRewards!.find(reward => reward.key === "MAP_MORE_MAPS")!.disabled = true;
+    preset.filters.mapRewards!.find(reward => reward.key === "MAP_ATLAS_DROPS")!.value = 70;
+    groups[1].filters[0].disabled = false;
+    expect(request().filters.map_filters?.filters.map_bonus).toEqual({ min: 70 });
+    expect(request().stats[0].filters.filter(stat => !stat.disabled).map(stat => stat.id))
+      .toEqual(["implicit.stat_2696470877", "explicit.stat_3126771445"]);
+  });
+
+  it("prices the copied corrupted Empyrean Abyss without selecting its T1 affixes", () => {
+    const item = parseClipboard(`Item Class: Maps
+Rarity: Rare
+Empyrean Abyss
+Map (Tier 16)
+--------
+Atlas Drops: +49% (augmented)
+Item Rarity: +29% (augmented)
+Monster Pack Size: +19% (augmented)
+--------
+Item Level: 85
+--------
+Monster Level: 83
+--------
+{ Prefix Modifier "Mirrored" (Tier: 1) — Damage, Elemental }
+Rare Monsters have Elemental Thorns reflecting 1500 Elemental Damage
+{ Prefix Modifier "Multifarious" (Tier: 1) }
+Area has increased monster variety — Unscalable Value
+{ Prefix Modifier "Fleet" (Tier: 1) — Attack, Caster, Speed }
+26(25-30)% increased Monster Movement Speed
+40(35-45)% increased Monster Attack Speed
+45(35-45)% increased Monster Cast Speed
+{ Suffix Modifier "of Carnage" (Tier: 1) }
+Monsters Maim on Hit with Attacks
+(Maimed enemies have 30% reduced Movement Speed)
+--------
+Travel to a Map of this tier or lower by using this in a personal Map Device. Maps can only be used once.
+--------
+Corrupted`)._unsafeUnwrap();
+    expect(item).toMatchObject({ mapTier: 16, itemLevel: 85, areaLevel: 83, isCorrupted: true });
+    expect(item.unknownModifiers).toEqual([]);
+    const { presets: [preset] } = createPresets(item, { ...options, searchStatRange: 10, defaultAllSelected: false });
+    const groups = groupModifierFilters(preset.stats, item.rarity);
+    expect(groups.map(group => group.label)).toEqual(["Prefix", "Suffix"]);
+    expect(new Set(preset.stats.flatMap(stat => stat.sources.map(source => source.modifier.info.name))))
+      .toEqual(new Set(["Mirrored", "Multifarious", "Fleet", "of Carnage"]));
+    const query = createTradeRequest(preset.filters, preset.stats, item).query;
+    expect(query.filters.map_filters?.filters).toMatchObject({
+      map_tier: { min: 16, max: 16 }, map_bonus: { min: 49 }, map_iir: { min: 29 }, map_packsize: { min: 19 },
+    });
+    expect(query.stats.flatMap(group => group.filters.filter(stat => !stat.disabled))).toEqual([]);
+    expect(query.filters.map_filters?.filters).not.toHaveProperty("area_level");
+    expect(query.filters.misc_filters?.filters ?? {}).not.toHaveProperty("ilvl");
+  });
+
+  it("keeps legacy quantity separate from Atlas Drops and preserves individual reward and influence types", () => {
+    const item = parseClipboard([
+      "Item Class: Maps", "Rarity: Normal", "Map (Tier 16)", "--------", "Item Quantity: +80%",
+      "More Currency: +90%", "--------", "More Scarabs: +40%", "More Divination Cards: +30%",
+      "--------", "Area is influenced by The Elder", "Map is occupied by The Purifier",
+    ].join("\n"))._unsafeUnwrap();
+    const { presets: [preset] } = createPresets(item, { ...options, searchStatRange: 10, defaultAllSelected: false });
+    const query = createTradeRequest(preset.filters, preset.stats, item).query;
+    expect(query.filters.map_filters?.filters.map_iiq).toEqual({ min: 80 });
+    expect(query.filters.map_filters?.filters).not.toHaveProperty("map_bonus");
+    expect(query.stats[0].filters.filter(stat => !stat.disabled)).toEqual(expect.arrayContaining([
+      expect.objectContaining({ id: "pseudo.pseudo_map_more_currency_drops", value: { min: 90 } }),
+      expect.objectContaining({ id: "pseudo.pseudo_map_more_scarab_drops", value: { min: 40 } }),
+      expect.objectContaining({ id: "pseudo.pseudo_map_more_card_drops", value: { min: 30 } }),
+      expect.objectContaining({ id: "implicit.stat_1792283443|2" }),
+      expect.objectContaining({ id: "implicit.stat_3624393862|4" }),
+    ]));
   });
 
   it("uses the gem level and quality without support sockets", () => {

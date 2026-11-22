@@ -1,5 +1,6 @@
 <template>
   <div :class="{ 'filter-editor': isStandalone, 'filter-editor--properties-only': isStandalone && !hasStats }">
+    <poe1-map-properties v-if="isStandalone && filters.mapRewards" standalone :filters="filters" />
     <item-filter-properties v-if="!isStandalone" :filters="filters" :is-poe1="isPoe1">
         <filter-btn-logical
           v-if="hasStats"
@@ -189,6 +190,7 @@ import { useI18n } from "vue-i18n";
 import { AppConfig } from "@/web/Config";
 import FilterModifier from "./FilterModifier.vue";
 import ItemFilterProperties from "./ItemFilterProperties.vue";
+import Poe1MapProperties from "./Poe1MapProperties.vue";
 import FilterBtnLogical from "./FilterBtnLogical.vue";
 import UnknownModifier from "./UnknownModifier.vue";
 import ReloadTradeData from "../fallback/ReloadTradeData.vue";
@@ -199,12 +201,15 @@ import { STAT_BY_REF } from "@/assets/data";
 import { ModifierType } from "@/parser/modifiers";
 import { PriceCheckWidget } from "@/web/overlay/widgets";
 
+const initiallyFoldedGroups = ["Pseudo stats", "Base", "Implicit"];
+
 export default defineComponent({
   name: "FiltersBlock",
   emits: ["submit", "preset"],
   components: {
     FilterModifier,
     ItemFilterProperties,
+    Poe1MapProperties,
     FilterBtnLogical,
     UnknownModifier,
     ReloadTradeData,
@@ -231,7 +236,7 @@ export default defineComponent({
     const statsVisibility = shallowReactive({ disabled: false });
     const showHidden = shallowRef(false);
     const expandedFilter = shallowRef<StatFilter | null>(null);
-    const foldedGroups = ref(new Set(["Pseudo stats"]));
+    const foldedGroups = ref(new Set<string>());
     function toggleGroup(label: string) {
       if (foldedGroups.value.has(label)) foldedGroups.value.delete(label);
       else foldedGroups.value.add(label);
@@ -262,11 +267,14 @@ export default defineComponent({
     watch(
       () => props.item,
       () => {
-        foldedGroups.value = new Set(["Pseudo stats"]);
+        foldedGroups.value = new Set(props.item.category === ItemCategory.Map && AppConfig()?.game === "poe1"
+          ? [...initiallyFoldedGroups, "Prefix", "Suffix", "Explicit modifiers"]
+          : initiallyFoldedGroups);
         showHidden.value = false;
         statsVisibility.disabled = false;
         originalStats.value = null;
       },
+      { immediate: true },
     );
 
     const showUnknownMods = computed(

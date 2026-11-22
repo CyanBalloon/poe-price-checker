@@ -2,6 +2,7 @@ import type { ModifierType, StatCalculated } from "./modifiers";
 import type { ParsedModifier } from "./advanced-mod-desc";
 import type { BaseType } from "@/assets/data";
 import { ItemCategory } from "./meta";
+import type { MapReward } from "./poe1-map";
 
 export enum ItemRarity {
   Normal = "Normal",
@@ -52,6 +53,7 @@ export interface ParsedItem {
   weaponSPIRIT?: number;
   mapBlighted?: "Blighted" | "Blight-ravaged";
   mapTier?: number;
+  mapRewards?: Partial<Record<MapReward, number>>;
   mapPackSize?: number;
   mapItemRarity?: number;
   mapRevives?: number;

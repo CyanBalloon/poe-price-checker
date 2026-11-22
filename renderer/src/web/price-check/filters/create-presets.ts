@@ -1,6 +1,7 @@
 import { createFilters } from "./create-item-filters";
 import {
   createExactStatFilters,
+  calculatedStatToFilter,
   initUiModFilters,
 } from "./create-stat-filters";
 import { sumStatsByModType } from "@/parser/modifiers";
@@ -8,6 +9,8 @@ import { ItemCategory, ItemRarity, ParsedItem } from "@/parser";
 import type { FilterPreset } from "./interfaces";
 import { PriceCheckWidget } from "@/web/overlay/widgets";
 import { hasCraftingValue, likelyFinishedItem } from "./common";
+import { AppConfig } from "@/web/Config";
+import { isMapInfluenceId } from "@/parser/poe1-map";
 
 const ROMAN_NUMERALS = ["I", "II", "III", "IV", "V"];
 
@@ -33,6 +36,15 @@ export function createPresets(
   },
 ): { presets: FilterPreset[]; active: string } {
   const result = (() => {
+    if (item.category === ItemCategory.Map && AppConfig()?.game === "poe1") {
+      const stats = item.statsByType.map(calc => {
+        const filter = calculatedStatToFilter(calc, opts.searchStatRange, item);
+        filter.disabled = !(opts.defaultAllSelected || filter.tradeId.some(isMapInfluenceId));
+        return filter;
+      }).filter(filter => filter.tradeId.length);
+      const id = "filters.preset_exact";
+      return { active: id, presets: [{ id, filters: createFilters(item, { ...opts, exact: false }), stats }] };
+    }
     if (item.info.refName === "Expedition Logbook" && item.logbookAreaMods?.length) {
       return {
         active: ROMAN_NUMERALS[0],

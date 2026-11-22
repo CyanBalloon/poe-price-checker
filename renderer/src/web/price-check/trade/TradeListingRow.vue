@@ -13,6 +13,8 @@
     </div>
 
     <div class="listing-attributes">
+      <span v-if="res.displayItem.mapTier">Tier <b>{{ res.displayItem.mapTier }}</b></span>
+      <span v-if="res.displayItem.atlasDrops">Atlas Drops <b>{{ res.displayItem.atlasDrops }}</b></span>
       <span v-if="filters.itemLevel && res.itemLevel">iLvl <b>{{ res.itemLevel }}</b></span>
       <span v-if="item.stackSize && res.stackSize != null">Stock <b>{{ res.stackSize }}</b></span>
       <span v-if="item.category === ItemCategory.Gem && res.gemSockets != null">Sockets <b>{{ res.gemSockets }}</b></span>

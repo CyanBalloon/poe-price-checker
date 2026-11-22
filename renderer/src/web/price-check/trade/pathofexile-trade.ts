@@ -24,6 +24,7 @@ import {
 import { STAT_BY_REF, CLIENT_STRINGS as _$ } from "@/assets/data";
 import { RateLimiter } from "./RateLimiter";
 import { ModifierType } from "@/parser/modifiers";
+import { mapRewardFields } from "@/parser/poe1-map";
 import { Cache } from "./Cache";
 import { parseAffixStrings } from "@/parser/Parser";
 import {
@@ -175,6 +176,7 @@ enum TradePropType {
   MapKeyWorldArea,
   RitualStoneUniqueMonsters,
   RitualStoneOtherMonsters,
+  Poe1AtlasDrops = 112,
 }
 
 enum TradeNumberColors {
@@ -286,6 +288,8 @@ interface TradeRequest {
       map_filters?: {
         filters: {
           map_tier?: FilterRange;
+          map_iiq?: FilterRange;
+          area_level?: FilterRange;
           map_revives?: FilterRange;
           map_packsize?: FilterRange;
           map_magic_monsters?: FilterRange;
@@ -465,6 +469,8 @@ export enum DisplayFrameType {
 
 export interface DisplayItem {
   title: string[];
+  mapTier?: number;
+  atlasDrops?: string;
   rarity: ItemRarity;
   frameType?: DisplayFrameType;
   nameBlock?: DisplayItemLine[];
@@ -687,6 +693,16 @@ export function createTradeRequest(
       "map_filters.filters.map_tier.max",
       filters.mapTier.value,
     );
+  }
+
+  for (const reward of filters.mapRewards ?? []) {
+    if (reward.disabled) continue;
+    const id = mapRewardFields[reward.key];
+    if (id.startsWith("pseudo.")) {
+      query.stats[0].filters.push({ id, value: { min: reward.value } });
+    } else {
+      propSet(query.filters, `map_filters.filters.${id}.min`, reward.value);
+    }
   }
 
   if (filters.ultimatumHint && !filters.ultimatumHint.disabled) {
@@ -1524,8 +1540,12 @@ function parseFetchResult(result: FetchResult): PricingResult["displayItem"] {
     itemTags.push({ text: _$.SANCTIFIED, color: TradeNumberColors.Sanctified });
   }
 
+  const mapTier = _$.MAP_TIER instanceof RegExp
+    ? _$.MAP_TIER.exec(result.item.baseType ?? result.item.typeLine)?.[1] : undefined;
   const displayItem: PricingResult["displayItem"] = {
     title,
+    mapTier: mapTier ? Number(mapTier) : undefined,
+    atlasDrops: mapTier ? result.item.properties?.find(prop => prop.type === TradePropType.Poe1AtlasDrops)?.values[0]?.[0] : undefined,
     rarity: result.item.rarity ?? ({
       [DisplayFrameType.Normal]: ItemRarity.Normal,
       [DisplayFrameType.Magic]: ItemRarity.Magic,
@@ -1533,7 +1553,11 @@ function parseFetchResult(result: FetchResult): PricingResult["displayItem"] {
       [DisplayFrameType.Unique]: ItemRarity.Unique,
     } as Partial<Record<DisplayFrameType, ItemRarity>>)[result.item.frameType ?? DisplayFrameType.Normal] ?? ItemRarity.Normal,
     frameType: result.item.frameType,
-    nameBlock: buildNameBlock(result.item.extended, result.item.properties),
+    nameBlock: mapTier ? result.item.properties?.map(({ name, values }) => ({
+      text: parseAffixStrings(name) + " ",
+      value: values[0]?.[0],
+      color: values[0]?.[1] ?? TradeNumberColors.White,
+    })) : buildNameBlock(result.item.extended, result.item.properties),
     itemProps: buildItemProps(result.item.ilvl, result.item.requirements),
     grantSkill: buildGrantSkillBlock(result.item.grantedSkills),
     ...parseMods(result),
