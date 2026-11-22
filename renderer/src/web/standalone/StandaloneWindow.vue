@@ -356,7 +356,7 @@ export default defineComponent({
             return {
               text: "Update available",
               icon: "fa-solid fa-download",
-              action: () => window.open("https://github.com/CyanBalloon/Poe2-Price-Checker/releases"),
+              action: () => window.open("https://github.com/CyanBalloon/poe-price-checker/releases"),
             };
           }
           return { text: "Downloading update…", icon: "fa-solid fa-download" };

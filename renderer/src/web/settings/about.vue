@@ -7,13 +7,13 @@
       <div class="flex gap-2">
         <a
           class="border-b"
-          href="https://github.com/CyanBalloon/Poe2-Price-Checker/releases"
+          href="https://github.com/CyanBalloon/poe-price-checker/releases"
           target="_blank"
           >{{ t("app.release_notes") }}</a
         >
         <a
           class="border-b"
-          href="https://github.com/CyanBalloon/Poe2-Price-Checker/issues"
+          href="https://github.com/CyanBalloon/poe-price-checker/issues"
           target="_blank"
           >{{ t("app.report_bug") }}</a
         >
@@ -73,7 +73,7 @@ function checkForUpdates() {
 }
 
 function openDownloadPage() {
-  window.open("https://github.com/CyanBalloon/Poe2-Price-Checker/releases");
+  window.open("https://github.com/CyanBalloon/poe-price-checker/releases");
 }
 
 function quitAndInstall() {
