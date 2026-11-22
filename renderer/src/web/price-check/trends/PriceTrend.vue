@@ -94,7 +94,7 @@ export default defineComponent({
   },
   setup(props) {
     const { t } = useI18nNs("trade_result");
-    const { findPriceByQuery, autoCurrency, displayPrice, exaltedRate } = usePoeninja();
+    const { findPriceByQuery, autoCurrency, displayPrice, exaltedRate, visceraImplicits } = usePoeninja();
 
     watch(
       () => props.item,
@@ -105,7 +105,7 @@ export default defineComponent({
     );
 
     const priceData = computed(() => {
-      const detailsId = getDetailsId(props.item);
+      const detailsId = getDetailsId(props.item, props.item.info.viscera ? visceraImplicits(props.item.info.refName) : undefined);
       const entry = detailsId && findPriceByQuery(detailsId);
       if (!entry) return;
       const isCurrency = props.item.category === ItemCategory.Currency;

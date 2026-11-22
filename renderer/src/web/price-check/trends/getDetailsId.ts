@@ -1,7 +1,7 @@
 import { ParsedItem, ItemRarity, ItemCategory } from "@/parser";
 import { SPECIAL_SUPPORT_GEM, floorToBracket } from "../filters/create-item-filters";
 import { ACCESSORY, ARMOUR, WEAPON } from "@/parser/meta";
-import { TRADE_TAG_TO_REF } from "@/assets/data";
+import { TRADE_TAG_TO_REF, type VisceraImplicit } from "@/assets/data";
 import { AppConfig } from "@/web/Config";
 import { ModifierType } from "@/parser/modifiers";
 import { matchVisceraImplicit } from "@/parser/viscera";
@@ -43,12 +43,12 @@ export function isValuableBasetype(item: ParsedItem): boolean {
   );
 }
 
-export function getDetailsId(item: ParsedItem) {
+export function getDetailsId(item: ParsedItem, marketImplicits: VisceraImplicit[] = []) {
   if (item.info.viscera) {
     const stats = item.newMods.filter(mod => mod.info.type === ModifierType.Implicit).flatMap(mod => mod.stats);
     if (!stats.length || item.unknownModifiers.some(mod => mod.type === ModifierType.Implicit)) return;
     const reference = stats.map(stat => stat.stat.ref).join(" / ").replace(/\n/g, " / ");
-    const matching = matchVisceraImplicit(item.info.viscera.implicits, stats);
+    const matching = matchVisceraImplicit(item.info.viscera.implicits, stats) ?? matchVisceraImplicit(marketImplicits, stats);
     const variant = matching?.variant ?? reference;
     return { ns: item.info.namespace, name: item.info.refName, variant };
   }

@@ -238,7 +238,7 @@ const starred = computed(() => items.value.map(item => {
   const implicit = implicits.length === 1 ? implicits[0] : implicits.find(option => option.variant === item.implicitVariant);
   let quote;
   if (AppConfig().game === "poe1" && rawItem) {
-    const details = getDetailsId(rawItem);
+    const details = getDetailsId(rawItem, implicits);
     quote = details && findPriceByQuery(details);
   } else if (info.viscera) {
     quote = implicit && findPriceByQuery({ ...query, variant: implicit.variant });
@@ -311,6 +311,7 @@ function selectItem(
 
   const isAdded = addItem({
     info: item,
+    implicitVariant: item.viscera?.implicits.length === 1 ? item.viscera.implicits[0].variant : undefined,
     rawItem: opts?.rawItem,
   });
   if (isAdded && opts?.withTimeout) {

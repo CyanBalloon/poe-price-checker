@@ -114,6 +114,13 @@ describe("POE1 Parser", () => {
     expect(failures).toEqual([]);
   });
 
+  it("matches the market variant for a guaranteed Endurance Charge roll", () => {
+    const text = "Gain an Endurance Charge when you Stun an Enemy with a Melee Hit";
+    const item = parseClipboard(visceraClipboard("Greater Defaced Bust", "Head", text))._unsafeUnwrap();
+    expect(getDetailsId(item, [{ text, variant: text }])?.variant).toBe(text);
+    expect(item.statsByType[0].stat.trade.ids.implicit).toEqual(["implicit.stat_4067960074"]);
+  });
+
   it("resolves localized Viscera, including two heads with the same Russian name", async () => {
     try {
       for (const language of ["ru", "ko", "cmn-Hant"]) {
