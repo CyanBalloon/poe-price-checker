@@ -88,6 +88,7 @@ export interface ParsedItem {
   isFractured?: boolean;
   isVeiled?: boolean;
   isFoil?: boolean;
+  isFoulborn?: boolean;
   statsByType: StatCalculated[];
   newMods: ParsedModifier[];
   unknownModifiers: Array<{

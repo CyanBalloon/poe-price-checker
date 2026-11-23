@@ -44,6 +44,8 @@ export function isValuableBasetype(item: ParsedItem): boolean {
 }
 
 export function getDetailsId(item: ParsedItem, marketImplicits: VisceraImplicit[] = []) {
+  // Foulborn prices are keyed by the combination of replacement modifiers.
+  if (item.isFoulborn) return;
   if (item.info.viscera) {
     const stats = item.newMods.filter(mod => mod.info.type === ModifierType.Implicit).flatMap(mod => mod.stats);
     if (!stats.length || item.unknownModifiers.some(mod => mod.type === ModifierType.Implicit)) return;

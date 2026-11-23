@@ -20,6 +20,7 @@ export interface ParsedModifier {
 export interface ModifierInfo {
   type: ModifierType;
   generation?: "suffix" | "prefix" | "corrupted" | "eldritch" | "mutated";
+  isFoulborn?: true;
   name?: string;
   tier?: number;
   rank?: number;
@@ -38,6 +39,7 @@ export function parseModInfoLine(
     .map((_) => _.trim());
 
   let generation: ModifierInfo["generation"];
+  let isFoulborn: ModifierInfo["isFoulborn"];
   let name: ModifierInfo["name"];
   let tier: ModifierInfo["tier"];
   let rank: ModifierInfo["rank"];
@@ -109,6 +111,10 @@ export function parseModInfoLine(
       case _$.IMPLICIT_MODIFIER:
         type = ModifierType.Implicit;
         break;
+      case _$.FOULBORN_MODIFIER:
+        isFoulborn = true;
+        generation = "mutated";
+        break;
       case _$.VAAL_UNIQUE_MODIFIER:
         generation = "mutated";
     }
@@ -137,7 +143,7 @@ export function parseModInfoLine(
       : undefined;
   }
 
-  return { type, generation, name, tier, rank, tags, rollIncr };
+  return { type, generation, isFoulborn, name, tier, rank, tags, rollIncr };
 }
 
 export function isModInfoLine(line: string): boolean {

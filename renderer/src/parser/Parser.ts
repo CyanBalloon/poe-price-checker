@@ -222,6 +222,11 @@ function normalizeName(item: ParserState) {
 
 function findInDatabase(item: ParserState) {
   performance.mark("findInDatabase");
+  const foulbornBaseName = item.rarity === ItemRarity.Unique && !item.isUnidentified
+    ? _$.FOULBORN_NAME?.exec(item.name)?.[1]
+    : undefined;
+  const lookupName = foulbornBaseName ?? item.name;
+  if (foulbornBaseName) item.isFoulborn = true;
   let info: BaseType[] | undefined;
   if (item.category === ItemCategory.DivinationCard) {
     info = ITEM_BY_TRANSLATED("DIVINATION_CARD", item.name);
@@ -234,12 +239,12 @@ function findInDatabase(item: ParserState) {
   } else if (item.category === ItemCategory.Voidstone) {
     info = ITEM_BY_REF("ITEM", "Charged Compass");
   } else if (item.rarity === ItemRarity.Unique && !item.isUnidentified) {
-    info = ITEM_BY_REF("UNIQUE", item.name) ?? ITEM_BY_TRANSLATED("UNIQUE", item.name);
+    info = ITEM_BY_REF("UNIQUE", lookupName) ?? ITEM_BY_TRANSLATED("UNIQUE", lookupName);
     if (item.baseType) {
       const base = ITEM_BY_TRANSLATED("ITEM", item.baseType)?.[0].refName ?? item.baseType;
       if (!info?.some(variant => variant.unique?.base === base)) {
         const candidates = itemCatalogue.value.uniquesByBase.get(base);
-        const match = candidates?.get(item.name) ?? Array.from(candidates?.values() ?? []).find(candidate => candidate.name === item.name);
+        const match = candidates?.get(lookupName) ?? Array.from(candidates?.values() ?? []).find(candidate => candidate.name === lookupName);
         if (match) info = [match];
       }
     }
@@ -252,7 +257,7 @@ function findInDatabase(item: ParserState) {
   if (!info?.length) {
     // First attempt to find item in trade items data
     info = TRADE_ITEM_BY_REF({
-      name: item.name,
+      name: lookupName,
       category: item.category,
       rarity: item.rarity,
       baseType: item.baseType,
@@ -271,7 +276,7 @@ function findInDatabase(item: ParserState) {
     } else if (item.category === ItemCategory.Voidstone) {
       info = ITEM_BY_TRANSLATED("ITEM", "Charged Compass");
     } else if (item.rarity === ItemRarity.Unique && !item.isUnidentified) {
-      info = ITEM_BY_TRANSLATED("UNIQUE", item.name);
+      info = ITEM_BY_TRANSLATED("UNIQUE", lookupName);
     } else {
       info = ITEM_BY_TRANSLATED("ITEM", item.baseType ?? item.name);
     }

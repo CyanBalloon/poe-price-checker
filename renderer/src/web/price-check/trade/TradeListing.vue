@@ -162,6 +162,7 @@ import {
   onUnmounted,
 } from "vue";
 import { useI18nNs } from "@/web/i18n";
+import { CLIENT_STRINGS, CLIENT_STRINGS_REF } from "@/assets/data";
 import { Host } from "@/web/background/IPC";
 import UiPopover from "@/web/ui/Popover.vue";
 import UiErrorBox from "@/web/ui/UiErrorBox.vue";
@@ -324,6 +325,11 @@ export default defineComponent({
         if (isUnique) {
           if (raw.item.name) query.name = raw.item.name;
           if (raw.item.typeLine) query.type = raw.item.typeLine;
+          if (poe1 && raw.item.mutated) {
+            query.name = CLIENT_STRINGS.FOULBORN_NAME?.exec(raw.item.name)?.[1] ??
+              CLIENT_STRINGS_REF.FOULBORN_NAME?.exec(raw.item.name)?.[1] ?? query.name;
+            query.filters.misc_filters = { filters: { mutated: { option: "true" } } };
+          }
         } else { // Normal, Magic, Rare
           query.type = raw.item.baseType || props.filters.searchExact.baseTypeTrade || props.filters.searchExact.baseType || raw.item.typeLine;
         }

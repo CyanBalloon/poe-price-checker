@@ -26,13 +26,14 @@ try {
       await page.waitForFunction(width => Math.abs(innerWidth - width) <= 2, width);
       const layout = await brand.evaluate(async brand => {
         const logo = brand.querySelector("img");
+        const title = brand.querySelector("span");
         await logo.decode();
         await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
         const rect = el => el.getBoundingClientRect().toJSON();
         const controls = navigator.windowControlsOverlay;
         return {
           image: new URL(logo.currentSrc).pathname, naturalWidth: logo.naturalWidth, naturalHeight: logo.naturalHeight,
-          logo: rect(logo), title: rect(brand.querySelector("span")), brand: rect(brand),
+          logo: rect(logo), title: rect(title), titleFontSize: parseFloat(getComputedStyle(title).fontSize), brand: rect(brand),
           toolbar: rect(brand.closest("header")), nav: rect(document.querySelector(".trade-navigation")),
           actions: rect(document.querySelector(".toolbar-actions")), market: rect(document.querySelector(".toolbar-market")),
           caption: controls?.visible ? controls.getTitlebarAreaRect().toJSON() : null,
@@ -47,10 +48,10 @@ try {
       const center = rect => rect.y + rect.height / 2;
       const label = `${game} at ${width}px`;
       assert.equal(layout.image, "/images/mageblood.png", label);
-      assert.equal(logo.width, layout.naturalWidth, `${label}: native belt width`);
-      assert.equal(logo.height, layout.naturalHeight, `${label}: native belt height`);
       assert.equal(layout.naturalWidth, 156, label);
       assert.equal(layout.naturalHeight, 78, label);
+      assert(Math.abs(logo.height - layout.titleFontSize) < 1, `${label}: belt height matches title font size`);
+      assert(Math.abs(logo.width - logo.height * layout.naturalWidth / layout.naturalHeight) < 1, `${label}: belt aspect ratio`);
       assert(title.width > 0 && title.left >= logo.right, `${label}: title to the right of the belt`);
       assert(Math.abs(center(title) - center(logo)) <= 2, `${label}: title and belt alignment`);
       assert(layout.brand.top >= toolbar.top && layout.brand.bottom <= toolbar.bottom, `${label}: brand outside toolbar`);

@@ -27,7 +27,7 @@
   --toolbar-inset: clamp(0.75rem, 2vw, 2rem);
   --tool-gap: 0.75rem;
   --control-height: 2.5rem;
-  --caption-height: max(90px, env(titlebar-area-height, 0px));
+  --caption-height: max(56px, env(titlebar-area-height, 0px));
   --window-inset: max(var(--toolbar-inset), calc(100vw - env(titlebar-area-x, 0px) - env(titlebar-area-width, 100vw) + var(--tool-gap)));
   display: grid; flex-shrink: 0;
   grid-template-areas: "brand nav market actions";
@@ -47,7 +47,7 @@
   grid-area: brand; display: inline-flex; align-items: center; gap: 0.5rem;
   font: 600 clamp(1.3rem, 2vw, 1.75rem)/1 var(--display); white-space: nowrap;
 }
-.trade-brand .app-logo { flex: none; max-width: none; }
+.trade-brand .app-logo { flex: none; width: auto; height: 1em; }
 .trade-navigation, .toolbar-market, .toolbar-actions, .trade-context { display: flex; align-items: center; gap: var(--tool-gap); }
 .trade-navigation { grid-area: nav; justify-self: start; }
 .toolbar-market { grid-area: market; justify-self: end; min-width: 0; max-width: 100%; }
@@ -155,7 +155,7 @@
 .trade-rate { color: var(--muted); font-variant-numeric: tabular-nums; }
 .trade-rate strong { color: var(--ink); }
 .application-actions { color: var(--muted); }
-@media (max-width: 76rem) {
+@media (max-width: 68rem) {
   .trade-toolbar {
     padding-right: 0;
     grid-template-columns: auto minmax(0, 1fr) auto var(--window-inset);

@@ -68,6 +68,75 @@ describe("POE1 Parser", () => {
     useEn: true,
   } as const;
 
+  it("price checks a Foulborn unique with its replacement modifier selected", () => {
+    const text = `Item Class: Claws
+Rarity: Unique
+Foulborn Hand of Wisdom and Action
+Imperial Claw
+--------
+Claw
+Physical Damage: 25-65
+Critical Strike Chance: 7.00%
+Attacks per Second: 1.60
+Weapon Range: 1.1 metres
+--------
+Requirements:
+Level: 68
+Dex: 131
+Int: 95
+--------
+Sockets: W R
+--------
+Item Level: 85
+--------
+{ Implicit Modifier — Life, Attack }
+Grants 46 Life per Enemy Hit
+--------
+{ Unique Modifier — Damage, Elemental, Lightning, Attack }
+Adds 1 to 12 Lightning Damage to Attacks with this Weapon per 10 Intelligence
+{ Unique Modifier — Attack, Speed }
+1% increased Attack Speed per 25 Dexterity
+{ Unique Modifier — Attribute }
+11(8-12)% increased Intelligence
+{ Unique Modifier — Attribute }
+9(8-12)% increased Dexterity
+{ Foulborn Unique Modifier — Attribute }
+9(8-12)% increased Strength
+--------
+She thinks and we act.
+She acts and we think.
+Fragments of the whole that washes clean the skies.`;
+    const item = parseClipboard(text)._unsafeUnwrap();
+    expect(item).toMatchObject({
+      name: "Foulborn Hand of Wisdom and Action",
+      isFoulborn: true,
+      info: { refName: "Hand of Wisdom and Action", unique: { base: "Imperial Claw" } },
+      unknownModifiers: [],
+    });
+    expect(getDetailsId(item)).toBeUndefined();
+    const { presets: [preset] } = createPresets(item, { ...options, searchStatRange: 10, defaultAllSelected: false });
+    expect(preset.stats.find(stat => stat.statRef === "#% increased Strength")).toMatchObject({
+      tag: "mutated", disabled: false, roll: { value: 9 },
+    });
+    const groups = groupModifierFilters(preset.stats, item.rarity);
+    const foulborn = groups.find(group => group.label === "Foulborn modifiers");
+    expect(foulborn?.filters.map(filter => filter.statRef)).toEqual(["#% increased Strength"]);
+    expect(foulborn?.filters.filter(filter => !filter.disabled)).toHaveLength(1);
+    const regular = groups.find(group => group.label === "Unique modifiers");
+    expect(regular?.filters.map(filter => filter.statRef)).toContain("#% increased Dexterity");
+    const { query } = createTradeRequest(preset.filters, preset.stats, item);
+    expect(query.name).toBe("Hand of Wisdom and Action");
+    expect(query.filters.misc_filters?.filters.mutated).toEqual({ option: "true" });
+    expect(query.stats[0].filters).toContainEqual(expect.objectContaining({ id: "explicit.stat_734614379" }));
+
+    const ordinary = parseClipboard(text.replace("Foulborn Hand", "Hand")
+      .replace("{ Foulborn Unique Modifier — Attribute }\n9(8-12)% increased Strength\n", ""))._unsafeUnwrap();
+    expect(ordinary.isFoulborn).toBeUndefined();
+    expect(createTradeRequest(createFilters(ordinary, options), [], ordinary).query.filters.misc_filters?.filters.mutated).toBeUndefined();
+    const ordinaryFilters = initUiModFilters(ordinary, { searchStatRange: 10, defaultAllSelected: false });
+    expect(groupModifierFilters(ordinaryFilters, ordinary.rarity).some(group => group.label === "Foulborn modifiers")).toBe(false);
+  });
+
   it("offers both Marble Amulet uniques and checks the selected unidentified Bonemeld", () => {
     const rawText = [
       "Item Class: Amulets", "Rarity: Unique", "Marble Amulet", "--------",

@@ -263,7 +263,9 @@ export function initUiModFilters(
 
   // The property and pseudo builders consume their component stats.
   const consumedStats = individualStats.filter(stat =>
-    (opts.includeSourceModifiers || hasTierOneAffix(stat.sources)) && !ctx.statsByType.includes(stat),
+    (opts.includeSourceModifiers || hasTierOneAffix(stat.sources) ||
+      stat.sources.some(source => source.modifier.info.isFoulborn)) &&
+    !ctx.statsByType.includes(stat),
   );
 
   if (itemIsModifiable(item)) {
@@ -310,7 +312,7 @@ export function initUiModFilters(
     const filter = calculatedStatToFilter(stat, ctx.searchInRange, item);
     if (!filter.tradeId.length || filter.tradeId.some(id => usedIds.has(id))) continue;
     // Keep the individual modifier available alongside any calculated total.
-    filter.disabled = true;
+    if (!filter.sources.some(source => source.modifier.info.isFoulborn)) filter.disabled = true;
     ctx.filters.push(filter);
     for (const id of filter.tradeId) usedIds.add(id);
   }
@@ -609,7 +611,9 @@ export function calculatedStatToFilter(
       filter.tag = FilterTag.Mutated;
     }
 
-    if (item.info.unique?.fixedStats) {
+    if (sources.some(source => source.modifier.info.isFoulborn)) {
+      filter.disabled = !filter.tradeId.length;
+    } else if (item.info.unique?.fixedStats) {
       const fixedStats = item.info.unique.fixedStats;
       if (!fixedStats.includes(filter.statRef)) {
         filter.tag = FilterTag.Variant;

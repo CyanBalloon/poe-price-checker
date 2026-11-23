@@ -7,7 +7,7 @@
             <ui-item-img :icon="item.info.icon" :item-name="item.info.refName" :namespace="item.info.namespace" alt="" />
           </div>
           <div class="checked-identity-text">
-            <h2>{{ item.rarity === ItemRarity.Rare ? item.name || item.info.name : item.info.name }}</h2>
+            <h2>{{ item.rarity === ItemRarity.Rare || item.isFoulborn ? item.name || item.info.name : item.info.name }}</h2>
 
             <div class="checked-item-meta">
               <span v-if="summaryBase">{{ summaryBase }}</span>

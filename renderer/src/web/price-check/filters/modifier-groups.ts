@@ -4,7 +4,8 @@ import { FilterTag, type StatFilter } from "./interfaces";
 import { isMapInfluenceId } from "@/parser/poe1-map";
 
 const groupOrder = [
-  "Map influence", "Pseudo stats", "Base", "Implicit", "Prefix", "Suffix", "Fractured", "Crafted", "Unique modifiers", "Explicit modifiers",
+  "Map influence", "Pseudo stats", "Base", "Implicit", "Prefix", "Suffix", "Fractured", "Crafted",
+  "Foulborn modifiers", "Unique modifiers", "Explicit modifiers",
   "Enchantments", "Socketed augments", "Skills", "Scourge", "Sanctum", "Necropolis",
 ] as const;
 type ModifierGroup = (typeof groupOrder)[number];
@@ -15,6 +16,7 @@ function groupFor(filter: StatFilter, rarity: ItemRarity | undefined): ModifierG
   if (filter.tag === FilterTag.Pseudo) return "Pseudo stats";
 
   const sources = filter.sources.map(source => source.modifier.info);
+  if (sources.some(source => source.isFoulborn)) return "Foulborn modifiers";
   const sourceType = sources.length && sources.every(source => source.type === sources[0].type)
     ? sources[0].type : undefined;
   if (sourceType === ModifierType.Fractured) return "Fractured";

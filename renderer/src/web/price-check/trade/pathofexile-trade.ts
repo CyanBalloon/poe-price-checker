@@ -312,6 +312,7 @@ export interface TradeRequest {
           gem_sockets?: FilterRange;
           identified?: FilterBoolean;
           mirrored?: FilterBoolean;
+          mutated?: FilterBoolean;
           sanctified?: FilterBoolean;
           sanctum_gold?: FilterRange;
           unidentified_tier?: FilterRange;
@@ -407,6 +408,7 @@ interface FetchResult {
     duplicated?: true;
     stackSize?: number;
     corrupted?: true;
+    mutated?: true;
     doubleCorrupted?: true;
     gemSockets?: string[];
     properties?: TradeDataRichLine[];
@@ -614,6 +616,9 @@ export function createTradeRequest(
   }
 
   const itemProperties = poe1 ? "misc_filters" : "type_filters";
+  if (poe1 && item.isFoulborn) {
+    propSet(query.filters, "misc_filters.filters.mutated.option", "true");
+  }
   const armourProperties = poe1 ? "armour_filters" : "equipment_filters";
   const weaponProperties = poe1 ? "weapon_filters" : "equipment_filters";
   if (filters.itemLevel && !filters.itemLevel.disabled) {
