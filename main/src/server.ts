@@ -117,7 +117,7 @@ server.on("upgrade", (req, socket, head) => {
 });
 
 export async function startServer(
-  appUpdater: AppUpdater,
+  appUpdater: Pick<AppUpdater, "info">,
   logger: Logger,
   port = process.env.VITE_DEV_SERVER_URL ? 8584 : 0,
 ): Promise<number> {

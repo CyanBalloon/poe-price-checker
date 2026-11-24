@@ -13,6 +13,7 @@ import { useLeagues } from "@/web/background/Leagues";
 import { loadPoe1Prices, poe1PriceKey } from "@/web/background/Poe1Prices";
 import { createFilters } from "@/web/price-check/filters/create-item-filters";
 import { createExactStatFilters, initUiModFilters } from "@/web/price-check/filters/create-stat-filters";
+import { modifierComparison } from "@/web/price-check/filters/filter-comparison";
 import { groupModifierFilters } from "@/web/price-check/filters/modifier-groups";
 import { createPresets } from "@/web/price-check/filters/create-presets";
 import { createTradeRequest, requestTradeResultList } from "@/web/price-check/trade/pathofexile-trade";
@@ -67,6 +68,49 @@ describe("POE1 Parser", () => {
     exact: true,
     useEn: true,
   } as const;
+
+  it.each([
+    ['{ Rare-only Suffix Modifier (Tier: 1) }', '+23(20-24)% to Item Rarity', 'explicit.stat_3917489142', 23, "Suffix"],
+    ['{ Suffix Modifier "of Rarity" (Tier: 1) }', '23(20-24)% increased Rarity of Items found', 'explicit.stat_3917489142', 23, "Suffix"],
+    ['{ Suffix Modifier "of Rarity" (Tier: 1) }', '+23(20-24)% to Item Rarity from Slain Rare or Unique Enemies', 'explicit.stat_2161689853', 23, "Suffix"],
+    ['{ Suffix Modifier "of the Hive" (Tier: 1) }', '+32(30-35)% to Item Rarity from Hiveborn Monsters', 'explicit.stat_3967804254', 32, "Suffix"],
+    ['{ Searing Exarch Implicit Modifier (Greater) }', '+16(15-19)% to Item Rarity', 'implicit.stat_3917489142', 16, "Implicit"],
+    ['{ Vestigial Implicit Modifier }', 'Natural inhabitants of this area have been removed', 'implicit.stat_2656027173', undefined, "Implicit"],
+    ['{ Master Crafted Suffix Modifier }', 'Non-Aura Skills Cost no Mana or Life while Focused', 'crafted.stat_849152640', undefined, "Crafted"],
+  ] as const)("makes %s searchable for the copied stat %s", (header, text, id, value, groupName) => {
+    const clipboard = itemText.split("{ Prefix Modifier")[0] + header + "\n" + text;
+    const item = parseClipboard(clipboard)._unsafeUnwrap();
+    expect(item.unknownModifiers).toEqual([]);
+    const { presets, active } = createPresets(item, { ...options, searchStatRange: 0, defaultAllSelected: false });
+    const { stats, filters } = presets.find(preset => preset.id === active)!;
+    const groups = groupModifierFilters(stats, item.rarity);
+    const filter = groups.find(group => group.label === groupName)?.filters.find(mod => mod.tradeId.includes(id));
+    expect(filter).toBeDefined();
+    expect(filter?.roll?.value).toBe(value);
+    if (groupName === "Suffix") expect(filter?.disabled).toBe(false);
+
+    for (const stat of stats) stat.disabled = stat !== filter;
+    const query = createTradeRequest(filters, stats, item).query;
+    expect(query.stats[0].filters).toContainEqual(expect.objectContaining({ id, disabled: false }));
+  });
+
+  it("searches a PoE1 imbued gem with its built-in support", () => {
+    const item = parseClipboard(`Item Class: Skill Gems
+Rarity: Gem
+Righteous Fire
+--------
+Spell, AoE, Fire
+Level: 20 (Max)
+--------
+Supported by Level 1 \u200bCast when Damage Taken`)._unsafeUnwrap();
+    const { presets: [{ filters, stats }] } = createPresets(item, { ...options, searchStatRange: 10, defaultAllSelected: false });
+    const id = "imbued.pseudo_built_in_support|2842604691";
+    expect(item.statsByType[0]?.type).toBe("imbued");
+    expect(groupModifierFilters(stats, item.rarity).find(group => group.label === "Skills")?.filters[0]).toMatchObject({
+      tradeId: [id], disabled: false,
+    });
+    expect(createTradeRequest(filters, stats, item).query.stats[0].filters).toContainEqual(expect.objectContaining({ id }));
+  });
 
   it("price checks a Foulborn unique with its replacement modifier selected", () => {
     const text = `Item Class: Claws
@@ -529,6 +573,22 @@ Corrupted`)._unsafeUnwrap();
       .toHaveProperty("socket_filters.filters.sockets.w", 1);
   });
 
+  const mapInfluences = [
+    "implicit.stat_1792283443|1", "implicit.stat_1792283443|2",
+    "implicit.stat_3624393862|1", "implicit.stat_3624393862|2",
+    "implicit.stat_3624393862|3", "implicit.stat_3624393862|4",
+    "implicit.stat_2563183002|1", "implicit.stat_2563183002|2",
+    "implicit.stat_2563183002|3", "implicit.stat_2563183002|4",
+    "implicit.stat_2696470877",
+  ];
+
+  function expectMapInfluences(query: ReturnType<typeof createTradeRequest>["query"], present: string[]) {
+    const required = query.stats[0].filters.filter(filter => !filter.disabled && mapInfluences.includes(filter.id));
+    expect(required.map(filter => filter.id)).toEqual(present);
+    expect(query.stats.find(group => group.type === "not")?.filters)
+      .toEqual(mapInfluences.filter(id => !present.includes(id)).map(id => ({ id })));
+  }
+
   it("parses map tiers in nameplates and adds PoE 1 map filters", () => {
     const item = parseClipboard("Item Class: Maps\nRarity: Normal\nMap (Tier 16)\n--------\nItem Level: 83")._unsafeUnwrap();
     expect(item.mapTier).toBe(16);
@@ -539,18 +599,26 @@ Corrupted`)._unsafeUnwrap();
       map_blighted: { option: "false" },
     });
     expect(request.query.filters.misc_filters?.filters.corrupted).toEqual({ option: "false" });
-    expect(request.query.stats.find(group => group.type === "not")).toEqual({
-      type: "not",
-      filters: [
-        { id: "implicit.stat_1792283443|1" },
-        { id: "implicit.stat_1792283443|2" },
-        { id: "implicit.stat_2563183002|1" },
-        { id: "implicit.stat_2563183002|2" },
-        { id: "implicit.stat_2563183002|3" },
-        { id: "implicit.stat_2563183002|4" },
-        { id: "implicit.stat_2696470877" },
-      ],
-    });
+    expectMapInfluences(request.query, []);
+  });
+
+  it.each([
+    ["Originator only", "Normal", ["Area is Influenced by the Originator's Memories — Unscalable Value"],
+      ["implicit.stat_2696470877"]],
+    ["Elder and Eradicator", "Rare", [
+      "Area is influenced by The Elder — Unscalable Value",
+      "Map is occupied by The Eradicator(...) — Unscalable Value",
+    ], ["implicit.stat_1792283443|2", "implicit.stat_3624393862|2"]],
+  ])("matches exactly the copied map's influences for %s", (_label, rarity, implicits, present) => {
+    const item = parseClipboard([
+      "Item Class: Maps", "Rarity: " + rarity, "Map (Tier 16)", "--------", "Item Level: 84",
+      "--------", "Monster Level: 83", "--------", "{ Implicit Modifier }", ...implicits,
+      ...(rarity === "Rare" ? ["--------", "Unidentified"] : []),
+      "--------", "Travel to a Map of this tier or lower by using this in a personal Map Device. Maps can only be used once.",
+    ].join("\n"))._unsafeUnwrap();
+    expect(item.unknownModifiers).toEqual([]);
+    const { presets: [preset] } = createPresets(item, { ...options, searchStatRange: 10, defaultAllSelected: false });
+    expectMapInfluences(createTradeRequest(preset.filters, preset.stats, item).query, present);
   });
 
   it("prices a Tier 16 Planar Challenge by its rewards and influence, with optional affixes", () => {
@@ -581,7 +649,7 @@ Corrupted`)._unsafeUnwrap();
       expect.objectContaining({ id: "pseudo.pseudo_map_more_map_drops", value: { min: 35 } }),
       expect.objectContaining({ id: "implicit.stat_2696470877" }),
     ]);
-    expect(query.stats.some(group => group.type === "not")).toBe(false);
+    expectMapInfluences(query, ["implicit.stat_2696470877"]);
     preset.filters.mapRewards!.find(reward => reward.key === "MAP_MORE_MAPS")!.disabled = true;
     preset.filters.mapRewards!.find(reward => reward.key === "MAP_ATLAS_DROPS")!.value = 70;
     groups[1].filters[0].disabled = false;
@@ -631,7 +699,7 @@ Corrupted`)._unsafeUnwrap();
       map_tier: { min: 16, max: 16 }, map_bonus: { min: 49 }, map_iir: { min: 29 }, map_packsize: { min: 19 },
     });
     expect(query.stats[0].filters.filter(stat => !stat.disabled)).toEqual([]);
-    expect(query.stats.find(group => group.type === "not")?.filters).toHaveLength(7);
+    expectMapInfluences(query, []);
     expect(query.filters.map_filters?.filters).not.toHaveProperty("area_level");
     expect(query.filters.misc_filters?.filters ?? {}).not.toHaveProperty("ilvl");
     expect(query.filters.misc_filters?.filters.corrupted).toEqual({ option: "true" });
@@ -658,7 +726,7 @@ Corrupted`)._unsafeUnwrap();
       expect.objectContaining({ id: "implicit.stat_1792283443|2" }),
       expect.objectContaining({ id: "implicit.stat_3624393862|4" }),
     ]));
-    expect(query.stats.some(group => group.type === "not")).toBe(false);
+    expectMapInfluences(query, ["implicit.stat_1792283443|2", "implicit.stat_3624393862|4"]);
   });
 
   it.each([true, false])("keeps a Conqueror citadel's influence in the map search with advanced text %s", (advanced) => {
@@ -668,9 +736,7 @@ Corrupted`)._unsafeUnwrap();
       "Item Quantity increases amount of Rewards Baran drops by 20% of its value",
     ].join("\n"))._unsafeUnwrap();
     const { presets: [preset] } = createPresets(item, { ...options, searchStatRange: 10, defaultAllSelected: false });
-    const { stats } = createTradeRequest(preset.filters, preset.stats, item).query;
-    expect(stats[0].filters).toContainEqual(expect.objectContaining({ id: "implicit.stat_2563183002|1", disabled: false }));
-    expect(stats.some(group => group.type === "not")).toBe(false);
+    expectMapInfluences(createTradeRequest(preset.filters, preset.stats, item).query, ["implicit.stat_2563183002|1"]);
   });
 
   it("uses the gem level and quality without support sockets", () => {
@@ -680,6 +746,70 @@ Corrupted`)._unsafeUnwrap();
     expect(request.query.filters.misc_filters?.filters).toMatchObject({
       gem_level: { min: 21 }, quality: { min: 20 }, corrupted: { option: "true" },
     });
+  });
+
+  const chronicle = `Item Class: Misc Map Items
+Rarity: Currency
+Chronicle of Atzoatl
+--------
+Area Level: 83
+--------
+Open Rooms:
+Halls
+Corruption Chamber (Tier 1)
+Hall of Legends (Tier 3)
+Chamber of Iron (Tier 3)
+Hybridisation Chamber (Tier 3)
+Gemcutter's Workshop (Tier 1)
+Shrine of Empowerment (Tier 1)
+Chasm
+Atlas of Worlds (Tier 3)
+Vault (Tier 1)
+Obstructed Rooms:
+Tombs
+Apex of Atzoatl
+--------
+"The Architects intended to research supposed 'Obelisks Beyond Time,' but the Vaal fell before the first obtained monolith was so much as measured." - Icius Perandus, Antiquities Collection, Crystal Shard
+--------
+Right click this item to view the Temple of Atzoatl.
+Can be used in a personal Map Device to open portals to the Temple of Atzoatl in the present day.
+--------
+Note: ~b/o 19 chaos`;
+
+  it("selects the preferred rooms present on the copied Chronicle and searches for Open Room", () => {
+    const item = parseClipboard(chronicle)._unsafeUnwrap();
+    const { presets: [preset] } = createPresets(item, { ...options, searchStatRange: 10, defaultAllSelected: false });
+    const openRooms = () => createTradeRequest(preset.filters, preset.stats, item).query.stats[0].filters
+      .filter(filter => !filter.disabled).map(({ id, value }) => ({ id, value }));
+
+    expect(item.areaLevel).toBe(83);
+    expect(item.statsByType.find(calc => calc.stat.ref === "Has Room: Apex of Atzoatl")?.sources[0].contributes?.option).toBe(2);
+    expect(apiToSatisfySearch(item, preset.stats, preset.filters)).toBe("trade");
+    expect(openRooms()).toEqual([
+      { id: "pseudo.pseudo_temple_cartography_room_3", value: { option: 1 } },
+      { id: "pseudo.pseudo_temple_apex", value: { option: 1 } },
+    ]);
+    const apex = preset.stats.find(filter => filter.statRef === "Has Room: Apex of Atzoatl")!;
+    expect(modifierComparison(apex, item)).toEqual({ label: "Apex of Atzoatl", onItem: "Obstructed", search: "Open room" });
+    const tombs = preset.stats.find(filter => filter.statRef === "Has Room: Tombs")!;
+    expect(tombs.disabled).toBe(true);
+    tombs.disabled = false;
+    expect(openRooms()).toContainEqual({ id: "pseudo.pseudo_temple_tombs", value: { option: 1 } });
+  });
+
+  it("preselects both tier-three upgrade rooms when they are present", () => {
+    const item = parseClipboard(chronicle
+      .replace("Corruption Chamber (Tier 1)", "Locus of Corruption (Tier 3)")
+      .replace("Gemcutter's Workshop (Tier 1)", "Doryani's Institute (Tier 3)"))._unsafeUnwrap();
+    const { presets: [preset] } = createPresets(item, { ...options, searchStatRange: 10, defaultAllSelected: false });
+    const enabled = preset.stats.filter(filter => !filter.disabled);
+    expect(enabled.map(filter => filter.tradeId[0])).toEqual([
+      "pseudo.pseudo_temple_corruption_room_3",
+      "pseudo.pseudo_temple_gem_room_3",
+      "pseudo.pseudo_temple_cartography_room_3",
+      "pseudo.pseudo_temple_apex",
+    ]);
+    expect(enabled.map(filter => filter.option?.value)).toEqual([1, 1, 1, 1]);
   });
 
   it("selects bulk exchange for PoE 1 currency", () => {

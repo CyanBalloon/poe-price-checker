@@ -32,6 +32,7 @@
         :fraction="filters.stackSize != null"
         :item-img="item.info.icon"
         :item-base="item.info"
+        :influences="item.influences"
       >
         <template #item v-if="isValuableBasetype">
           <span class="text-gray-400">{{ t(":base_item") }}</span>
@@ -56,6 +57,7 @@
       currency-text
       :item-img="item.info.icon"
       :item-base="item.info"
+      :influences="item.influences"
     />
   </div>
 </template>

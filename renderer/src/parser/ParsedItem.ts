@@ -18,6 +18,8 @@ export enum ItemInfluence {
   Redeemer = "Redeemer",
   Shaper = "Shaper",
   Warlord = "Warlord",
+  SearingExarch = "Searing Exarch",
+  EaterOfWorlds = "Eater of Worlds",
 }
 
 // export interface Augment {

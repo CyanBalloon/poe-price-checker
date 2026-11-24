@@ -70,7 +70,8 @@ function createTradeData(game: GameVersion) {
     const statDataSet = new Set<string>();
 
     for (const { id: modType, entries } of rawStatsData.result) {
-      for (const { id: statId, text: matcher } of entries) {
+      for (const { id: statId, text } of entries) {
+        const matcher = game === "poe1" ? text.replace(/\+#/g, "#") : text;
         let modMap = outStatData.get(matcher);
 
         if (!modMap) {
@@ -86,7 +87,7 @@ function createTradeData(game: GameVersion) {
         }
 
         statDataSet.add(statId);
-        statIds.push(statId);
+        if (!statIds.includes(statId)) statIds.push(statId);
       }
     }
     performance.measure("loadStatData", {

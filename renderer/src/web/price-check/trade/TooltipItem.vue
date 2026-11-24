@@ -1,11 +1,14 @@
 <template>
   <div class="flex flex-row items-center">
-    <div v-if="result.displayItem.icon" class="flex items-center justify-center shrink-0 mr-4">
+    <div v-if="result.displayItem.icon" class="flex flex-col items-center justify-center shrink-0 mr-4">
       <ui-detailed-item-img
         :icon="result.displayItem.icon.url"
+        :base-icon="result.displayItem.icon.baseUrl"
+        :influences="result.displayItem.influences"
         :item-width="result.displayItem.icon.w"
         :sockets="result.displayItem.sockets"
       />
+      <item-influence-symbols :influences="result.displayItem.influences" />
     </div>
     <div class="flex flex-col text-center flex-grow">
       <div
@@ -87,6 +90,7 @@ import { defineComponent, PropType } from "vue";
 import { PricingResult } from "./pathofexile-trade";
 import { useI18n } from "vue-i18n";
 import UiDetailedItemImg from "@/web/ui/UiDetailedItemImg.vue";
+import ItemInfluenceSymbols from "@/web/ui/ItemInfluenceSymbols.vue";
 
 const STRIP_PERCENT_MODS = new Set([
   "item.crit",
@@ -101,6 +105,7 @@ const STRIP_PERCENT_MODS = new Set([
 export default defineComponent({
   components: {
     UiDetailedItemImg,
+    ItemInfluenceSymbols,
   },
   props: {
     result: {

@@ -108,7 +108,28 @@ export function createPresets(
     };
   })();
 
-  if (item.category === ItemCategory.Currency) {
+  if (opts.includeSourceModifiers) {
+    for (const [index, preset] of result.presets.entries()) {
+      const area = item.logbookAreaMods?.[index];
+      const copiedStats = area ? sumStatsByModType(area) : item.statsByType;
+      const represented = new Set(preset.stats.flatMap(filter => filter.sources
+        .filter(source => source.stat.stat.ref === filter.statRef).map(source => source.stat)));
+      const identity = (filter: (typeof preset.stats)[number]) =>
+        JSON.stringify([filter.tradeId, filter.option?.value]);
+      const existing = new Set(preset.stats.map(identity));
+      for (const calc of copiedStats) {
+        if (calc.sources.every(source => represented.has(source.stat))) continue;
+        const filter = calculatedStatToFilter(calc, opts.searchStatRange, item);
+        const key = identity(filter);
+        if (!filter.tradeId.length || existing.has(key)) continue;
+        // Offer the original roll without changing the active preset's trade request.
+        preset.stats.push({ ...filter, disabled: true, allModsOnly: true });
+        existing.add(key);
+      }
+    }
+  }
+
+  if (item.category === ItemCategory.Currency && item.info.refName !== "Chronicle of Atzoatl") {
     for (const preset of result.presets) {
       for (const stat of preset.stats) {
         stat.disabled = true;

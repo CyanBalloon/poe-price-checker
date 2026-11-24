@@ -59,6 +59,8 @@ export function createExactStatFilters(
     ModifierType.Necropolis,
     ModifierType.Sanctum,
     ModifierType.Skill,
+    ModifierType.Imbued,
+    ModifierType.Scourge,
   ];
 
   if (

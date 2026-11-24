@@ -150,6 +150,7 @@ export interface StatFilter {
     value: number; // NOTE: mutable in UI
   };
   hidden?: string;
+  allModsOnly?: boolean;
   disabled: boolean; // NOTE: mutable in UI
   additionalInfo?: {
     elementalInfo?: {
@@ -230,5 +231,6 @@ export enum FilterTag {
   AddedAugment = "added-rune",
   Desecrated = "desecrated",
   Skill = "skill",
+  Imbued = "imbued",
   Mutated = "mutated",
 }

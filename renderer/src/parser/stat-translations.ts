@@ -26,6 +26,8 @@ export interface ParsedStat {
     min: number;
     max: number;
     option?: number;
+    /** Individual clipboard rolls when trade searches by their average. */
+    values?: readonly number[];
   };
   fromAddedAugment?: BaseType;
 }
@@ -193,29 +195,28 @@ export function tryParseTranslation(
 ): ParsedStat | undefined {
   let backupParsedStat: ParsedStat | undefined;
   let backupParsedCombination;
+  const poe1 = _$.MAP_TIER instanceof RegExp;
+  const realType = modType === ModifierType.AddedAugment ? ModifierType.Augment : modType;
 
   for (const combination of _statPlaceholderGenerator(stat.string)) {
     const found = findAndResolveTranslation({
       matchStr: combination.stat,
-      modType: modType,
+      modType: realType,
       itemCategory: itemCategory,
       roll:
         combination.values.length === 1
           ? combination.values[0].roll
           : undefined,
-    });
-    const realType =
-      modType === ModifierType.AddedAugment ? ModifierType.Augment : modType;
-    if (
-      !found ||
-      (!hasTradeIdForType(found.stat?.trade?.ids, realType) &&
-        !found.stat?.ref.startsWith(_$REF.GRANTS_SKILL))
-    ) {
+    }, poe1);
+    const supported = found && (hasTradeIdForType(found.stat.trade.ids, realType) ||
+      found.stat.ref.startsWith(_$REF.GRANTS_SKILL));
+    if (!supported || (poe1 && !found.stat.trade.ids[realType]?.length)) {
       if (backupParsedStat) {
         continue;
       }
 
-      backupParsedStat = trySecondaryParseTranslation(combination.stat);
+      backupParsedStat = trySecondaryParseTranslation(combination.stat, poe1 ? realType : undefined) ??
+        (supported ? { stat: found.stat, translation: found.matcher } : undefined);
       if (backupParsedStat) {
         backupParsedCombination = combination;
       }
@@ -259,6 +260,7 @@ function parseRoll(
   },
   stat: StatString,
 ): ParsedStat["roll"] {
+  const values = combination.values.length > 1 ? combination.values.map(value => value.roll) : undefined;
   let legacyStatRolls = false;
 
   if (found.matcher.negate) {
@@ -341,7 +343,7 @@ function parseRoll(
     ),
     option: found.matcher.value,
   };
-  return roll;
+  return values ? { ...roll, values } : roll;
 }
 
 export function getRollOrMinmaxAvg(values: number[]): number {
@@ -352,9 +354,20 @@ export function getRollOrMinmaxAvg(values: number[]): number {
   }
 }
 
-function trySecondaryParseTranslation(stat: string): ParsedStat | undefined {
+function trySecondaryParseTranslation(stat: string, poe1Type?: ModifierType): ParsedStat | undefined {
   const tradeStat = TRADE_STAT_BY_MATCH_STR?.(stat);
   if (!tradeStat) return;
+
+  if (poe1Type) {
+    const ids = tradeStat[poe1Type];
+    if (ids?.length !== 1) return;
+    // PoE1's pipe-qualified trade IDs already include the selected variant.
+    const matcher = { string: stat };
+    return {
+      stat: { ref: stat, better: StatBetter.PositiveRoll, matchers: [matcher], trade: { ids: { [poe1Type]: ids } } },
+      translation: matcher,
+    };
+  }
 
   let optionValue: number | undefined;
   for (const type in tradeStat) {
@@ -400,11 +413,9 @@ interface FindResolveParams {
 
 function findAndResolveTranslation(
   params: FindResolveParams,
+  poe1: boolean,
 ): { matcher: StatMatcher; stat: Stat } | undefined {
-  const { matchStr } = params;
-  const statOrGroup = STAT_BY_MATCH_STR(matchStr);
-
-  return statOrGroup;
+  return STAT_BY_MATCH_STR(params.matchStr, poe1 ? params.modType : undefined);
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention

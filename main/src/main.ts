@@ -8,7 +8,7 @@ import { existsSync } from "node:fs";
 import { startServer, eventPipe, server } from "./server";
 import { Logger } from "./RemoteLogger";
 import { GameWindow } from "./windowing/GameWindow";
-import { AppWindow } from "./windowing/AppWindow";
+import { AppWindow, createStandaloneWindow } from "./windowing/AppWindow";
 import { GameConfig } from "./host-files/GameConfig";
 import { Shortcuts } from "./shortcuts/Shortcuts";
 import { AppUpdater } from "./AppUpdater";
@@ -21,8 +21,10 @@ import { installExtension, VUEJS_DEVTOOLS } from "electron-devtools-installer";
 import { FileWriter } from "./host-files/FileWriter";
 import { startDevRenderer } from "./dev-renderer";
 
+const offscreenTest = app.commandLine.hasSwitch("poe-offscreen-test");
+
 // Existing installations keep their settings, saved window position and sign-in session.
-if (app.isPackaged && !app.commandLine.hasSwitch("user-data-dir")) {
+if (!offscreenTest && app.isPackaged && !app.commandLine.hasSwitch("user-data-dir")) {
   const previousProfile = path.join(app.getPath("appData"), "poe2-price-checker");
   if (existsSync(previousProfile)) {
     app.setPath("userData", previousProfile);
@@ -30,7 +32,12 @@ if (app.isPackaged && !app.commandLine.hasSwitch("user-data-dir")) {
   }
 }
 
-if (!app.requestSingleInstanceLock()) {
+if (offscreenTest) {
+  if (!app.commandLine.getSwitchValue("user-data-dir")) {
+    console.error("Offscreen tests require a temporary --user-data-dir. Use the offscreen test runner.");
+    app.exit(2);
+  }
+} else if (!app.requestSingleInstanceLock()) {
   app.exit();
 }
 
@@ -40,7 +47,7 @@ app.enableSandbox();
 let tray: AppTray;
 
 (async () => {
-  if (process.platform === "darwin") {
+  if (!offscreenTest && process.platform === "darwin") {
     async function ensureAccessibilityPermission(): Promise<boolean> {
       if (systemPreferences.isTrustedAccessibilityClient(false)) return true;
 
@@ -75,13 +82,31 @@ let tray: AppTray;
   }
 
   app.on("ready", async () => {
-    tray = new AppTray(eventPipe);
     const logger = new Logger(eventPipe);
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const _httpProxy = new HttpProxy(server, logger);
+
+    if (offscreenTest) {
+      try {
+        const port = await startServer({ info: { state: "unavailable", reason: "disabled" } }, logger, 0);
+        const win = createStandaloneWindow({
+          width: 1280, height: 800, show: false, focusable: false, skipTaskbar: true,
+          webPreferences: { offscreen: true, backgroundThrottling: false, disableDialogs: true },
+        });
+        win.webContents.setWindowOpenHandler(() => ({ action: "deny" }));
+        app.once("before-quit", () => { if (!win.isDestroyed()) win.destroy(); });
+        await win.loadURL(`http://localhost:${port}/index.html?mode=standalone`);
+      } catch (error) {
+        console.error("Could not start offscreen UI test", error);
+        app.exit(1);
+      }
+      return;
+    }
+
+    tray = new AppTray(eventPipe);
     const gameConfig = new GameConfig(eventPipe, logger);
     const poeWindow = new GameWindow();
     const appUpdater = new AppUpdater(eventPipe);
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const _httpProxy = new HttpProxy(server, logger);
     const fileWriter = new FileWriter(eventPipe, logger);
     const gameLogWatcher = new GameLogWatcher(eventPipe, logger, fileWriter);
 

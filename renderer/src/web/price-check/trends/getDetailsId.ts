@@ -55,6 +55,7 @@ export function getDetailsId(item: ParsedItem, marketImplicits: VisceraImplicit[
     return { ns: item.info.namespace, name: item.info.refName, variant };
   }
   if (item.category === ItemCategory.Gem) {
+    if (item.statsByType.some(stat => stat.type === ModifierType.Imbued)) return;
     return forSkillGem(item);
   }
   if (item.category === ItemCategory.Map && AppConfig()?.game === "poe1") {

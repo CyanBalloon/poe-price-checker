@@ -52,6 +52,7 @@ export const itemCatalogue = shallowRef(buildCatalogue([], [], []));
 
 export let STAT_BY_MATCH_STR: (
   name: string,
+  type?: string,
 ) => { matcher: StatMatcher; stat: Stat } | undefined = () => undefined;
 export let STAT_BY_REF: (name: string) => Stat | undefined = () => undefined;
 export let STATS_ITERATOR: (
@@ -304,17 +305,17 @@ async function loadStats(directory: string) {
       const stats = Array.from(findStats(indexRef, ref)).filter((stat) => stat.ref === ref);
       return stats.length ? mergeStats(stats) : undefined;
     },
-    byMatcher(text: string) {
-      const stats: Stat[] = [];
-      let matcher: StatMatcher | undefined;
+    byMatcher(text: string, type?: string) {
+      const matches = [];
       for (const stat of findStats(indexMatcher, text)) {
-        const match = stat.matchers.find((m) => m.string === text || m.advanced === text);
-        if (match) {
-          matcher ??= match;
-          stats.push(stat);
-        }
+        const matcher = stat.matchers.find((m) => m.string === text || m.advanced === text);
+        if (matcher) matches.push({ stat, matcher });
       }
-      return matcher ? { stat: mergeStats(stats), matcher } : undefined;
+      const typed = type ? matches.filter(({ stat }) => stat.trade.ids[type]?.length) : [];
+      const resolved = typed.length ? typed : matches;
+      if (resolved.length) {
+        return { stat: mergeStats(resolved.map(({ stat }) => stat)), matcher: resolved[0].matcher };
+      }
     },
     *iterator(includes: string, andIncludes?: string[]) {
       for (const line of statLines(includes, andIncludes)) yield* unpackStats(line);

@@ -180,4 +180,5 @@ export enum ModifierType {
   Sanctum = "sanctum",
   Desecrated = "desecrated",
   Skill = "skill",
+  Imbued = "imbued",
 }

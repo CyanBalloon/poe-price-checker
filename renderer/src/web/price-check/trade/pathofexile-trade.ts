@@ -1,6 +1,8 @@
+import { sameItemIconArt } from "@ipc/item-icons";
 import { AppConfig } from "@/web/Config";
 import { getCategoryToTradeId } from "./trade-constants";
-import { ItemCategory, ParsedItem, ItemRarity } from "@/parser";
+import { ItemCategory, ParsedItem, ItemInfluence, ItemRarity } from "@/parser";
+import { readListingInfluences, type ListingInfluences } from "@/parser/item-influences";
 import {
   ItemFilters,
   StatFilter,
@@ -21,10 +23,10 @@ import {
   RATE_LIMIT_RULES,
   preventQueueCreation,
 } from "./common";
-import { STAT_BY_REF, CLIENT_STRINGS as _$ } from "@/assets/data";
+import { STAT_BY_REF, CLIENT_STRINGS as _$, ITEM_BY_REF, ITEM_BY_TRANSLATED } from "@/assets/data";
 import { RateLimiter } from "./RateLimiter";
 import { ModifierType } from "@/parser/modifiers";
-import { isMapInfluenceId, mapInfluenceExclusions, mapRewardFields } from "@/parser/poe1-map";
+import { mapInfluenceTradeIds, mapRewardFields } from "@/parser/poe1-map";
 import { Cache } from "./Cache";
 import { parseAffixStrings } from "@/parser/Parser";
 import {
@@ -318,6 +320,8 @@ export interface TradeRequest {
           unidentified_tier?: FilterRange;
           veiled?: FilterBoolean;
           fractured_item?: FilterBoolean;
+          searing_item?: FilterBoolean;
+          tangled_item?: FilterBoolean;
         };
       };
       trade_filters?: {
@@ -349,7 +353,7 @@ interface TradeModMetadata {
 }
 
 export interface RawTradeResult {
-  item: {
+  item: ListingInfluences & {
     frameType: number;
     name?: string;
     typeLine?: string;
@@ -376,7 +380,7 @@ export type TradeModLine = string | { description: string; hash?: string };
 
 interface FetchResult {
   id: string;
-  item: {
+  item: ListingInfluences & {
     w: 2;
     h: 3;
     icon: string;
@@ -475,6 +479,7 @@ export enum DisplayFrameType {
 
 export interface DisplayItem {
   title: string[];
+  influences?: ItemInfluence[];
   mapTier?: number;
   atlasDrops?: string;
   rarity: ItemRarity;
@@ -496,6 +501,7 @@ export interface DisplayItem {
   sockets: Array<{ group: number; type: string; item?: string }>;
   icon?: {
     url: string;
+    baseUrl?: string;
     w: number;
     h: number;
   };
@@ -551,10 +557,16 @@ export function createTradeRequest(
     },
   };
   const { query } = body;
+  stats = stats.filter(stat => stat.tradeId.length && !(stat.allModsOnly && stat.disabled));
 
-  if (poe1 && item.category === ItemCategory.Map &&
-      !item.statsByType.some(({ stat }) => stat.trade.ids.implicit?.some(isMapInfluenceId))) {
-    query.stats.push({ type: "not", filters: mapInfluenceExclusions.map(id => ({ id })) });
+  if (poe1 && item.category === ItemCategory.Map) {
+    const present = new Set(item.statsByType
+      .filter(({ type }) => type === ModifierType.Implicit)
+      .flatMap(({ stat }) => stat.trade.ids.implicit ?? []));
+    const excluded = mapInfluenceTradeIds.filter(id => !present.has(id));
+    if (excluded.length) {
+      query.stats.push({ type: "not", filters: excluded.map(id => ({ id })) });
+    }
   }
 
   if (filters.trade.currency) {
@@ -1163,9 +1175,16 @@ export function createTradeRequest(
 
   const qAnd = query.stats[0];
   if (poe1 && filters.influences) {
-    for (const influence of filters.influences) {
-      const id = STAT_BY_REF("Has " + influence.value + " Influence")?.trade.ids.pseudo?.[0];
-      if (id) qAnd.filters.push({ id, disabled: influence.disabled });
+    for (const { value, disabled } of filters.influences) {
+      if (value === ItemInfluence.SearingExarch || value === ItemInfluence.EaterOfWorlds) {
+        if (!disabled) {
+          const field = value === ItemInfluence.SearingExarch ? "searing_item" : "tangled_item";
+          propSet(query.filters, `misc_filters.filters.${field}.option`, "true");
+        }
+      } else {
+        const id = STAT_BY_REF("Has " + value + " Influence")?.trade.ids.pseudo?.[0];
+        if (id) qAnd.filters.push({ id, disabled });
+      }
     }
   }
 
@@ -1559,8 +1578,10 @@ function parseFetchResult(result: FetchResult): PricingResult["displayItem"] {
 
   const mapTier = _$.MAP_TIER instanceof RegExp
     ? _$.MAP_TIER.exec(result.item.baseType ?? result.item.typeLine)?.[1] : undefined;
+  const influences = AppConfig().game === "poe1" ? readListingInfluences(result.item) : undefined;
   const displayItem: PricingResult["displayItem"] = {
     title,
+    influences,
     mapTier: mapTier ? Number(mapTier) : undefined,
     atlasDrops: mapTier ? result.item.properties?.find(prop => prop.type === TradePropType.Poe1AtlasDrops)?.values[0]?.[0] : undefined,
     rarity: result.item.rarity ?? ({
@@ -1582,12 +1603,22 @@ function parseFetchResult(result: FetchResult): PricingResult["displayItem"] {
     itemTags,
     icon: {
       url: result.item.icon,
+      baseUrl: influences?.includes(ItemInfluence.Hunter) && influences.length > 1
+        ? listingSilhouette(result.item) : undefined,
       w: result.item.w,
       h: result.item.h,
     },
   };
 
   return displayItem;
+}
+
+function listingSilhouette(item: FetchResult["item"]) {
+  const unique = item.frameType === DisplayFrameType.Unique || item.rarity === ItemRarity.Unique;
+  const namespace = unique ? "UNIQUE" : "ITEM";
+  const name = unique ? item.name : item.baseType || item.typeLine;
+  const bases = ITEM_BY_TRANSLATED(namespace, name) ?? ITEM_BY_REF(namespace, name);
+  return bases?.find(base => base.icon && sameItemIconArt(base.icon, item.icon))?.icon;
 }
 
 function parseMods(result: FetchResult): {

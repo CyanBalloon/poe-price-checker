@@ -17,11 +17,11 @@ import {
 } from "./stat-translations";
 import { ItemCategory } from "./meta";
 import { matchVisceraImplicit } from "./viscera";
+import { itemInfluences } from "./item-influences";
 import { isMapInfluenceId, readMapProperties } from "./poe1-map";
 import {
   IncursionRoom,
   ParsedItem,
-  ItemInfluence,
   ItemRarity,
   itemIsModifiable,
 } from "./ParsedItem";
@@ -75,6 +75,7 @@ const parsers: Array<ParserFn | { virtual: VirtualParserFn }> = [
   parseRequirements,
   parseTalismanTier,
   parseGem,
+  parseImbuedGem,
   parseArmour,
   parseWeapon,
   parseCaster,
@@ -87,7 +88,6 @@ const parsers: Array<ParserFn | { virtual: VirtualParserFn }> = [
   parseStackSize,
   parseCorrupted,
   parseFoil,
-  parseInfluence,
   parseUnidentified,
   parseMap,
   parseWaystone,
@@ -132,7 +132,7 @@ export function parseClipboard(clipboard: string): Result<ParsedItem, string> {
     const parsed = parseNamePlate(sections[0]);
     if (!parsed.isOk()) return parsed;
 
-    sections.shift();
+    sections = extractInfluences(parsed.value, sections.slice(1));
     parsed.value.rawText = clipboard;
 
     performance.mark("parse-start-parsers");
@@ -545,39 +545,15 @@ function parseNamePlate(section: string[]) {
   return ok(item);
 }
 
-function parseInfluence(section: string[], item: ParsedItem) {
-  performance.mark("parseInfluence");
-  if (section.length <= 2) {
-    const countBefore = item.influences.length;
-
-    for (const line of section) {
-      switch (line) {
-        case _$.INFLUENCE_CRUSADER:
-          item.influences.push(ItemInfluence.Crusader);
-          break;
-        case _$.INFLUENCE_ELDER:
-          item.influences.push(ItemInfluence.Elder);
-          break;
-        case _$.INFLUENCE_SHAPER:
-          item.influences.push(ItemInfluence.Shaper);
-          break;
-        case _$.INFLUENCE_HUNTER:
-          item.influences.push(ItemInfluence.Hunter);
-          break;
-        case _$.INFLUENCE_REDEEMER:
-          item.influences.push(ItemInfluence.Redeemer);
-          break;
-        case _$.INFLUENCE_WARLORD:
-          item.influences.push(ItemInfluence.Warlord);
-          break;
-      }
-    }
-
-    if (countBefore < item.influences.length) {
-      return "SECTION_PARSED";
-    }
-  }
-  return "SECTION_SKIPPED";
+function extractInfluences(item: ParsedItem, sections: string[][]) {
+  // The final influence lines can share the last affix's section or have their own separator.
+  const markers = new Map(itemInfluences.map(({ marker, value }) => [_$[marker], value] as const));
+  return sections.map(section => section.filter(line => {
+    const influence = markers.get(line.trim());
+    if (!influence) return true;
+    if (!item.influences.includes(influence)) item.influences.push(influence);
+    return false;
+  })).filter(section => section.length);
 }
 
 // #region Small Sections
@@ -731,6 +707,20 @@ function parseGem(section: string[], item: ParsedItem) {
   return "SECTION_SKIPPED";
 }
 // #endregion
+
+function parseImbuedGem(section: string[], item: ParsedItem) {
+  if (item.category !== ItemCategory.Gem || !(_$.MAP_TIER instanceof RegExp)) return "PARSER_SKIPPED";
+  if (section.length !== 1) return "SECTION_SKIPPED";
+
+  const support = STAT_BY_MATCH_STR(section[0], ModifierType.Imbued);
+  if (!support?.stat.trade.ids[ModifierType.Imbued]?.length) return "SECTION_SKIPPED";
+
+  item.newMods.push({
+    info: { tags: [], type: ModifierType.Imbued },
+    stats: [{ stat: support.stat, translation: support.matcher }],
+  });
+  return "SECTION_PARSED";
+}
 
 function parseStackSize(section: string[], item: ParsedItem) {
   performance.mark("parseStackSize");
@@ -1139,7 +1129,8 @@ export function parseModifiersPoe2(section: string[], item: ParsedItem) {
     foundAnyMods = parseStatsFromMod(lines, item, { info: modInfo, stats: [] });
   } else {
     const isPoe1Map = item.category === ItemCategory.Map && _$.MAP_TIER instanceof RegExp;
-    const isMapInfluence = (text: string) => STAT_BY_MATCH_STR(text)?.stat.trade.ids.implicit?.some(isMapInfluenceId);
+    const isMapInfluence = (text: string) =>
+      STAT_BY_MATCH_STR(normalizeMapInfluenceText(text))?.stat.trade.ids.implicit?.some(isMapInfluenceId);
     for (let index = 0; index < section.length; index++) {
       let { modType, lines } = parseModType([section[index]]);
       if (isPoe1Map) {
@@ -1227,6 +1218,7 @@ function parseModifiers(section: string[], item: ParsedItem) {
       const { modType, lines } = parseModType(statLines);
 
       const modInfo = parseModInfoLine(modLine, modType);
+      if (modInfo.influence && !item.influences.includes(modInfo.influence)) item.influences.push(modInfo.influence);
       if (
         item.category === ItemCategory.Relic &&
         modInfo.type === ModifierType.Explicit
@@ -1628,6 +1620,7 @@ function parseAtzoatlRooms(section: string[], item: ParsedItem) {
               value: state,
               min: state,
               max: state,
+              option: state,
               dp: false,
               unscalable: true,
             },
@@ -1704,6 +1697,11 @@ function markupConditionParser(text: string) {
   return text;
 }
 
+function normalizeMapInfluenceText(text: string) {
+  const stat = text.endsWith(_$.UNSCALABLE_VALUE) ? text.slice(0, -_$.UNSCALABLE_VALUE.length) : text;
+  return stat.replace(/\s*\((?:\.{3}|…)?\)$/u, "");
+}
+
 function parseStatsFromMod(
   lines: string[],
   item: ParsedItem,
@@ -1715,11 +1713,15 @@ function parseStatsFromMod(
     return true;
   }
 
+  const isPoe1MapImplicit = item.category === ItemCategory.Map && modifier.info.type === ModifierType.Implicit &&
+    _$.MAP_TIER instanceof RegExp;
   const statIterator = linesToStatStrings(lines);
   let stat = statIterator.next();
   while (!stat.done) {
     if (item.info.refName === "From Nothing") {
       stat.value.string = stat.value.string.replace("()", "");
+    } else if (isPoe1MapImplicit) {
+      stat.value.string = normalizeMapInfluenceText(stat.value.string);
     }
 
     const parsedStat = tryParseTranslation(

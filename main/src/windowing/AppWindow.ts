@@ -7,6 +7,24 @@ import type { ServerEvents } from "../server";
 import type { Logger } from "../RemoteLogger";
 import type { GameWindow } from "./GameWindow";
 
+export function createStandaloneWindow(options: Electron.BrowserWindowConstructorOptions) {
+  return new BrowserWindow({
+    icon: appIconPath,
+    title: "PoE Price Checker",
+    ...(process.platform === "win32" && {
+      titleBarStyle: "hidden",
+      titleBarOverlay: { color: "#00000000", symbolColor: "#c6cad0", height: 56 },
+    }),
+    ...options,
+    webPreferences: {
+      allowRunningInsecureContent: false,
+      webviewTag: true,
+      spellcheck: false,
+      ...options.webPreferences,
+    },
+  });
+}
+
 export class AppWindow {
   public isInteractable = false;
   public wasUsedRecently = true;
@@ -62,24 +80,13 @@ export class AppWindow {
       } catch {}
     }
 
-    this.window = new BrowserWindow({
-      icon: appIconPath,
+    this.window = createStandaloneWindow({
       width: isStandalone ? windowState.width : 800,
       height: isStandalone ? windowState.height : 600,
       x: isStandalone ? windowState.x : undefined,
       y: isStandalone ? windowState.y : undefined,
       skipTaskbar: false,
-      ...(process.platform === "win32" && {
-        titleBarStyle: "hidden",
-        titleBarOverlay: { color: "#00000000", symbolColor: "#c6cad0", height: 56 },
-      }),
-      title: "PoE Price Checker",
       show: true,
-      webPreferences: {
-        allowRunningInsecureContent: false,
-        webviewTag: true,
-        spellcheck: false,
-      },
     });
 
     if (isStandalone) {

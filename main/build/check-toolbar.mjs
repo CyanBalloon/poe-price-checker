@@ -1,20 +1,13 @@
 import assert from "node:assert/strict";
-import { mkdir, mkdtemp, rm } from "node:fs/promises";
-import os from "node:os";
+import { mkdir } from "node:fs/promises";
 import path from "node:path";
-import { _electron as electron } from "playwright-core";
+import { withOffscreenApp } from "./offscreen-app.mjs";
 
 const executablePath = path.resolve(process.argv[2] ?? "dist/win-unpacked/PoE Price Checker.exe");
 const screenshots = process.argv[3];
 if (screenshots) await mkdir(screenshots, { recursive: true });
-const profile = await mkdtemp(path.join(os.tmpdir(), "poe-toolbar-"));
-const env = { ...process.env };
-delete env.ELECTRON_RUN_AS_NODE;
-let app;
-try {
-  app = await electron.launch({ executablePath, args: [`--user-data-dir=${profile}`, "--no-updates"], env });
-  const page = await app.firstWindow();
-  const window = await app.browserWindow(page);
+
+await withOffscreenApp(executablePath, async ({ page, window }) => {
   const brand = page.locator(".trade-brand");
   await brand.waitFor();
   await page.evaluate(() => document.fonts.ready);
@@ -63,7 +56,4 @@ try {
       console.log(`${label}: toolbar passed`);
     }
   }
-} finally {
-  await app?.close();
-  await rm(profile, { recursive: true, force: true, maxRetries: 4, retryDelay: 250 });
-}
+});

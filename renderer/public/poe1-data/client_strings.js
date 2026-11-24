@@ -51,6 +51,8 @@ export default {
   INFLUENCE_HUNTER: '狩獵者物品',
   INFLUENCE_REDEEMER: '救贖者物品',
   INFLUENCE_WARLORD: '總督軍物品',
+  INFLUENCE_SEARING: '卓烙總督物品',
+  INFLUENCE_TANGLED: '吞噬天地物品',
   SECTION_SYNTHESISED: '追憶之物',
   ITEM_SYNTHESISED: /^追憶之 (.*)$/,
   VEILED_PREFIX: '隱匿前綴',

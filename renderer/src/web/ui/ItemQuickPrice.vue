@@ -1,13 +1,15 @@
 <template>
   <div class="flex items-center gap-x-1">
     <slot name="item">
-      <div v-if="resolvedItemImg" class="flex items-center justify-center shrink-0">
+      <div v-if="resolvedItemImg" class="flex flex-col items-center justify-center shrink-0">
         <ui-item-img 
           :icon="resolvedItemImg"
           :item-name="itemBase?.refName"
           :namespace="itemBase?.namespace"
+          :influences="influences"
           overflow-hidden 
         />
+        <item-influence-symbols :influences="influences" />
       </div>
     </slot>
     <i class="fas fa-arrow-right text-gray-600 px-1 text-sm"></i>
@@ -48,6 +50,8 @@
 </template>
 
 <script lang="ts">
+import type { ItemInfluence } from "@/parser";
+import ItemInfluenceSymbols from "./ItemInfluenceSymbols.vue";
 import { defineComponent, computed, PropType } from "vue";
 import { displayRounding, usePoeninja, formatChaosOrDivineAmount } from "../background/Prices";
 import { ITEM_BY_REF, BaseType } from "@/assets/data";
@@ -59,6 +63,7 @@ import { currencyIcon } from "@/web/ui/currency-icons";
 export default defineComponent({
   components: {
     UiItemImg,
+    ItemInfluenceSymbols,
     CoreCurrencyImg,
   },
   props: {
@@ -78,6 +83,7 @@ export default defineComponent({
       type: Boolean,
       default: false,
     },
+    influences: Array as PropType<readonly ItemInfluence[]>,
     itemImg: {
       type: String,
       default: undefined,

@@ -63,7 +63,8 @@
           <div v-for="item in starred" :key="itemKey(item.info)" ref="selectedRows"
             :data-name="item.info.refName" :data-namespace="item.info.namespace" class="item-search-row" tabindex="-1">
             <div class="item-search-art">
-              <ui-item-img :icon="item.info.icon || '%NOT_FOUND%'" :item-name="item.info.refName" :namespace="item.info.namespace" />
+              <ui-item-img :icon="item.info.icon || '%NOT_FOUND%'" :item-name="item.info.refName"
+                :namespace="item.info.namespace" :influences="item.rawItem?.influences" />
             </div>
             <div class="item-search-copy">
               <strong :class="{ 'item-search-unique': isUnique(item) }">{{ item.info.name }}</strong>

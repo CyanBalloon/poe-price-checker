@@ -34,7 +34,8 @@ function groupFor(filter: StatFilter, rarity: ItemRarity | undefined): ModifierG
     case FilterTag.Corrupted: return "Implicit";
     case ModifierType.Augment:
     case ModifierType.AddedAugment: return "Socketed augments";
-    case ModifierType.Skill: return "Skills";
+    case ModifierType.Skill:
+    case ModifierType.Imbued: return "Skills";
     case ModifierType.Scourge: return "Scourge";
     case ModifierType.Sanctum: return "Sanctum";
     case ModifierType.Necropolis: return "Necropolis";

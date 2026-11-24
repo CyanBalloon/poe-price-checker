@@ -165,6 +165,8 @@ export interface TranslationDict {
   INFLUENCE_HUNTER: string;
   INFLUENCE_REDEEMER: string;
   INFLUENCE_WARLORD: string;
+  INFLUENCE_SEARING?: string;
+  INFLUENCE_TANGLED?: string;
   SECTION_SYNTHESISED: string;
   ITEM_SYNTHESISED: RegExp;
   VEILED_PREFIX: string;
@@ -193,6 +195,9 @@ export interface TranslationDict {
   MODIFIER_LINE: RegExp;
   PREFIX_MODIFIER: string;
   SUFFIX_MODIFIER: string;
+  RARE_ONLY_PREFIX?: string;
+  RARE_ONLY_SUFFIX?: string;
+  VESTIGIAL_IMPLICIT?: string;
   CRAFTED_MODIFIER: string;
   CRAFTED_PREFIX?: string;
   CRAFTED_SUFFIX?: string;

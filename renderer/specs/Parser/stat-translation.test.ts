@@ -280,4 +280,21 @@ describe("tryParseTranslation", () => {
     expect(data.STAT_BY_MATCH_STR).toHaveBeenCalled();
     expect(data.TRADE_STAT_BY_MATCH_STR).toHaveBeenCalledOnce();
   });
+
+  it("keeps a PoE1 live variant ID intact and requires the copied modifier type", () => {
+    data.CLIENT_STRINGS.MAP_TIER = /Map \(Tier (\d+)\)/;
+    try {
+      vi.mocked(data.STAT_BY_MATCH_STR).mockReturnValue(undefined);
+      vi.mocked(data.TRADE_STAT_BY_MATCH_STR).mockReturnValue({
+        explicit: ["explicit.stat_3187151138|3"],
+      });
+      const text = { string: "Area contains Alva", unscalable: true };
+      const parsed = __testExports.tryParseTranslation(text, ModifierType.Explicit, undefined);
+      expect(parsed?.stat.trade).toEqual({ ids: { explicit: ["explicit.stat_3187151138|3"] } });
+      expect(parsed?.roll).toBeUndefined();
+      expect(__testExports.tryParseTranslation(text, ModifierType.Implicit, undefined)).toBeUndefined();
+    } finally {
+      data.CLIENT_STRINGS.MAP_TIER = "";
+    }
+  });
 });

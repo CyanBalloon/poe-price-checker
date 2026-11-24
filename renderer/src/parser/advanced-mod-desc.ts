@@ -1,6 +1,7 @@
 import { CLIENT_STRINGS as _$ } from "@/assets/data";
 import type { ParsedStat } from "./stat-translations";
 import { ModifierType } from "./modifiers";
+import { ItemInfluence } from "./ParsedItem";
 import { removeLinesEnding } from "./Parser";
 
 export const SCOURGE_LINE = " (scourge)";
@@ -21,6 +22,7 @@ export interface ModifierInfo {
   type: ModifierType;
   generation?: "suffix" | "prefix" | "corrupted" | "eldritch" | "mutated";
   isFoulborn?: true;
+  influence?: ItemInfluence.SearingExarch | ItemInfluence.EaterOfWorlds;
   name?: string;
   tier?: number;
   rank?: number;
@@ -44,10 +46,15 @@ export function parseModInfoLine(
   let tier: ModifierInfo["tier"];
   let rank: ModifierInfo["rank"];
 
-  if (_$.EATER_IMPLICIT.test(modText) || _$.EXARCH_IMPLICIT.test(modText)) {
-    const match =
-      modText.match(_$.EATER_IMPLICIT) ?? modText.match(_$.EXARCH_IMPLICIT)!;
+  let influence: ModifierInfo["influence"];
+  const eater = _$.EATER_IMPLICIT.exec(modText);
+  const match = eater ?? _$.EXARCH_IMPLICIT.exec(modText);
+  if (match) {
     generation = "eldritch";
+    if (_$.MAP_TIER instanceof RegExp) {
+      type = ModifierType.Implicit;
+      influence = eater ? ItemInfluence.EaterOfWorlds : ItemInfluence.SearingExarch;
+    }
     switch (match.groups!.rank) {
       case _$.ELDRITCH_MOD_R1:
         rank = 1;
@@ -73,6 +80,7 @@ export function parseModInfoLine(
     if (!match) {
       throw new Error("Invalid regex for mod info line");
     }
+    match.groups!.type = match.groups!.type.trim();
     if (match.groups!.type.startsWith(_$.FRACTURED_MODIFIER)) {
       match.groups!.type = match
         .groups!.type.slice(_$.FRACTURED_MODIFIER.length)
@@ -110,6 +118,7 @@ export function parseModInfoLine(
         if (_$.MAP_TIER instanceof RegExp) type = ModifierType.Implicit;
         break;
       case _$.IMPLICIT_MODIFIER:
+      case _$.VESTIGIAL_IMPLICIT:
         type = ModifierType.Implicit;
         break;
       case _$.FOULBORN_MODIFIER:
@@ -118,6 +127,10 @@ export function parseModInfoLine(
         break;
       case _$.VAAL_UNIQUE_MODIFIER:
         generation = "mutated";
+    }
+    if (_$.RARE_ONLY_PREFIX !== _$.RARE_ONLY_SUFFIX) {
+      if (match.groups!.type === _$.RARE_ONLY_PREFIX) generation = "prefix";
+      if (match.groups!.type === _$.RARE_ONLY_SUFFIX) generation = "suffix";
     }
 
     name = match.groups!.name || undefined;
@@ -144,7 +157,7 @@ export function parseModInfoLine(
       : undefined;
   }
 
-  return { type, generation, isFoulborn, name, tier, rank, tags, rollIncr };
+  return { type, generation, isFoulborn, name, tier, rank, tags, rollIncr, ...(influence && { influence }) };
 }
 
 export function isModInfoLine(line: string): boolean {

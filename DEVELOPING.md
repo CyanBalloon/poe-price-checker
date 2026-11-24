@@ -26,7 +26,7 @@ npm run package --prefix main -- --win --x64 --publish never
 
 The installer, portable executable, installer blockmap and update manifest are in `main/dist/`. The unpacked application in `main/dist/win-unpacked/` runs the same packaged code.
 
-Run `npm run check:toolbar --prefix main -- "dist/win-unpacked/PoE Price Checker.exe" dist/toolbar-previews` before publishing a toolbar change. This opens the packaged Windows app with a temporary profile, checks the logo and title at five window widths in both games, and saves screenshots for visual review.
+Run `npm run check:toolbar --prefix main -- "dist/win-unpacked/PoE Price Checker.exe" dist/toolbar-previews` before publishing a toolbar change. The check renders the packaged app offscreen with a temporary profile, checks the logo and title at five window widths in both games, and saves screenshots for visual review. Use `withOffscreenApp` from `main/build/offscreen-app.mjs` for other packaged UI checks so they leave desktop focus, hotkeys, and the running app alone.
 
 ## Preview the project site
 

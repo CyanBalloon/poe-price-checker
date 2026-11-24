@@ -20,8 +20,10 @@ const elderGuardian = "implicit.stat_3624393862";
 const conquerorCitadel = "implicit.stat_2563183002";
 const originator = "implicit.stat_2696470877";
 
-export const mapInfluenceExclusions = [
+export const mapInfluenceTradeIds = [
   elderOrShaper + "|1", elderOrShaper + "|2",
+  elderGuardian + "|1", elderGuardian + "|2",
+  elderGuardian + "|3", elderGuardian + "|4",
   conquerorCitadel + "|1", conquerorCitadel + "|2",
   conquerorCitadel + "|3", conquerorCitadel + "|4",
   originator,
