@@ -1138,11 +1138,19 @@ export function parseModifiersPoe2(section: string[], item: ParsedItem) {
     };
     foundAnyMods = parseStatsFromMod(lines, item, { info: modInfo, stats: [] });
   } else {
-    for (const statLines of section) {
-      let { modType, lines } = parseModType([statLines]);
-      if (modType === ModifierType.Explicit && item.category === ItemCategory.Map && _$.MAP_TIER instanceof RegExp &&
-          STAT_BY_MATCH_STR(lines[0])?.stat.trade.ids.implicit?.some(isMapInfluenceId)) {
-        modType = ModifierType.Implicit;
+    const isPoe1Map = item.category === ItemCategory.Map && _$.MAP_TIER instanceof RegExp;
+    const isMapInfluence = (text: string) => STAT_BY_MATCH_STR(text)?.stat.trade.ids.implicit?.some(isMapInfluenceId);
+    for (let index = 0; index < section.length; index++) {
+      let { modType, lines } = parseModType([section[index]]);
+      if (isPoe1Map) {
+        const pair = removeLinesEnding(section.slice(index, index + 2), IMPLICIT_LINE);
+        if (pair.length === 2 && isMapInfluence(pair.join("\n"))) {
+          lines = pair;
+          modType = ModifierType.Implicit;
+          index++;
+        } else if (modType === ModifierType.Explicit && isMapInfluence(lines[0])) {
+          modType = ModifierType.Implicit;
+        }
       }
       if (
         modType === ModifierType.Explicit &&

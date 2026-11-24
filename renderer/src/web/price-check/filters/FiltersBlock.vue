@@ -1,6 +1,14 @@
 <template>
   <div :class="{ 'filter-editor': isStandalone, 'filter-editor--properties-only': isStandalone && !hasStats }">
     <poe1-map-properties v-if="isStandalone && filters.mapRewards" standalone :filters="filters" />
+    <label v-if="isStandalone && mapCorruption !== undefined" class="map-corruption">
+      <span>Corruption</span>
+      <select v-model="mapCorruption" class="ui-select">
+        <option value="false">Uncorrupted</option>
+        <option value="true">Corrupted</option>
+        <option value="any">Any</option>
+      </select>
+    </label>
     <item-filter-properties v-if="!isStandalone" :filters="filters" :is-poe1="isPoe1">
         <filter-btn-logical
           v-if="hasStats"
@@ -258,6 +266,19 @@ export default defineComponent({
       const params = new URLSearchParams(window.location.search);
       return params.get("mode") === "standalone";
     });
+    const mapCorruption = computed({
+      get() {
+        const filter = props.filters.corrupted;
+        if (props.item.category !== ItemCategory.Map || !filter) return;
+        return filter.disabled ? "any" : String(filter.value);
+      },
+      set(value) {
+        const filter = props.filters.corrupted;
+        if (!filter) return;
+        filter.disabled = value === "any";
+        if (!filter.disabled) filter.value = value === "true";
+      },
+    });
 
     const originalStats = shallowRef<StatFilter[] | null>(null);
     const filteredStats = computed(() => {
@@ -502,6 +523,7 @@ export default defineComponent({
       isPoe1: computed(() => AppConfig().game === "poe1"),
       t,
       isStandalone,
+      mapCorruption,
       statsVisibility,
       showHidden,
       expandedFilter,
@@ -584,6 +606,7 @@ export default defineComponent({
 
 <style scoped>
 .filter-editor { display: grid; gap: 1rem; }
+.map-corruption { display: flex; align-items: center; justify-content: space-between; gap: 0.75rem; font-size: 0.85rem; }
 .modifier-list { min-width: 0; }
 .filter-section-head, .item-properties summary {
   display: flex;

@@ -137,6 +137,64 @@ Fragments of the whole that washes clean the skies.`;
     expect(groupModifierFilters(ordinaryFilters, ordinary.rarity).some(group => group.label === "Foulborn modifiers")).toBe(false);
   });
 
+  it("uses the corrupted Frenzy Charge implicit when searching Volkuur's Guidance", () => {
+    const item = parseClipboard(`Item Class: Gloves
+Rarity: Unique
+Volkuur's Guidance
+Zealot Gloves
+--------
+Armour: 89
+Energy Shield: 18
+--------
+Requirements:
+Level: 60
+Str: 34
+Int: 34
+--------
+Sockets: W-R W
+--------
+Item Level: 83
+--------
+{ Corruption Implicit Modifier }
++1 to Maximum Frenzy Charges
+--------
+{ Unique Modifier — Chaos, Ailment }
+Your Lightning Damage can Poison — Unscalable Value
+(Poison deals Chaos Damage over time, based on the base Physical and Chaos Damage of the Skill. Multiple instances of Poison stack)
+{ Unique Modifier — Chaos, Ailment }
+Lightning Skills have 20% chance to Poison on Hit
+(Poison deals Chaos Damage over time, based on the base Physical and Chaos Damage of the Skill. Multiple instances of Poison stack)
+{ Unique Modifier — Life }
++55(50-70) to maximum Life
+{ Unique Modifier — Damage, Elemental, Lightning, Attack, Caster }
+Adds 2(1-3) to 42(42-47) Lightning Damage to Spells and Attacks
+{ Unique Modifier — Elemental, Lightning, Resistance }
++34(30-40)% to Lightning Resistance
+{ Unique Modifier — Chaos, Ailment }
+50% less Poison Duration
+--------
+You do not cease to be when you die
+any more than the caterpillar ceases to be when it cocoons.
+Come, let me show you.
+--------
+Corrupted`)._unsafeUnwrap();
+    expect(item.isCorrupted).toBe(true);
+    const modifier = item.newMods.find(mod => mod.info.generation === "corrupted");
+    expect(modifier).toMatchObject({ info: { type: "implicit" } });
+
+    const { presets: [preset] } = createPresets(item, {
+      ...options, searchStatRange: 10, defaultAllSelected: false, includeSourceModifiers: true,
+    });
+    const implicit = preset.stats.find(stat => stat.statRef === "+# to Maximum Frenzy Charges");
+    expect(implicit).toMatchObject({ tradeId: ["implicit.stat_4078695"], disabled: true });
+    implicit!.disabled = false;
+
+    const { query } = createTradeRequest(preset.filters, preset.stats, item);
+    expect(query.filters.misc_filters?.filters.corrupted).toEqual({ option: "true" });
+    expect(query.stats[0].filters).toContainEqual(expect.objectContaining({ id: "implicit.stat_4078695", disabled: false }));
+    expect(query.stats[0].filters).not.toContainEqual(expect.objectContaining({ id: "explicit.stat_4078695" }));
+  });
+
   it("offers both Marble Amulet uniques and checks the selected unidentified Bonemeld", () => {
     const rawText = [
       "Item Class: Amulets", "Rarity: Unique", "Marble Amulet", "--------",
@@ -480,6 +538,19 @@ Fragments of the whole that washes clean the skies.`;
       map_tier: { min: 16, max: 16 },
       map_blighted: { option: "false" },
     });
+    expect(request.query.filters.misc_filters?.filters.corrupted).toEqual({ option: "false" });
+    expect(request.query.stats.find(group => group.type === "not")).toEqual({
+      type: "not",
+      filters: [
+        { id: "implicit.stat_1792283443|1" },
+        { id: "implicit.stat_1792283443|2" },
+        { id: "implicit.stat_2563183002|1" },
+        { id: "implicit.stat_2563183002|2" },
+        { id: "implicit.stat_2563183002|3" },
+        { id: "implicit.stat_2563183002|4" },
+        { id: "implicit.stat_2696470877" },
+      ],
+    });
   });
 
   it("prices a Tier 16 Planar Challenge by its rewards and influence, with optional affixes", () => {
@@ -510,6 +581,7 @@ Fragments of the whole that washes clean the skies.`;
       expect.objectContaining({ id: "pseudo.pseudo_map_more_map_drops", value: { min: 35 } }),
       expect.objectContaining({ id: "implicit.stat_2696470877" }),
     ]);
+    expect(query.stats.some(group => group.type === "not")).toBe(false);
     preset.filters.mapRewards!.find(reward => reward.key === "MAP_MORE_MAPS")!.disabled = true;
     preset.filters.mapRewards!.find(reward => reward.key === "MAP_ATLAS_DROPS")!.value = 70;
     groups[1].filters[0].disabled = false;
@@ -558,9 +630,15 @@ Corrupted`)._unsafeUnwrap();
     expect(query.filters.map_filters?.filters).toMatchObject({
       map_tier: { min: 16, max: 16 }, map_bonus: { min: 49 }, map_iir: { min: 29 }, map_packsize: { min: 19 },
     });
-    expect(query.stats.flatMap(group => group.filters.filter(stat => !stat.disabled))).toEqual([]);
+    expect(query.stats[0].filters.filter(stat => !stat.disabled)).toEqual([]);
+    expect(query.stats.find(group => group.type === "not")?.filters).toHaveLength(7);
     expect(query.filters.map_filters?.filters).not.toHaveProperty("area_level");
     expect(query.filters.misc_filters?.filters ?? {}).not.toHaveProperty("ilvl");
+    expect(query.filters.misc_filters?.filters.corrupted).toEqual({ option: "true" });
+    preset.filters.corrupted!.disabled = true;
+    const anyCorruption = createTradeRequest(preset.filters, preset.stats, item).query;
+    expect(anyCorruption.filters.misc_filters?.filters.corrupted).toBeUndefined();
+    expect(anyCorruption.filters.map_filters?.filters).toEqual(query.filters.map_filters?.filters);
   });
 
   it("keeps legacy quantity separate from Atlas Drops and preserves individual reward and influence types", () => {
@@ -580,6 +658,19 @@ Corrupted`)._unsafeUnwrap();
       expect.objectContaining({ id: "implicit.stat_1792283443|2" }),
       expect.objectContaining({ id: "implicit.stat_3624393862|4" }),
     ]));
+    expect(query.stats.some(group => group.type === "not")).toBe(false);
+  });
+
+  it.each([true, false])("keeps a Conqueror citadel's influence in the map search with advanced text %s", (advanced) => {
+    const item = parseClipboard([
+      "Item Class: Maps", "Rarity: Rare", "Conquered Map", "Map (Tier 16)", "--------",
+      "Item Level: 83", "--------", ...(advanced ? ["{ Implicit Modifier }"] : []), "Map contains Baran's Citadel",
+      "Item Quantity increases amount of Rewards Baran drops by 20% of its value",
+    ].join("\n"))._unsafeUnwrap();
+    const { presets: [preset] } = createPresets(item, { ...options, searchStatRange: 10, defaultAllSelected: false });
+    const { stats } = createTradeRequest(preset.filters, preset.stats, item).query;
+    expect(stats[0].filters).toContainEqual(expect.objectContaining({ id: "implicit.stat_2563183002|1", disabled: false }));
+    expect(stats.some(group => group.type === "not")).toBe(false);
   });
 
   it("uses the gem level and quality without support sockets", () => {

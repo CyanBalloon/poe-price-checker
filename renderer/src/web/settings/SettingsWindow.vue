@@ -67,7 +67,7 @@
       <div class="settings-rows">
         <settings-hotkey v-for="hotkey in hotkeys" :key="hotkey.translationKey" :schema="hotkey" class="settings-hotkey-row" />
         <div v-if="supportsAutoClicker" class="settings-row">
-          <span><strong id="settings-auto-clicker-label">Auto-clicker</strong><small id="settings-auto-clicker-help">Hold Ctrl or Shift with the right mouse button to repeat left clicks in game.</small></span>
+          <span><strong id="settings-auto-clicker-label">Auto-clicker</strong><small id="settings-auto-clicker-help">Hold Ctrl and the right mouse button to repeat left clicks in game. Release either to stop.</small></span>
           <button type="button" role="switch" class="settings-switch" aria-labelledby="settings-auto-clicker-label" aria-describedby="settings-auto-clicker-help" :aria-checked="autoClickerEnabled" @click="toggleAutoClicker"></button>
         </div>
         <div class="settings-row">

@@ -44,6 +44,7 @@ export interface ItemFilters {
   corrupted?: {
     value: boolean;
     exact?: boolean;
+    disabled?: boolean;
   };
   fractured?: {
     value: boolean;

@@ -97,6 +97,10 @@ class Clicker {
     private const int WM_MBUTTONDOWN = 0x0207;
     private const int WM_MBUTTONUP = 0x0208;
     private const int WM_MBUTTONDBLCLK = 0x0209;
+    private const int VK_RBUTTON = 0x02;
+    private const int VK_SHIFT = 0x10;
+    private const int VK_CONTROL = 0x11;
+    private const int VK_MENU = 0x12;
 
     private const uint WM_QUIT = 0x0012;
 
@@ -112,8 +116,13 @@ class Clicker {
     private static volatile bool autoClickerEnabled = false;
     private static bool destroyKeyActive = false;
 
-    // Track the physical state of Right Mouse Button since we block its events from the OS key/mouse state cache
-    private static volatile bool isRButtonHeld = false;
+    private enum RightButtonPress {
+        Released,
+        Forwarded,
+        Suppressed,
+    }
+
+    private static volatile RightButtonPress rightButtonPress = RightButtonPress.Released;
 
     static void Main() {
         mainThreadId = GetCurrentThreadId();
@@ -154,40 +163,30 @@ class Clicker {
     private static IntPtr HookCallback(int nCode, IntPtr wParam, IntPtr lParam) {
         if (nCode >= 0) {
             int msg = (int)wParam;
-            
-            // Track state first
-            if (msg == WM_RBUTTONDOWN) {
-                isRButtonHeld = true;
-            } else if (msg == WM_RBUTTONUP) {
-                isRButtonHeld = false;
+            if (msg == WM_RBUTTONUP) {
+                if (EndRightButtonPress()) return new IntPtr(1);
+                return CallNextHookEx(_hookID, nCode, wParam, lParam);
             }
 
-            bool isRButtonMsg = (msg == WM_RBUTTONDOWN || msg == WM_RBUTTONUP || msg == WM_RBUTTONDBLCLK);
+            bool isRightDown = (msg == WM_RBUTTONDOWN || msg == WM_RBUTTONDBLCLK);
             bool isMButtonMsg = (msg == WM_MBUTTONDOWN || msg == WM_MBUTTONUP || msg == WM_MBUTTONDBLCLK);
 
-            if (isRButtonMsg || isMButtonMsg) {
-                bool isCtrlPressed = (GetAsyncKeyState(0x11) & 0x8000) != 0; // VK_CONTROL
-                bool isShiftPressed = (GetAsyncKeyState(0x10) & 0x8000) != 0; // VK_SHIFT
-                bool isAltPressed = (GetAsyncKeyState(0x12) & 0x8000) != 0; // VK_MENU (Alt)
-
+            if (isRightDown || isMButtonMsg) {
+                bool ctrl = IsKeyDown(VK_CONTROL);
+                bool alt = IsKeyDown(VK_MENU);
                 RECT rect;
                 rect.Left = 0; rect.Top = 0; rect.Right = 0; rect.Bottom = 0;
                 string foregroundGame;
                 bool isGameActive = IsTargetWindowActive(ref rect, out foregroundGame);
-                bool isTargetActive = active || isGameActive;
 
-                if (isTargetActive) {
-                    if (isRButtonMsg && ShouldAutoClick(foregroundGame, isCtrlPressed, isShiftPressed, isAltPressed)) {
-                        // Block the right click message from passing to the target window
-                        return new IntPtr(1);
+                if (isRightDown) {
+                    if (BeginRightButtonPress(ShouldAutoClick(foregroundGame, ctrl, alt))) return new IntPtr(1);
+                } else if ((active || isGameActive) && destroyKeyActive && ctrl && alt && !IsKeyDown(VK_SHIFT)) {
+                    if (msg == WM_MBUTTONDOWN) {
+                        Console.WriteLine("destroy-item");
+                        Console.Out.Flush();
                     }
-                    if (isMButtonMsg && destroyKeyActive && isCtrlPressed && isAltPressed && !isShiftPressed) {
-                        if (msg == WM_MBUTTONDOWN) {
-                            Console.WriteLine("destroy-item");
-                            Console.Out.Flush();
-                        }
-                        return new IntPtr(1);
-                    }
+                    return new IntPtr(1);
                 }
             }
         }
@@ -270,9 +269,32 @@ class Clicker {
         return false;
     }
 
-    private static bool ShouldAutoClick(string foregroundGame, bool ctrl, bool shift, bool alt) {
+    private static bool IsKeyDown(int key) {
+        return (GetAsyncKeyState(key) & 0x8000) != 0;
+    }
+
+    private static bool BeginRightButtonPress(bool suppress) {
+        if (rightButtonPress == RightButtonPress.Released) {
+            rightButtonPress = suppress ? RightButtonPress.Suppressed : RightButtonPress.Forwarded;
+        }
+        return rightButtonPress == RightButtonPress.Suppressed;
+    }
+
+    private static bool EndRightButtonPress() {
+        // Forward the release whenever Windows received the matching press.
+        bool suppress = rightButtonPress == RightButtonPress.Suppressed;
+        rightButtonPress = RightButtonPress.Released;
+        return suppress;
+    }
+
+    private static bool IsRightButtonHeld(RightButtonPress press, bool windowsRightDown) {
+        // Suppressed presses are absent from the Windows key state.
+        return press == RightButtonPress.Suppressed || (press == RightButtonPress.Forwarded && windowsRightDown);
+    }
+
+    private static bool ShouldAutoClick(string foregroundGame, bool ctrl, bool alt) {
         return autoClickerEnabled && (foregroundGame == "poe1" || foregroundGame == "poe2")
-            && (ctrl || shift) && !alt;
+            && ctrl && !alt;
     }
 
     static void ClickLoop() {
@@ -281,14 +303,6 @@ class Clicker {
         RECT lastRect;
         lastRect.Left = 0; lastRect.Top = 0; lastRect.Right = 0; lastRect.Bottom = 0;
         while (!shouldExit) {
-            bool isCtrlPressed = (GetAsyncKeyState(0x11) & 0x8000) != 0; // VK_CONTROL
-            bool isShiftPressed = (GetAsyncKeyState(0x10) & 0x8000) != 0; // VK_SHIFT
-            bool isAltPressed = (GetAsyncKeyState(0x12) & 0x8000) != 0; // VK_MENU (Alt)
-
-            // Since right clicks are blocked in our user32 hook, GetAsyncKeyState(0x02) returns 0.
-            // We use our custom state variable isRButtonHeld instead.
-            bool isRButtonPressed = isRButtonHeld || ((GetAsyncKeyState(0x02) & 0x8000) != 0);
-
             RECT currentRect;
             currentRect.Left = 0; currentRect.Top = 0; currentRect.Right = 0; currentRect.Bottom = 0;
             string activeGame;
@@ -309,7 +323,8 @@ class Clicker {
                 Console.Out.Flush();
             }
 
-            if (isRButtonPressed && ShouldAutoClick(activeGame, isCtrlPressed, isShiftPressed, isAltPressed)) {
+            if (IsRightButtonHeld(rightButtonPress, IsKeyDown(VK_RBUTTON)) &&
+                    ShouldAutoClick(activeGame, IsKeyDown(VK_CONTROL), IsKeyDown(VK_MENU))) {
                 // Send distinct Left Down and Left Up events with a short hold delay to ensure the game registers the click sequence
                 mouse_event(MOUSEEVENTF_LEFTDOWN, 0, 0, 0, 0);
                 Thread.Sleep(10); // Hold for 10ms

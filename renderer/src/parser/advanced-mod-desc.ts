@@ -107,6 +107,7 @@ export function parseModInfoLine(
         break;
       case _$.CORRUPTED_IMPLICIT:
         generation = "corrupted";
+        if (_$.MAP_TIER instanceof RegExp) type = ModifierType.Implicit;
         break;
       case _$.IMPLICIT_MODIFIER:
         type = ModifierType.Implicit;

@@ -26,7 +26,7 @@
           <option value="nonunique">Non-Unique</option>
         </select>
       </label>
-      <label v-if="filters.corrupted" class="corruption-filter">
+      <label v-if="filters.corrupted && !isMap" class="corruption-filter">
         <input type="checkbox" v-model="corrupted" />
         <span>Corrupted</span>
       </label>
@@ -155,6 +155,7 @@ export default defineComponent({
     return {
       t,
       isStandalone,
+      isMap: computed(() => props.item.category === ItemCategory.Map),
       isListingsDisabled,
       currentRarity,
       label,

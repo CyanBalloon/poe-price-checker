@@ -180,6 +180,9 @@ export function createFilters(
     if (item.mapTier != null) {
       filters.mapTier = { value: item.mapTier, disabled: false };
     }
+    if (item.category === ItemCategory.Map) {
+      filters.corrupted = { value: item.isCorrupted, exact: true };
+    }
     if (poe1 && item.category === ItemCategory.Map) {
       filters.mapRewards = mapRewardKeys.flatMap(key => {
         const value = item.mapRewards?.[key];
@@ -380,9 +383,7 @@ export function createFilters(
       item.category === ItemCategory.AbyssJewel);
 
   if (
-    !item.isUnmodifiable &&
-    // Ignore waystones now(prev tablets) since if  there is one that is corrupted with right mods buyer wont care
-    item.category !== ItemCategory.Map &&
+    !filters.corrupted && !item.isUnmodifiable &&
     (item.rarity === ItemRarity.Normal ||
       item.rarity === ItemRarity.Magic ||
       item.rarity === ItemRarity.Rare ||

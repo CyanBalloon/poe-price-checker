@@ -24,7 +24,7 @@ import {
 import { STAT_BY_REF, CLIENT_STRINGS as _$ } from "@/assets/data";
 import { RateLimiter } from "./RateLimiter";
 import { ModifierType } from "@/parser/modifiers";
-import { mapRewardFields } from "@/parser/poe1-map";
+import { isMapInfluenceId, mapInfluenceExclusions, mapRewardFields } from "@/parser/poe1-map";
 import { Cache } from "./Cache";
 import { parseAffixStrings } from "@/parser/Parser";
 import {
@@ -552,6 +552,11 @@ export function createTradeRequest(
   };
   const { query } = body;
 
+  if (poe1 && item.category === ItemCategory.Map &&
+      !item.statsByType.some(({ stat }) => stat.trade.ids.implicit?.some(isMapInfluenceId))) {
+    query.stats.push({ type: "not", filters: mapInfluenceExclusions.map(id => ({ id })) });
+  }
+
   if (filters.trade.currency) {
     propSet(
       query.filters,
@@ -794,8 +799,8 @@ export function createTradeRequest(
   }
 
   if (
-    (poe1 || filters.corrupted?.value === false || filters.corrupted?.exact) &&
-    filters.corrupted &&
+    filters.corrupted && !filters.corrupted.disabled &&
+    (poe1 || filters.corrupted.value === false || filters.corrupted.exact) &&
     (!filters.sanctified || (filters.sanctified && filters.sanctified.disabled))
   ) {
     propSet(

@@ -15,6 +15,20 @@ export const mapRewardFields = {
 export type MapReward = keyof typeof mapRewardFields;
 export const mapRewardKeys = Object.keys(mapRewardFields) as MapReward[];
 
+const elderOrShaper = "implicit.stat_1792283443";
+const elderGuardian = "implicit.stat_3624393862";
+const conquerorCitadel = "implicit.stat_2563183002";
+const originator = "implicit.stat_2696470877";
+
+export const mapInfluenceExclusions = [
+  elderOrShaper + "|1", elderOrShaper + "|2",
+  conquerorCitadel + "|1", conquerorCitadel + "|2",
+  conquerorCitadel + "|3", conquerorCitadel + "|4",
+  originator,
+] as const;
+
+const mapInfluenceIds = new Set([elderOrShaper, elderGuardian, conquerorCitadel, originator]);
+
 export function readMapProperties(item: ParsedItem, sections: string[][], strings: TranslationDict) {
   if (item.category !== ItemCategory.Map || !(strings.MAP_TIER instanceof RegExp)) return;
   const remaining = sections.map(section => section.filter(line => {
@@ -39,6 +53,5 @@ export function readMapProperties(item: ParsedItem, sections: string[][], string
 }
 
 export function isMapInfluenceId(id: string) {
-  // Originator's Memories, Elder/Shaper, Elder Guardians and Conqueror citadels.
-  return /^implicit\.stat_(2696470877|1792283443|3624393862|2563183002)(?:\||$)/.test(id);
+  return mapInfluenceIds.has(id.split("|", 1)[0]);
 }
