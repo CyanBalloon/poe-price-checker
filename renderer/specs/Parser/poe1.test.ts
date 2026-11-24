@@ -196,13 +196,18 @@ Fragments of the whole that washes clean the skies.`;
     expect(item.unknownModifiers).toEqual([]);
     expect(item.newMods[0].stats[0].roll).toMatchObject({ value, min, max });
     expect(getDetailsId(item)).toEqual({ ns: "ITEM", name, variant: item.info.viscera!.implicits[0].variant });
-    const stats = createExactStatFilters(item, item.statsByType, { searchStatRange: 0, defaultAllSelected: false });
-    expect(groupModifierFilters(stats, item.rarity).find(group => group.label === "Implicit")?.filters[0])
-      .toMatchObject({ tradeId: [id], disabled: false, roll: { value } });
-    const query = createTradeRequest(createFilters(item, options), stats, item).query;
+    const { presets: [{ filters, stats }] } = createPresets(item, {
+      ...options, searchStatRange: 0, defaultAllSelected: false,
+    });
+    const implicit = groupModifierFilters(stats, item.rarity).find(group => group.label === "Implicit")?.filters[0];
+    expect(implicit).toMatchObject({ tradeId: [id], disabled: true, roll: { value } });
+    const defaultQuery = createTradeRequest(filters, stats, item).query;
+    expect(defaultQuery.stats[0].filters).toContainEqual(expect.objectContaining({ id, disabled: true }));
+    implicit!.disabled = false;
+    const query = createTradeRequest(filters, stats, item).query;
     expect(query.type).toBe(base);
     expect(query.term).toBe(name === base ? undefined : name);
-    expect(query.stats[0].filters.some(filter => filter.id === id)).toBe(true);
+    expect(query.stats[0].filters).toContainEqual(expect.objectContaining({ id, disabled: false }));
   });
 
   it("recognizes every bundled Viscera and its implicit options with plain clipboard text", () => {
@@ -677,17 +682,19 @@ Corrupted`)._unsafeUnwrap();
   });
 
   it("uses raw chaos values for PoE1 estimates, ranges, and seller equivalents", async () => {
+    const chaos = "Metadata/Items/Currency/CurrencyRerollRare";
+    const divine = "Metadata/Items/Currency/CurrencyModValues";
+    const exalted = "Metadata/Items/Currency/CurrencyAddModToRare";
     const proxy = vi.mocked(Host.proxy);
     proxy.mockImplementation(async (url) => {
       if (String(url).endsWith("/data/leagues")) {
         return new Response(JSON.stringify({ result: [{ id: "Standard", text: "Standard" }] }));
       }
-      const currency = String(url).endsWith("type=Currency");
-      const lines = currency ? [
-        { currencyTypeName: "Divine Orb", chaosEquivalent: 150, detailsId: "divine-orb" },
-        { currencyTypeName: "Exalted Orb", chaosEquivalent: 12, detailsId: "exalted-orb" },
-      ] : [];
-      return new Response(JSON.stringify({ lines, core: { primary: "chaos", rates: {} } }));
+      if (String(url).startsWith("web.poecdn.com/")) return Response.json({ markets: [
+        { league: "Standard", market_pair: [chaos, divine], volume_traded: { [chaos]: 1500, [divine]: 10 } },
+        { league: "Standard", market_pair: [chaos, exalted], volume_traded: { [chaos]: 120, [exalted]: 10 } },
+      ] });
+      return Response.json({ lines: [] });
     });
     try {
       await useLeagues().load();
@@ -711,41 +718,84 @@ Corrupted`)._unsafeUnwrap();
     }
   });
 
-  it("reads PoE 1 stash prices in chaos and indexes gem variants", async () => {
+  it("uses PoE1 Exchange pairs and keeps stash pricing for gem variants", async () => {
+    const league = "Hardcore Example";
+    const chaos = "Metadata/Items/Currency/CurrencyRerollRare";
+    const divine = "Metadata/Items/Currency/CurrencyModValues";
+    const hunter = "Metadata/Items/AtlasExiles/AddModToRareHunter";
+    const ducat = "Metadata/Items/Deepwater/DeepwaterAbyssCurrency";
+    const doctor = "Metadata/Items/DivinationCards/DivinationCardTheDoctor";
     const proxy = vi.mocked(Host.proxy);
     proxy.mockImplementation(async (url) => {
       const request = new URL("https://" + url);
-      expect(request.searchParams.get("league")).toBe("Hardcore Example");
+      if (request.hostname === "web.poecdn.com") return Response.json({ markets: [
+        { league, market_pair: [chaos, divine], volume_traded: { [chaos]: 1500, [divine]: 10 } },
+        { league, market_pair: [hunter, chaos], volume_traded: { [hunter]: 12, [chaos]: 3600 } },
+        { league, market_pair: [hunter, divine], volume_traded: { [hunter]: 100, [divine]: 100 } },
+        { league, market_pair: [ducat, divine], volume_traded: { [ducat]: 200, [divine]: 10 } },
+        { league, market_pair: [doctor, divine], volume_traded: { [doctor]: 6, [divine]: 18 } },
+      ] });
+      expect(request.searchParams.get("league")).toBe(league);
+      expect(request.pathname).toContain("/stash/");
       const category = request.searchParams.get("type");
-      if (request.pathname.includes("/exchange/") && (category === "Currency" || category === "Ducat")) {
-        const name = category === "Currency" ? "Hunter's Exalted Orb" : "Merrick's Ducat";
-        return new Response(JSON.stringify({
-          core: { primary: "divine", rates: { chaos: 150 } },
-          items: [{ id: "short-id", name, detailsId: "market-details" }],
-          lines: [{ id: "short-id", primaryValue: 2 }],
-        }));
-      }
       const lines = category === "Currency"
-        ? [{ currencyTypeName: "Divine Orb", chaosEquivalent: 150, detailsId: "divine-orb" }]
+        ? [{ currencyTypeName: "Divine Orb", chaosEquivalent: 100, detailsId: "divine-orb" }]
         : category === "SkillGem"
           ? [{ name: "Fireball", gemLevel: 21, gemQuality: 20, corrupted: true, chaosValue: 75, detailsId: "fireball-21-20c" }]
           : [];
-      return new Response(JSON.stringify({ lines, core: { primary: "chaos", rates: {} }, items: [] }));
+      return Response.json({ lines });
     });
     try {
-      const { prices } = await loadPoe1Prices("Hardcore Example", new AbortController().signal);
-      for (const [name, category] of [["Hunter's Exalted Orb", "currency"], ["Merrick's Ducat", "ducats"]]) {
-        expect(prices.get(poe1PriceKey({ ns: "ITEM", name }))).toMatchObject({
-          chaos: 300, cx: true, url: "https://poe.ninja/poe1/economy/examplehc/" + category + "/market-details",
-        });
-      }
-      expect(prices.get(poe1PriceKey({ ns: "ITEM", name: "Divine Orb" }))?.chaos).toBe(150);
+      const { prices } = await loadPoe1Prices(league, new AbortController().signal);
+      expect(prices.get(poe1PriceKey({ ns: "ITEM", name: "Hunter's Exalted Orb" }))).toMatchObject({ chaos: 300, cx: true });
+      expect(prices.get(poe1PriceKey({ ns: "ITEM", name: "Merrick's Ducat" }))).toMatchObject({ chaos: 7.5, cx: true });
+      expect(prices.get(poe1PriceKey({ ns: "DIVINATION_CARD", name: "The Doctor" }))).toMatchObject({ chaos: 450, cx: true });
+      expect(prices.get(poe1PriceKey({ ns: "ITEM", name: "Divine Orb" }))).toMatchObject({ chaos: 150, cx: true });
       expect(prices.get(poe1PriceKey({ ns: "GEM", name: "Fireball", variant: "21/20c" }))).toMatchObject({
         chaos: 75,
         url: "https://poe.ninja/poe1/economy/examplehc/skill-gems/fireball-21-20c",
       });
     } finally {
       proxy.mockRestore();
+    }
+  });
+
+  it("prices Originator's Exalted Orb only from Exchange data in the selected league", async () => {
+    const name = "Originator's Exalted Orb";
+    const orb = "Metadata/Items/Currency/CurrencyAddModToRareOriginator";
+    const chaos = "Metadata/Items/Currency/CurrencyRerollRare";
+    const key = poe1PriceKey({ ns: "ITEM", name });
+    const now = vi.spyOn(Date, "now").mockReturnValue(Date.UTC(2026, 10, 23, 22, 12));
+    const previousHour = Date.UTC(2026, 10, 23, 20) / 1000;
+    let officialAvailable = true;
+    const proxy = vi.mocked(Host.proxy);
+    proxy.mockImplementation(async endpoint => {
+      const request = new URL("https://" + endpoint);
+      if (request.hostname === "web.poecdn.com") {
+        return Response.json({ markets: [
+          { league: "Standard", market_pair: [orb, chaos], volume_traded: { [orb]: 10, [chaos]: 300 } },
+          { league: "Covens", market_pair: [orb, chaos], volume_traded: {
+            [orb]: 10, [chaos]: officialAvailable && request.pathname.endsWith("/" + previousHour) ? 197 : 0,
+          } },
+        ] });
+      }
+      const lines = request.pathname.includes("/stash/") && request.searchParams.get("type") === "Currency"
+        ? [{ currencyTypeName: name, chaosEquivalent: 3, detailsId: "originators-exalted-orb" }]
+        : [];
+      return Response.json({ lines });
+    });
+    try {
+      const signal = new AbortController().signal;
+      const { prices } = await loadPoe1Prices("Covens", signal);
+      expect(prices.get(key)).toMatchObject({
+        chaos: 19.7, cx: true, exchangeHour: previousHour,
+        url: "https://web.poecdn.com/api/currency-exchange/" + previousHour,
+      });
+      officialAvailable = false;
+      expect((await loadPoe1Prices("Covens", signal)).prices.has(key)).toBe(false);
+    } finally {
+      proxy.mockRestore();
+      now.mockRestore();
     }
   });
 });

@@ -4,9 +4,10 @@ import { Host } from "@/web/background/IPC";
 import { useLeagues } from "./Leagues";
 import { AppConfig } from "../Config";
 import { PriceCheckWidget } from "../overlay/widgets";
-import { ITEM_BY_REF } from "@/assets/data";
+import { ITEM_BY_REF, itemCatalogue } from "@/assets/data";
 import { loadPoe1Prices, poe1PriceKey } from "./Poe1Prices";
 import { currencyIcon } from "@/web/ui/currency-icons";
+import { exchangeKey, loadCurrencyExchange, type ExchangePrices } from "./CurrencyExchange";
 
 export type NinjaSchema = NinjaSchemaV1;
 type NinjaSchemaV1 = {
@@ -19,21 +20,6 @@ type NinjaSchemaV1 = {
   }>;
 };
 
-interface NinjaDenseExchangeInfo {
-  name: string;
-  variant?: string;
-  primaryValue: number;
-  detailsId: string;
-  id: string;
-  volumePrimaryValue: number;
-  maxVolumeCurrency: string;
-  maxVolumeRate: number;
-  sparkline: {
-    totalChange: number;
-    data: Array<number | null>;
-  };
-}
-
 interface NinjaDenseStashInfo {
   name: string;
   variant?: string;
@@ -45,17 +31,9 @@ interface NinjaDenseStashInfo {
   };
 }
 
-interface NinjaXchgRates {
-  rates: Record<string, number>;
-  primary: string;
-  secondary: string;
-}
-
 type PriceDatabase = Array<{
   // My namespace for searching
   ns: string;
-  // If db is from the currency exchange (cx)
-  cx: boolean;
   // base url on ninja
   url: string;
   // json blob data
@@ -149,12 +127,13 @@ export const usePoeninja = createGlobalState(() => {
 
   const searchIndex = shallowRef<Array<{ name: string; ns: string; variant?: string }>>([]);
   const poe1Prices = shallowRef<Awaited<ReturnType<typeof loadPoe1Prices>>>();
+  const poe2Exchange = shallowRef<ExchangePrices>();
 
   const priceCache = new Map<string, CurrencyValue>();
 
   async function load(force: boolean = false) {
     const league = leagues.selected.value;
-    if (!league || !league.isPopular || league.realm !== "pc-ggg") return;
+    if (!league || league.realm !== "pc-ggg") return;
     if (!force && isLoading.value) return;
     if (
       !force &&
@@ -176,82 +155,33 @@ export const usePoeninja = createGlobalState(() => {
         }),
       );
       if (game === "poe2") {
-        const ninjaSchema: NinjaSchema = JSON.parse(
-          await Host.proxy(
-            "api.exiledexchange2.dev/proxy/data/namespaceMap.json",
-            {
-              signal: controller.signal,
-            },
-          ).then((r) => r.text()),
-        );
-        const response = await Host.proxy(
-          `api.exiledexchange2.dev/proxy/${selectedLeagueToUrl(true)}/overviewData.json`,
-          {
-            signal: controller.signal,
-          },
-        );
-        const jsonBlob = await response.text();
+        const [exchange, stash] = await Promise.all([
+          loadCurrencyExchange(game, league.id, controller.signal),
+          league.isPopular ? loadPoe2StashPrices(selectedLeagueToUrl(true), controller.signal).catch(error => {
+            if (!controller.signal.aborted) console.warn("PoE2 stash prices unavailable", error);
+          }) : undefined,
+        ]);
         if (controller.signal.aborted) return;
 
-        const ninjaXchg = parseXchg(jsonBlob);
+        poe2Exchange.value = exchange;
+        if (stash) priceDatabase.value = stash.database;
+        searchIndex.value = [...exchange.items.values(), ...(stash?.items ?? [])];
 
-        priceDatabase.value = splitJsonBlob(jsonBlob, ninjaSchema);
-
-        // Build SEARCH_INDEX
-        try {
-          const parsedBlob = JSON.parse(jsonBlob);
-          const items: typeof searchIndex.value = [];
-          for (const overview of parsedBlob.itemOverviews) {
-            const typeMatch = ninjaSchema.map.find((m) => m.type === overview.type);
-            if (!typeMatch) continue;
-            for (const item of overview.lines) {
-              items.push({
-                name: item.name,
-                ns: typeMatch.ns,
-              });
-            }
-          }
-          searchIndex.value = items;
-        } catch (err) {
-          console.warn("Failed to parse ninja JSON for search index", err);
-        }
-
-        // TODO: update to search for requested currency instead of divine
-        const divineRates = ninjaXchg.rates;
-        const preferred = selectedCoreCurrency.value;
-
-        if (divineRates && divineRates.exalted) {
-          exaltedRate.value = divineRates.exalted;
-        }
-
-        if (divineRates && Object.values(divineRates).some((v) => v >= 10)) {
-          if (
-            preferred &&
-            preferred.id !== "div" &&
-            divineRates[preferred.id] >= 5
-          ) {
-            xchgRate.value = divineRates[preferred.id];
-            xchgRateCurrency.value = preferred.id;
-          } else {
-            xchgRate.value = divineRates.exalted;
-            xchgRateCurrency.value = "exalted";
-          }
-        }
-
-        if (divineRates && divineRates.exalted && divineRates.chaos) {
-          chaosToExalt.value = divineRates.exalted / divineRates.chaos;
-        } else {
-          chaosToExalt.value = undefined;
-        }
-
-        const annulPrice = findPriceByQuery({ ns: "ITEM", name: "Orb of Annulment" });
-        if (annulPrice && divineRates && divineRates.exalted) {
-          annulToExalt.value = annulPrice.primaryValue * divineRates.exalted;
-        } else {
-          annulToExalt.value = undefined;
-        }
+        const inDivines = (name: string) => exchange.prices.get(exchangeKey({ ns: "ITEM", name }))?.primaryValue;
+        const exalt = inDivines("Exalted Orb");
+        const chaos = inDivines("Chaos Orb");
+        const annul = inDivines("Orb of Annulment");
+        exaltedRate.value = exalt ? 1 / exalt : undefined;
+        chaosToExalt.value = chaos && exalt ? chaos / exalt : undefined;
+        annulToExalt.value = annul && exalt ? annul / exalt : undefined;
+        const coreValues = { chaos, exalted: exalt };
+        const preferred = selectedCoreCurrency.value?.id === "chaos" ? "chaos" : "exalted";
+        const currency = coreValues[preferred] ? preferred : preferred === "chaos" ? "exalted" : "chaos";
+        const core = coreValues[currency];
+        xchgRate.value = core ? 1 / core : undefined;
+        xchgRateCurrency.value = core ? currency : undefined;
       } else {
-        const data = await loadPoe1Prices(league.id, controller.signal);
+        const data = await loadPoe1Prices(league.id, controller.signal, league.isPopular);
         if (controller.signal.aborted) return;
 
         const currencyPrice = (name: string) =>
@@ -305,15 +235,26 @@ export const usePoeninja = createGlobalState(() => {
     }
   }
 
+  function isExchangeListed(query: DbQuery) {
+    const exchange = AppConfig()?.game === "poe1" ? poe1Prices.value?.exchange : poe2Exchange.value;
+    return itemCatalogue.value.exchange.has(query.name) || Boolean(exchange?.items.has(exchangeKey(query)));
+  }
+
   function findPriceByQuery(query: DbQuery) {
+    const isExchange = isExchangeListed(query);
     if (AppConfig()?.game === "poe1") {
-      const entry = poe1Prices.value?.prices.get(poe1PriceKey(query));
-      if (!entry) return null;
+      const key = poe1PriceKey(isExchange ? { ns: query.ns, name: query.name } : query);
+      const entry = poe1Prices.value?.prices.get(key);
+      if (!entry || (isExchange && !entry.cx)) return null;
       return {
         ...entry,
         primaryValue: entry.chaos,
       };
     }
+
+    const exchangePrice = poe2Exchange.value?.prices.get(exchangeKey(query));
+    if (exchangePrice) return exchangePrice;
+    if (isExchange) return null;
 
     // NOTE: order of keys is important
     const searchString = JSON.stringify({
@@ -323,20 +264,20 @@ export const usePoeninja = createGlobalState(() => {
     }).replace(":0}", ":");
     const endSearchString = "}}";
 
-    for (const { ns, cx, url, lines } of priceDatabase.value) {
+    for (const { ns, url, lines } of priceDatabase.value) {
       if (ns !== query.ns) continue;
 
       const startPos = lines.indexOf(searchString);
       if (startPos === -1) continue;
       const endPos = lines.indexOf(endSearchString, startPos);
 
-      const info: NinjaDenseExchangeInfo | NinjaDenseStashInfo = JSON.parse(
+      const info: NinjaDenseStashInfo = JSON.parse(
         lines.slice(startPos, endPos + endSearchString.length),
       );
 
       return {
         ...info,
-        cx,
+        cx: false,
         url: `https://poe.ninja/poe2/economy/${selectedLeagueToUrl(false)}/${url}/${info.detailsId}`,
       };
     }
@@ -377,8 +318,8 @@ export const usePoeninja = createGlobalState(() => {
       const [min, max] = Array.isArray(value) ? value : [value, value];
       return { min, max, currency: "chaos" };
     }
-    if (forceCurrency === "exalted") {
-      const rate = exaltedRate.value || 9999;
+    if (forceCurrency === "exalted" && exaltedRate.value) {
+      const rate = exaltedRate.value;
       if (Array.isArray(value)) {
         return {
           min: value[0] * rate,
@@ -481,6 +422,7 @@ export const usePoeninja = createGlobalState(() => {
       annulInChaos.value = undefined;
       priceDatabase.value = [];
       poe1Prices.value = undefined;
+      poe2Exchange.value = undefined;
       searchIndex.value = [];
       priceCache.clear();
       lastUpdateTime = 0;
@@ -491,6 +433,7 @@ export const usePoeninja = createGlobalState(() => {
   return {
     xchgRate: readonly(xchgRate),
     xchgRateCurrency: readonly(activeCoreCurrency),
+    isExchangeListed,
     findPriceByQuery,
     visceraImplicits: (name: string) => poe1Prices.value?.visceraImplicits.get(name) ?? [],
     findCataloguePrice: (query: DbQuery) => findPriceByQuery(
@@ -504,7 +447,7 @@ export const usePoeninja = createGlobalState(() => {
     forceLoad: () => load(true),
     cachedCurrencyByQuery,
     isLoading: readonly(isLoading),
-    initialLoading: () => isLoading.value && !priceDatabase.value.length && !poe1Prices.value,
+    initialLoading: () => isLoading.value && !priceDatabase.value.length && !poe1Prices.value && !poe2Exchange.value,
     availableCoreCurrencies: readonly(availableCoreCurrencies),
     chaosToExalt: readonly(chaosToExalt),
     annulToExalt: readonly(annulToExalt),
@@ -514,12 +457,24 @@ export const usePoeninja = createGlobalState(() => {
   };
 });
 
-function parseXchg(jsonBlob: string): NinjaXchgRates {
-  const RATES = '{"rates":';
-  const END_RATES = '"}';
-  const startPos = jsonBlob.indexOf(RATES);
-  const endPos = jsonBlob.indexOf(END_RATES, startPos) + END_RATES.length;
-  return JSON.parse(jsonBlob.slice(startPos, endPos));
+async function loadPoe2StashPrices(league: string, signal: AbortSignal) {
+  const request = { signal: AbortSignal.any([signal, AbortSignal.timeout(12000)]) };
+  const base = "api.exiledexchange2.dev/proxy/";
+  const [schemaResponse, dataResponse] = await Promise.all([
+    Host.proxy(base + "data/namespaceMap.json", request),
+    Host.proxy(base + league + "/overviewData.json", request),
+  ]);
+  if (!schemaResponse.ok || !dataResponse.ok) throw new Error("PoE2 stash price request failed");
+  const schema: NinjaSchema = await schemaResponse.json();
+  const jsonBlob = await dataResponse.text();
+  const database = splitJsonBlob(jsonBlob, schema);
+  const { itemOverviews } = JSON.parse(jsonBlob) as { itemOverviews: Array<{ type: string; lines: NinjaDenseStashInfo[] }> };
+  const stashTypes = new Map(schema.map.filter(type => !type.cx).map(type => [type.type, type.ns]));
+  const items = itemOverviews.flatMap(({ type, lines }) => {
+    const ns = stashTypes.get(type);
+    return ns ? lines.map(({ name }) => ({ ns, name })) : [];
+  });
+  return { database, items };
 }
 
 function splitJsonBlob(jsonBlob: string, schema: NinjaSchema): PriceDatabase {
@@ -552,10 +507,9 @@ function splitJsonBlob(jsonBlob: string, schema: NinjaSchema): PriceDatabase {
     );
 
     const isSupported = NAMESPACE_MAP.find((entry) => entry.type === type);
-    if (isSupported) {
+    if (isSupported && !isSupported.cx) {
       database.push({
         ns: isSupported.ns,
-        cx: isSupported.cx,
         url: isSupported.url,
         lines,
       });
@@ -617,10 +571,3 @@ export function displayRounding(
   }
   return Math.round(value).toString();
 }
-
-// Disable since this is export for tests
-// eslint-disable-next-line @typescript-eslint/naming-convention
-export const __testExports = {
-  parseXchg,
-  splitJsonBlob,
-};

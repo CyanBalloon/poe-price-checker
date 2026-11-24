@@ -4,93 +4,119 @@
       <h1>Item Search</h1>
     </header>
 
-    <label class="item-search-field">
-      <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
-      <input
-        v-model="searchValue"
-        type="search"
-        placeholder="Search items by name"
-        aria-label="Search items by name"
-        autocomplete="off"
-        spellcheck="false"
-      />
-    </label>
+    <div class="item-search-workspace">
+      <div class="item-search-picker">
+        <label class="item-search-field">
+          <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+          <input
+            ref="searchInput"
+            v-model="searchValue"
+            type="search"
+            placeholder="Search items by name"
+            aria-label="Search items by name"
+            autocomplete="off"
+            spellcheck="false"
+          />
+        </label>
 
-    <section v-if="starred.length" class="item-search-section" aria-labelledby="selected-items-title">
-      <header class="item-search-section-header">
-        <h2 id="selected-items-title">Selected items</h2>
-        <button type="button" class="ui-button" @click="clearSelectedItems">Clear</button>
-      </header>
-      <div class="item-search-list">
-        <div v-for="item in starred" :key="item.info.namespace + ':' + item.info.refName" ref="selectedRows"
-          :data-name="item.info.refName" :data-namespace="item.info.namespace" class="item-search-row" tabindex="-1">
-          <div class="item-search-art">
-            <ui-item-img :icon="item.info.icon || '%NOT_FOUND%'" :item-name="item.info.refName" :namespace="item.info.namespace" />
-          </div>
-          <div class="item-search-copy">
-            <strong :class="{ 'item-search-unique': isUnique(item) }">{{ item.info.name }}</strong>
-            <template v-if="item.info.viscera">
-              <small>Viscera · {{ item.info.viscera.slot }}</small>
-              <select v-if="item.implicits.length > 1" class="ui-select viscera-select" :aria-label="'Implicit modifier for ' + item.info.name"
-                :value="item.implicit?.variant || ''" @change="selectImplicit(item.info, $event)">
-                <option value="" disabled>Choose an implicit modifier</option>
-                <option v-for="implicit in item.implicits" :key="implicit.variant" :value="implicit.variant">{{ implicit.text }}</option>
-              </select>
-              <small v-if="item.implicit" class="viscera-implicit"><span>Implicit · </span>{{ item.implicit.text }}</small>
-            </template>
-            <small v-else-if="item.rawItem?.isUnidentified && item.info.unique">{{ t("item.unidentified") }} · {{ ITEM_BY_REF("ITEM", item.info.unique.base)?.[0]?.name || item.info.unique.base }}</small>
-            <small v-else>{{ item.variant || itemKind(item.info) }}</small>
-          </div>
-          <div class="item-search-price">
-            <strong v-if="item.display" class="ui-value">{{ formatPrice(item.display.primary) }}</strong>
-            <small v-else-if="isMarketLoading">Loading price…</small>
-            <small v-else-if="item.implicits.length > 1 && !item.implicit">Varies by implicit</small>
-            <small v-else>No estimate</small>
-            <small v-if="item.display?.chaosEquivalent">≈ {{ formatPrice(item.display.chaosEquivalent) }}</small>
-            <small v-if="item.price?.currency === 'div' && AppConfig().game === 'poe2' && exaltedRate">{{ Math.round(item.price.min * exaltedRate) }} ex</small>
-          </div>
-          <div class="item-search-actions">
-            <button v-if="isUnique(item) && (item.rawItem || item.info.unique)" class="ui-button" type="button" @click="triggerPriceCheck(item)">
-              {{ item.rawItem && !item.rawItem.isUnidentified ? 'Check rolls' : 'Check listings' }}
+        <section v-if="results.length" aria-labelledby="search-matches-title">
+          <h2 id="search-matches-title" class="item-search-matches-title">Matches</h2>
+          <div class="item-search-matches">
+            <button
+              v-for="item in results"
+              :key="itemKey(item)"
+              type="button"
+              class="item-search-match"
+              :aria-pressed="selectedKeys.has(itemKey(item))"
+              @click="toggleMatch(item)"
+            >
+              <span class="item-search-art">
+                <ui-item-img :icon="item.icon || '%NOT_FOUND%'" :item-name="item.refName" :namespace="item.namespace" />
+              </span>
+              <span class="item-search-copy">
+                <strong :class="{ 'item-search-unique': item.unique }">{{ item.name }}</strong>
+                <small v-if="item.viscera">Viscera · {{ item.viscera.slot }}</small>
+                <small v-else-if="item.unique">{{ item.unique.base }}</small>
+              </span>
+              <span class="item-search-match-action" aria-hidden="true">
+                <i class="fa-solid" :class="selectedKeys.has(itemKey(item)) ? 'fa-check' : 'fa-plus'"></i>
+              </span>
             </button>
-            <a v-if="item.ninjaUrl" :href="item.ninjaUrl" target="_blank" rel="noopener noreferrer" class="ui-icon-button" aria-label="Open on poe.ninja" title="Open on poe.ninja">
+          </div>
+        </section>
+
+        <p v-else-if="searchValue.trim()" class="item-search-status" role="status">
+          <template v-if="searchValue.trim().length < 3">Type at least three characters to search.</template>
+          <template v-else-if="isMarketLoading">Loading market data…</template>
+          <template v-else>No matching items.</template>
+        </p>
+      </div>
+
+      <section class="item-search-compare" aria-labelledby="selected-items-title">
+        <header class="item-search-section-header">
+          <h2 id="selected-items-title">Selected items</h2>
+          <button v-if="starred.length" type="button" class="ui-button" @click="clearSelectedItems">Clear</button>
+        </header>
+
+        <p v-if="!starred.length" class="item-search-status" role="status">Add items from your search to compare prices.</p>
+        <div v-else class="item-search-list">
+          <div v-for="item in starred" :key="itemKey(item.info)" ref="selectedRows"
+            :data-name="item.info.refName" :data-namespace="item.info.namespace" class="item-search-row" tabindex="-1">
+            <div class="item-search-art">
+              <ui-item-img :icon="item.info.icon || '%NOT_FOUND%'" :item-name="item.info.refName" :namespace="item.info.namespace" />
+            </div>
+            <div class="item-search-copy">
+              <strong :class="{ 'item-search-unique': isUnique(item) }">{{ item.info.name }}</strong>
+              <template v-if="item.info.viscera">
+                <small>Viscera · {{ item.info.viscera.slot }}</small>
+                <select v-if="item.implicits.length > 1" class="ui-select viscera-select" :aria-label="'Implicit modifier for ' + item.info.name"
+                  :value="item.implicit?.variant || ''" @change="selectImplicit(item.info, $event)">
+                  <option value="" disabled>Choose an implicit modifier</option>
+                  <option v-for="implicit in item.implicits" :key="implicit.variant" :value="implicit.variant">{{ implicit.text }}</option>
+                </select>
+                <small v-if="item.implicit" class="viscera-implicit"><span>Implicit · </span>{{ item.implicit.text }}</small>
+              </template>
+              <small v-else-if="item.rawItem?.isUnidentified && item.info.unique">{{ t("item.unidentified") }} · {{ ITEM_BY_REF("ITEM", item.info.unique.base)?.[0]?.name || item.info.unique.base }}</small>
+              <small v-else>{{ item.variant || itemKind(item.info) }}</small>
+              <button v-if="isUnique(item) && (item.rawItem || item.info.unique)" class="item-search-listings" type="button" @click="triggerPriceCheck(item)">
+                {{ item.rawItem && !item.rawItem.isUnidentified ? 'Check rolls' : 'Check listings' }}
+              </button>
+            </div>
+            <div class="item-search-price">
+              <strong v-if="item.display" class="item-search-amount" :title="currencyLabel(item.display.primary.currency)">
+                <core-currency-img
+                  :currency="item.display.primary.currency"
+                  :alt="currencyLabel(item.display.primary.currency, item.display.primary.min)"
+                  class="item-search-orb"
+                />
+                {{ formatAmount(item.display.primary) }}
+              </strong>
+              <small v-else-if="isMarketLoading">Loading price…</small>
+              <small v-else-if="item.implicits.length > 1 && !item.implicit">Varies by implicit</small>
+              <small v-else-if="item.onExchange">No recent exchange price</small>
+              <small v-else>No estimate</small>
+              <small v-if="item.equivalent" class="item-search-amount" :title="currencyLabel(item.equivalent.currency)">
+                <span aria-label="Approximately">≈</span>
+                <core-currency-img
+                  :currency="item.equivalent.currency"
+                  :alt="currencyLabel(item.equivalent.currency, item.equivalent.min)"
+                  class="item-search-orb item-search-orb--secondary"
+                />
+                {{ formatAmount(item.equivalent) }}
+              </small>
+            </div>
+            <a v-if="item.priceUrl" :href="item.priceUrl" target="_blank" rel="noopener noreferrer" class="item-search-source-link"
+              :aria-label="item.exchangeHour ? 'View Currency Exchange data' : 'Open on poe.ninja'"
+              :title="item.exchangeHour ? 'View Currency Exchange data · ' + new Date(item.exchangeHour * 1000).toLocaleString() : 'Open on poe.ninja'">
               <i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i>
             </a>
           </div>
         </div>
-      </div>
-    </section>
 
-    <section v-if="results && results.length" class="item-search-section" aria-labelledby="search-matches-title">
-      <header class="item-search-section-header">
-        <h2 id="search-matches-title">Matches</h2>
-      </header>
-      <div class="item-search-matches">
-        <button
-          v-for="item in results"
-          :key="item.namespace + ':' + item.refName"
-          type="button"
-          class="item-search-row"
-          @click="selectItem(item)"
-        >
-          <span class="item-search-art">
-            <ui-item-img :icon="item.icon || '%NOT_FOUND%'" :item-name="item.refName" :namespace="item.namespace" />
-          </span>
-          <span class="item-search-copy">
-            <strong :class="{ 'item-search-unique': item.unique }">{{ item.name }}</strong>
-            <small v-if="item.viscera">Viscera · {{ item.viscera.slot }}</small>
-            <small v-else>{{ item.unique?.base || itemKind(item) }}</small>
-          </span>
-          <i class="fa-solid fa-plus" aria-hidden="true"></i>
-        </button>
-      </div>
-    </section>
-
-    <div v-else-if="searchValue.trim() || !starred.length" class="ui-empty item-search-empty" role="status">
-      <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
-      <p v-if="searchValue.trim().length < 3">Type at least three characters to search.</p>
-      <p v-else-if="isMarketLoading && AppConfig().game === 'poe2'">Loading market data…</p>
-      <p v-else>No matching items.</p>
+        <p v-if="starred.some(item => item.exchangeHour)" class="item-search-source">
+          <span aria-hidden="true"></span> Currency Exchange · hourly
+        </p>
+      </section>
     </div>
   </div>
 </template>
@@ -144,6 +170,10 @@ interface SelectedItem {
   rawItem?: ParsedItem;
 }
 
+function itemKey(item: BaseType) {
+  return item.namespace + ":" + item.refName;
+}
+
 function useSelectedItems() {
   const byGame = ref<Record<GameVersion, SelectedItem[]>>({ poe1: [], poe2: [] });
   const items = computed({
@@ -152,26 +182,26 @@ function useSelectedItems() {
   });
 
   function addItem(newItem: SelectedItem) {
-    const previous = items.value.findIndex(item => item.info.namespace === newItem.info.namespace
-      && item.info.refName === newItem.info.refName);
+    const previous = items.value.findIndex(item => itemKey(item.info) === itemKey(newItem.info));
     if (previous !== -1) {
       if (newItem.rawItem) items.value[previous] = newItem;
       return false;
     }
 
-    if (items.value.length < 5) {
-      items.value.push(newItem);
-    } else {
-      items.value = [newItem];
-    }
+    items.value.push(newItem);
     return true;
+  }
+
+  function removeItem(info: BaseType) {
+    const key = itemKey(info);
+    items.value = items.value.filter(item => itemKey(item.info) !== key);
   }
 
   function clearItems() {
     items.value = [];
   }
 
-  return { items, addItem, clearItems };
+  return { items, addItem, removeItem, clearItems };
 }
 
 
@@ -214,13 +244,16 @@ import { Host } from "@/web/background/IPC";
 import { ParsedItem } from "@/parser";
 
 import UiItemImg from "@/web/ui/UiItemImg.vue";
+import CoreCurrencyImg from "@/web/ui/CoreCurrencyImg.vue";
+import { currencyLabel } from "@/web/ui/currency-icons";
 
 const props = defineProps<{
   config: ItemSearchWidget;
 }>();
 const { t } = useI18n();
 
-const { findPriceByQuery, findCataloguePrice, marketItems, visceraImplicits, autoCurrency, displayPrice, queuePricesFetch, exaltedRate, isLoading: isMarketLoading } = usePoeninja();
+const { findPriceByQuery, findCataloguePrice, isExchangeListed, marketItems, visceraImplicits,
+  autoCurrency, displayPrice, queuePricesFetch, exaltedRate, isLoading: isMarketLoading } = usePoeninja();
 
 const showTimeout = shallowRef<{ reset: () => void } | null>(null);
 
@@ -229,7 +262,9 @@ nextTick(() => {
 });
 
 const searchValue = shallowRef("");
-const { items, addItem, clearItems } = useSelectedItems();
+const searchInput = shallowRef<HTMLInputElement>();
+const { items, addItem, removeItem, clearItems } = useSelectedItems();
+const selectedKeys = computed(() => new Set(items.value.map(item => itemKey(item.info))));
 const selectedRows = ref<HTMLElement[]>([]);
 const starred = computed(() => items.value.map(item => {
   const { info, rawItem } = item;
@@ -253,12 +288,20 @@ const starred = computed(() => items.value.map(item => {
     quote = findCataloguePrice(query);
   }
   const price = quote ? autoCurrency(quote.primaryValue) : undefined;
-  return { ...item, implicits, implicit, price, display: price && displayPrice(price), variant: quote?.variant,
-    ninjaUrl: quote?.url, value: quote?.primaryValue ?? 0 };
+  const display = price && displayPrice(price);
+  const equivalent = display?.chaosEquivalent ?? (
+    AppConfig().game === "poe2" && price?.currency === "div" && exaltedRate.value
+      ? { currency: "exalted" as const, min: price.min * exaltedRate.value }
+      : undefined
+  );
+  return { ...item, implicits, implicit, display, equivalent, variant: quote?.variant,
+    onExchange: isExchangeListed(query),
+    priceUrl: quote?.url, exchangeHour: quote && "exchangeHour" in quote ? quote.exchangeHour : undefined,
+    value: quote?.primaryValue ?? 0 };
 }).sort((a, b) => b.value - a.value));
 
 function selectImplicit(info: BaseType, event: Event) {
-  const selected = items.value.find(item => item.info.refName === info.refName && item.info.namespace === info.namespace);
+  const selected = items.value.find(item => itemKey(item.info) === itemKey(info));
   if (selected) selected.implicitVariant = (event.target as HTMLSelectElement).value;
 }
 
@@ -323,7 +366,14 @@ function selectItem(
     showTimeout.value?.reset();
     props.config.wmFlags = [];
   }
-  searchValue.value = "";
+}
+
+function toggleMatch(item: BaseType) {
+  if (selectedKeys.value.has(itemKey(item))) {
+    removeItem(item);
+  } else {
+    selectItem(item);
+  }
 }
 
 const searchIndex = computed(() => {
@@ -344,6 +394,7 @@ const results = computed(() => searchCatalogue(searchIndex.value, searchValue.va
 function clearSelectedItems() {
   clearItems();
   props.config.wmFlags = ["invisible-on-blur"];
+  searchInput.value?.focus();
 }
 
 
@@ -355,13 +406,9 @@ function itemKind(item: BaseType) {
   return item.craftable?.category || (item.tradeTag ? "Trade item" : "Base item");
 }
 
-function formatPrice(price?: CurrencyValue) {
-  if (!price) return "";
-  if (price.currency === "chaos") return formatChaosOrDivineAmount(price.min) + " chaos";
-  if (price.currency === "div") {
-    return `${Number(price.min.toFixed(2))} div`;
-  }
-  return `${Math.round(price.min)} ${price.currency}`;
+function formatAmount(price: Pick<CurrencyValue, "currency" | "min">) {
+  const amount = price.currency === "exalted" && price.min >= 1 ? Math.round(price.min) : price.min;
+  return formatChaosOrDivineAmount(amount);
 }
 
 
@@ -383,35 +430,237 @@ onMounted(() => {
 </script>
 
 <style scoped>
-.viscera-select { max-width: 100%; margin-top: 0.4rem; }
-.item-search-copy .viscera-implicit { color: var(--ink); white-space: pre-line; }
-.viscera-implicit span { color: var(--muted); }
-.item-search { max-width: 66rem; margin: 0 auto; }
-.item-search-field { display: flex; align-items: center; gap: 0.8rem; padding: 0 1rem; border-radius: 0.45rem; background: var(--surface); color: var(--muted); }
-.item-search-field:focus-within { outline: 2px solid var(--accent); outline-offset: 2px; }
-.item-search-field input { min-width: 0; flex: 1; min-height: 3.15rem; background: transparent; color: var(--ink); font-size: 1rem; }
+.item-search {
+  width: 100%;
+  max-width: 66rem;
+  margin-inline: auto;
+  container-type: inline-size;
+}
+
+.item-search-workspace {
+  display: grid;
+  grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.6fr);
+  align-items: start;
+  gap: clamp(1rem, 2.4vw, 1.6rem);
+}
+
+.item-search-picker,
+.item-search-compare {
+  min-width: 0;
+}
+
+.item-search-field {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding-inline: 0.95rem;
+  border-radius: 0.55rem;
+  background: var(--raised);
+  color: var(--muted);
+}
+
+.item-search-field:focus-within {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.item-search-field input {
+  flex: 1;
+  min-width: 0;
+  min-height: 3rem;
+  background: transparent;
+  color: var(--ink);
+  font-size: 1rem;
+}
+
 .item-search-field input:focus-visible { outline: 0; }
 .item-search-field input::placeholder { color: var(--quiet); }
-.item-search-section { margin-top: 2rem; }
-.item-search-section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.6rem; }
-.item-search-section-header h2 { font: 500 1.5rem/1.25 var(--display); }
-.item-search-list, .item-search-matches { display: grid; min-width: 0; }
-.item-search-matches { grid-template-columns: repeat(auto-fit, minmax(min(100%, 22rem), 1fr)); gap: 0 2rem; }
-.item-search-row { display: flex; align-items: center; min-width: 0; gap: 0.8rem; padding: 0.6rem 0.4rem; text-align: left; }
-.item-search-art { display: flex; flex: none; min-width: 3.2rem; max-width: 48%; overflow: auto; }
+
+.item-search-matches-title {
+  margin: 0.95rem 0 0.4rem;
+  padding-inline: 0.2rem;
+  color: var(--muted);
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.item-search-matches {
+  display: grid;
+  gap: 0.2rem;
+  max-block-size: min(30rem, 54dvh);
+  overflow: auto;
+  padding: 0.15rem 0.2rem;
+  scrollbar-color: var(--line-strong) transparent;
+  scrollbar-width: thin;
+}
+
+.item-search-match, .item-search-row {
+  display: grid;
+  grid-template-columns: minmax(3rem, max-content) minmax(0, 1fr) max-content;
+  align-items: center;
+  gap: 0.65rem;
+  min-width: 0;
+  min-height: 3.6rem;
+}
+
+.item-search-match {
+  width: 100%;
+  padding: 0.2rem 0.45rem;
+  border-radius: 0.55rem;
+  text-align: start;
+}
+
+.item-search-match:hover { background: var(--raised); }
+
+.item-search-match:focus-visible,
+.item-search-row:focus-visible {
+  outline-offset: -2px;
+  border-radius: 0.4rem;
+}
+
+.item-search-match[aria-pressed="true"] { background: var(--accent-wash); }
+
+.item-search-match-action, .item-search-source-link {
+  display: grid;
+  place-items: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  border-radius: 0.4rem;
+  font-size: 0.78rem;
+}
+
+.item-search-match-action { background: var(--surface); color: var(--muted); }
+.item-search-match[aria-pressed="true"] .item-search-match-action { background: transparent; color: var(--accent); }
+
+.item-search-compare {
+  padding: 0.8rem clamp(0.7rem, 1.5vw, 1.2rem) 0.95rem;
+  border-radius: 0.75rem;
+  background: color-mix(in srgb, var(--surface) 93%, transparent);
+}
+
+.item-search-section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.6rem;
+  min-height: 2.25rem;
+  margin-bottom: 0.25rem;
+}
+
+.item-search-section-header h2 { font: 400 1.48rem/1.2 var(--display); }
+
+.item-search-row {
+  grid-template-columns: minmax(3rem, max-content) minmax(0, 1fr) max-content 1.75rem;
+  min-height: 4rem;
+  padding-block: 0.4rem;
+}
+
+.item-search-row + .item-search-row { border-top: 1px solid var(--line); }
+.item-search-source-link { grid-column: 4; color: var(--quiet); }
+.item-search-source-link:hover { background: var(--hover); color: var(--ink); }
+
+.item-search-art {
+  display: flex;
+  max-inline-size: clamp(64px, 12cqi, 10rem);
+  overflow: auto;
+  scrollbar-width: thin;
+}
+
 .item-search-art :deep(img) { margin-inline: auto; }
-.item-search-copy, .item-search-price { display: grid; min-width: 0; gap: 0.25rem; }
-.item-search-copy { flex: 1; overflow-wrap: anywhere; }
-.item-search-copy strong { color: var(--ink); font-size: 1rem; font-weight: 550; }
+
+.item-search-copy {
+  display: grid;
+  gap: 0.15rem;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.item-search-copy strong {
+  color: var(--ink);
+  font-size: 0.95rem;
+  font-weight: 600;
+  line-height: 1.3;
+}
+
+.item-search-match .item-search-copy strong { font-size: 0.9rem; }
 .item-search-copy small, .item-search-price small { color: var(--quiet); font-size: 0.8rem; }
 .item-search-copy .item-search-unique { color: #e6ae79; }
-.item-search-price { text-align: right; font-variant-numeric: tabular-nums; }
-.item-search-actions { display: flex; align-items: center; }
-.item-search-matches button:hover { background: var(--surface); }
-.item-search-matches i { color: var(--accent); }
-.item-search-empty { min-height: 7rem; }
-@media (max-width: 42rem) {
-  .item-search-list .item-search-row { flex-wrap: wrap; }
-  .item-search-actions { margin-left: auto; }
+
+.item-search-listings {
+  justify-self: start;
+  min-height: 1.6rem;
+  color: var(--accent);
+  font-size: 0.8rem;
+  text-align: start;
+}
+
+.item-search-listings:hover { text-decoration: underline; }
+
+.item-search-price {
+  display: grid;
+  justify-items: end;
+  gap: 0.1rem;
+  max-inline-size: 8.5rem;
+  text-align: end;
+  font-variant-numeric: tabular-nums;
+}
+
+.item-search-amount {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  white-space: nowrap;
+}
+
+strong.item-search-amount {
+  color: #f0d3a5;
+  font-size: 1.18rem;
+  font-weight: 650;
+}
+
+.item-search .item-search-orb { width: 1.65rem !important; height: 1.65rem !important; }
+.item-search .item-search-orb--secondary { width: 1.1rem !important; height: 1.1rem !important; }
+
+.item-search-status,
+.item-search-source {
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+
+.item-search-status { padding: 0.7rem 0.15rem 0.35rem; }
+
+.item-search-source {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0.75rem 0 0;
+  font-size: 0.75rem;
+}
+
+.item-search-source > span {
+  width: 0.3rem;
+  height: 0.3rem;
+  border-radius: 50%;
+  background: #d6a773;
+}
+
+.viscera-select { max-width: 100%; margin-top: 0.25rem; }
+.item-search-copy .viscera-implicit { color: var(--ink); white-space: pre-line; }
+.viscera-implicit span { color: var(--muted); }
+
+@container (max-width: 45rem) {
+  .item-search-workspace { grid-template-columns: minmax(0, 1fr); }
+  .item-search-matches { max-block-size: min(16rem, 36dvh); }
+}
+
+@container (max-width: 24rem) {
+  .item-search-row {
+    grid-template-columns: minmax(3rem, max-content) minmax(0, 1fr) max-content 1.65rem;
+    column-gap: 0.4rem;
+  }
+  .item-search-art { max-inline-size: max(64px, 25cqi); }
+  .item-search-source-link { width: 1.65rem; }
+  .item-search-price { max-inline-size: 6rem; }
+  strong.item-search-amount { font-size: 1.05rem; }
 }
 </style>

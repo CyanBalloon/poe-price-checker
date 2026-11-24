@@ -3,19 +3,20 @@ import { app, net } from "electron";
 import type { Logger } from "./RemoteLogger";
 
 const PROXY_HOSTS = [
-  { host: "www.pathofexile.com", official: true },
-  { host: "ru.pathofexile.com", official: true },
-  { host: "pathofexile.tw", official: true },
-  { host: "poe.game.daum.net", official: true },
-  { host: "jp.pathofexile.com", official: true },
-  { host: "de.pathofexile.com", official: true },
-  { host: "es.pathofexile.com", official: true },
-  { host: "br.pathofexile.com", official: true },
-  { host: "fr.pathofexile.com", official: true },
-  { host: "poe.ninja", official: false },
-  { host: "www.poeprices.info", official: false },
+  { host: "www.pathofexile.com" },
+  { host: "ru.pathofexile.com" },
+  { host: "pathofexile.tw" },
+  { host: "poe.game.daum.net" },
+  { host: "jp.pathofexile.com" },
+  { host: "de.pathofexile.com" },
+  { host: "es.pathofexile.com" },
+  { host: "br.pathofexile.com" },
+  { host: "fr.pathofexile.com" },
+  { host: "web.poecdn.com", route: /^\/api\/currency-exchange\/(?:poe2\/)?\d+$/ },
+  { host: "poe.ninja" },
+  { host: "www.poeprices.info" },
   // me :)
-  { host: "api.exiledexchange2.dev", official: false },
+  { host: "api.exiledexchange2.dev" },
 ];
 
 // eslint-disable-next-line @typescript-eslint/no-extraneous-class
@@ -25,17 +26,19 @@ export class HttpProxy {
       if (!req.url?.startsWith("/proxy/")) return;
       const host = req.url.split("/", 3)[2];
 
-      const official = PROXY_HOSTS.find(
-        (entry) => entry.host === host,
-      )?.official;
-      if (official === undefined) return req.destroy();
+      const upstream = PROXY_HOSTS.find((entry) => entry.host === host);
+      if (!upstream || (upstream.route &&
+        (req.method !== "GET" || !upstream.route.test(req.url.slice(`/proxy/${host}`.length))))) {
+        return req.destroy();
+      }
 
       for (const key in req.headers) {
         if (
           key.startsWith("sec-") ||
           key === "host" ||
           key === "origin" ||
-          key === "content-length"
+          key === "content-length" ||
+          (upstream.route && (key === "cookie" || key === "authorization"))
         ) {
           // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
           delete req.headers[key];
@@ -49,7 +52,7 @@ export class HttpProxy {
           ...req.headers,
           "user-agent": app.userAgentFallback,
         },
-        useSessionCookies: true,
+        useSessionCookies: host !== "web.poecdn.com",
         referrerPolicy: "no-referrer-when-downgrade",
       });
       proxyReq.addListener("response", (proxyRes) => {

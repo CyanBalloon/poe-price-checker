@@ -8,8 +8,8 @@
       </div>
       <div class="summary-estimate-meta">
         <span v-if="equivalent">≈ {{ equivalent.amount.toLocaleString() }} {{ currencyLabel(equivalent.currency, equivalent.amount) }}</span>
-        <button type="button" class="summary-estimate-source" @click="openNinja">
-          poe.ninja <i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i>
+        <button type="button" class="summary-estimate-source" @click="openPriceSource" :title="priceData.hour">
+          {{ priceData.source }} <i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i>
         </button>
       </div>
     </template>
@@ -38,11 +38,12 @@
         </template>
       </item-quick-price>
       <button
-        @click="openNinja"
+        @click="openPriceSource"
         class="ui-button"
+        :title="priceData.hour"
       >
         <i class="fas fa-external-link-alt text-[10px] text-gray-400"></i>
-        <span>Open on poe.ninja</span>
+        <span>{{ priceData.source }}</span>
       </button>
     </template>
   </div>
@@ -116,11 +117,14 @@ export default defineComponent({
       );
 
       const { primary, chaosEquivalent } = displayPrice(price);
+      const hour = "exchangeHour" in entry ? entry.exchangeHour : undefined;
       return {
         price: primary,
         rawPrice: price,
         chaosEquivalent,
         url: entry.url,
+        source: hour ? "Currency Exchange" : "poe.ninja",
+        hour: hour ? new Date(hour * 1000).toLocaleString() : undefined,
       };
     });
 
@@ -146,7 +150,7 @@ export default defineComponent({
           return { amount: Math.round(price.min * exaltedRate.value), currency: "exalted" };
         }
       }),
-      openNinja() {
+      openPriceSource() {
         window.open(priceData.value!.url);
       },
       isValuableBasetype: computed(() => {

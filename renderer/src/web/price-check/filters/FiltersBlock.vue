@@ -36,7 +36,7 @@
       </div>
       <header v-if="isStandalone" class="filter-section-head">
         <h3>Modifiers</h3>
-        <span v-if="filteredStats.some(stat => stat.roll && !stat.oils)">Search range</span>
+        <span v-if="modifierGroups.some(group => group.filters.some(stat => stat.roll && !stat.oils))">Search range</span>
       </header>
       <form @submit.prevent="handleStatsSubmit">
         <template v-for="group in modifierGroups" :key="group.label">
@@ -44,8 +44,17 @@
             <button type="button" :aria-expanded="!foldedGroups.has(group.label)" @click="toggleGroup(group.label)">
               <i class="fa-solid fa-chevron-down" aria-hidden="true"></i>
               <span>{{ group.label }}</span>
-              <small>{{ group.filters.filter(filter => !filter.disabled).length }} selected</small>
+              <small>{{ group.selectedCount }} selected</small>
             </button>
+            <input
+              type="checkbox"
+              class="modifier-group-select"
+              :aria-label="'Select all in ' + group.label"
+              :title="'Select or clear all modifiers in ' + group.label"
+              :checked="group.selectedCount === group.allFilters.length"
+              :indeterminate.prop="group.selectedCount > 0 && group.selectedCount < group.allFilters.length"
+              @change="setGroupSelection(group.allFilters, group.selectedCount !== group.allFilters.length)"
+            />
           </h4>
           <div v-show="!isStandalone || !foldedGroups.has(group.label)">
             <filter-modifier
@@ -241,7 +250,9 @@ export default defineComponent({
       if (foldedGroups.value.has(label)) foldedGroups.value.delete(label);
       else foldedGroups.value.add(label);
     }
-    const extraMods = computed(() => props.stats.filter((stat) => stat.hidden && stat.disabled).length);
+    function setGroupSelection(filters: readonly StatFilter[], selected: boolean) {
+      for (const filter of filters) filter.disabled = !selected;
+    }
     const showFilterSources = shallowRef(false);
     const isStandalone = computed(() => {
       const params = new URLSearchParams(window.location.search);
@@ -255,6 +266,22 @@ export default defineComponent({
       }
       return props.stats.filter(stat => Boolean(stat.hidden) === showHidden.value);
     });
+    const modifierGroups = computed(() => {
+      if (!isStandalone.value) {
+        return [{ label: "", filters: filteredStats.value, allFilters: filteredStats.value, selectedCount: 0 }];
+      }
+      const visible = new Set(filteredStats.value);
+      return groupModifierFilters(props.stats, props.item.rarity).map(({ label, filters }) => ({
+        label,
+        // Groups made up entirely of optional filters are revealed by expanding the group.
+        filters: filters.every(filter => filter.hidden) ? filters : filters.filter(filter => visible.has(filter)),
+        allFilters: filters,
+        selectedCount: filters.filter(filter => !filter.disabled).length,
+      }));
+    });
+    const extraMods = computed(() => modifierGroups.value.reduce(
+      (count, group) => count + group.allFilters.length - group.filters.length, 0,
+    ));
 
     watch(
       () => props.stats,
@@ -480,6 +507,7 @@ export default defineComponent({
       expandedFilter,
       foldedGroups,
       toggleGroup,
+      setGroupSelection,
       extraMods,
       showFilterSources,
       hasConvertibleResistances,
@@ -490,9 +518,7 @@ export default defineComponent({
         return props.stats.filter((stat) => !stat.disabled).length;
       }),
       filteredStats,
-      modifierGroups: computed(() => isStandalone.value
-        ? groupModifierFilters(filteredStats.value, props.item.rarity)
-        : [{ label: "", filters: filteredStats.value }]),
+      modifierGroups,
       showUnknownMods,
       hasStats: computed(
         () =>
@@ -569,10 +595,11 @@ export default defineComponent({
   font-weight: 600;
 }
 .filter-section-head { align-items: baseline; margin-bottom: 0.8rem; }
-.modifier-group-title { margin: 0.65rem 0 0.15rem; }
+.modifier-group-title { display: flex; align-items: center; gap: 0.45rem; margin: 0.65rem 0 0.15rem; padding-inline-end: 0.35rem; }
 .modifier-group-title:first-child { margin-top: 0; }
-.modifier-group-title button { display: flex; align-items: center; gap: 0.55rem; width: 100%; min-height: 2.2rem; padding-inline: 0.35rem; border-radius: 0.4rem; color: var(--ink); font-size: 0.87rem; font-weight: 600; text-align: left; }
+.modifier-group-title button { display: flex; flex: 1; align-items: center; gap: 0.55rem; min-width: 0; min-height: 2.2rem; padding-inline: 0.35rem; border-radius: 0.4rem; color: var(--ink); font-size: 0.87rem; font-weight: 600; text-align: left; }
 .modifier-group-title button:hover { background: var(--surface); }
+.modifier-group-select { flex: none; width: 1rem; height: 1rem; accent-color: var(--accent); cursor: pointer; }
 .modifier-group-title i { color: var(--quiet); font-size: 0.62rem; }
 .modifier-group-title [aria-expanded="false"] i { transform: rotate(-90deg); }
 .modifier-group-title small { margin-left: auto; color: var(--quiet); font-size: 0.75rem; font-weight: 400; font-variant-numeric: tabular-nums; }

@@ -11,6 +11,7 @@ import { PriceCheckWidget } from "@/web/overlay/widgets";
 import { hasCraftingValue, likelyFinishedItem } from "./common";
 import { AppConfig } from "@/web/Config";
 import { isMapInfluenceId } from "@/parser/poe1-map";
+import { groupModifierFilters } from "./modifier-groups";
 
 const ROMAN_NUMERALS = ["I", "II", "III", "IV", "V"];
 
@@ -110,6 +111,13 @@ export function createPresets(
   if (item.category === ItemCategory.Currency) {
     for (const preset of result.presets) {
       for (const stat of preset.stats) {
+        stat.disabled = true;
+      }
+    }
+  } else if (!opts.defaultAllSelected) {
+    for (const preset of result.presets) {
+      const implicits = groupModifierFilters(preset.stats, item.rarity).find(group => group.label === "Implicit");
+      for (const stat of implicits?.filters ?? []) {
         stat.disabled = true;
       }
     }

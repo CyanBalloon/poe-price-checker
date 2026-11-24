@@ -25,8 +25,8 @@ Use **Base** when a defence or weapon property matters. Expand **Pseudo stats** 
 
 ## Look up an item without a clipboard copy
 
-Open **Item Search** and type an item or currency name. Select matches to keep their prices together while you search. It’s a quick way to compare the price of a unique with a Divine Orb in the same league.
+Open **Item Search** and type an item or currency name. Add or remove matches on the left as you compare their prices on the right. Items on the Currency Exchange use completed hourly trades from the selected league.
 
-[![PoE1 Item Search showing Polaric Devastation, a Divine Orb and a Chaos Orb in the same league](/images/poe1-search.webp)](/images/poe1-search.webp)
+[![PoE1 search matches beside selected items showing Divine and Chaos Orb prices](/images/poe1-search.webp)](/images/poe1-search.webp)
 
 Playing the sequel? [Check gear and uniques in Path of Exile 2](/poe2-price-checker/).

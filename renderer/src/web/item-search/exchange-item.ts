@@ -7,11 +7,11 @@ import { AppConfig } from "@/web/Config";
 export function exchangeItem(item: ParsedItem): BaseType | undefined {
   if (item.category === ItemCategory.Map && AppConfig()?.game === "poe1") return;
   if (item.rarity === ItemRarity.Unique && item.isUnidentified) return;
-  const { entries, exchange } = itemCatalogue.value;
+  const { entries } = itemCatalogue.value;
   let name = item.info.refName;
   if (item.category === ItemCategory.UncutGem && item.gemLevel && !name.includes(" (Level ")) {
     name += " (Level " + item.gemLevel + ")";
   }
-  if (!exchange.has(name) && !usePoeninja().findPriceByQuery({ ns: item.info.namespace, name })?.cx) return;
+  if (!usePoeninja().isExchangeListed({ ns: item.info.namespace, name })) return;
   return entries.get(item.info.namespace + ":" + name) ?? item.info;
 }

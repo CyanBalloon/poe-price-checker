@@ -2,7 +2,7 @@
 
 **A free, open-source item price checker for Path of Exile 1 (PoE1) and Path of Exile 2 (PoE2).** Hover over an item and press **Ctrl+D** to compare its rolls with trade listings for your league. The price checker opens in its own Windows desktop window.
 
-[**Download for Windows x64**](https://github.com/CyanBalloon/poe-price-checker/releases/download/v1.1.13/poe-price-checker-setup-1.1.13.exe) · [Portable edition](https://github.com/CyanBalloon/poe-price-checker/releases/download/v1.1.13/poe-price-checker-1.1.13.exe) · [Website](https://poe2pricechecker.com/) · [v1.1.13 release notes](https://github.com/CyanBalloon/poe-price-checker/releases/tag/v1.1.13)
+[**Download for Windows x64**](https://github.com/CyanBalloon/poe-price-checker/releases/download/v1.1.14/poe-price-checker-setup-1.1.14.exe) · [Portable edition](https://github.com/CyanBalloon/poe-price-checker/releases/download/v1.1.14/poe-price-checker-1.1.14.exe) · [Website](https://poe2pricechecker.com/) · [v1.1.14 release notes](https://github.com/CyanBalloon/poe-price-checker/releases/tag/v1.1.14)
 
 [![Polaric Devastation in the Path of Exile 1 price checker, with Divine Orb and Chaos Orb values above its modifiers and trade listings](docs/public/images/poe1-price.webp)](docs/public/images/poe1-price.webp)
 
@@ -26,11 +26,11 @@ Open **Settings → Application** to check for updates, download them, and resta
 | Items and artwork | PoE1 base types, uniques, currency icons and Lioneye’s Watch. | PoE2 item data, currency icons and The Lantern Crossing. |
 | Trade | Searches the PoE1 PC market. | Searches the PoE2 market. |
 
-Each game remembers its own league. In **Price Check**, collapsed modifier groups show how many stats you have selected. Crafted and fractured groups appear when the item has those modifiers. In **Item Search**, you can keep several items in view and open listings for any of them.
+Each game remembers its own league. **Price Check** shows the selected count for each modifier group and lets you select or clear a whole group at once. Crafted and fractured groups appear when the item has those modifiers. In **Item Search**, matches stay on the left while you compare selected prices on the right.
 
 | Item Search in PoE1 | The Lantern Crossing in PoE2 |
 | --- | --- |
-| [![Selected PoE1 uniques and currency with their league prices](docs/public/images/poe1-search.webp)](docs/public/images/poe1-search.webp) | [![PoE2 welcome page with the lantern-lit crossing](docs/public/images/poe2-welcome.webp)](docs/public/images/poe2-welcome.webp) |
+| [![PoE1 search matches beside selected items showing Divine and Chaos Orb prices](docs/public/images/poe1-search.webp)](docs/public/images/poe1-search.webp) | [![PoE2 welcome page with the lantern-lit crossing](docs/public/images/poe2-welcome.webp)](docs/public/images/poe2-welcome.webp) |
 
 All three screenshots were captured from the packaged Windows build. Select one to open it at full size.
 
@@ -54,6 +54,6 @@ The launcher installs dependencies on first use. For production packaging and th
 
 ## Credits
 
-This project builds on [Exiled Exchange 2](https://github.com/Kvan7/Exiled-Exchange-2) and [Awakened PoE Trade](https://github.com/SnosMe/awakened-poe-trade). Trade listings come from the official Path of Exile trade service, and market estimates come from [poe.ninja](https://poe.ninja/). Path of Exile and its game artwork belong to Grinding Gear Games. The project code is available under the [MIT license](LICENSE).
+This project builds on [Exiled Exchange 2](https://github.com/Kvan7/Exiled-Exchange-2) and [Awakened PoE Trade](https://github.com/SnosMe/awakened-poe-trade). Trade listings come from the official Path of Exile trade service. Exchange prices use completed hourly trades from [GGG's Currency Exchange API](https://www.pathofexile.com/developer/docs/reference#currencyexchange). Other market estimates come from [poe.ninja](https://poe.ninja/). Exchange item identities use [RePoE's game data exports](https://github.com/repoe-fork). Developers can refresh those identities with `python scripts/update-exchange-items.py`. Path of Exile and its game artwork belong to Grinding Gear Games. The project code is available under the [MIT license](LICENSE).
 
 The Windows icon is a gold loupe with a red gem. Beside the app title, the belt is Grinding Gear Games’ [Mageblood inventory artwork](https://web.poecdn.com/image/Art/2DItems/Belts/InjectorBelt.png).
