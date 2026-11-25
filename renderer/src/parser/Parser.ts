@@ -19,6 +19,7 @@ import { ItemCategory } from "./meta";
 import { matchVisceraImplicit } from "./viscera";
 import { itemInfluences } from "./item-influences";
 import { isMapInfluenceId, readMapProperties } from "./poe1-map";
+import { isHistoricJewel, joinTimelessSeedLines } from "./timeless-jewel";
 import {
   IncursionRoom,
   ParsedItem,
@@ -1177,6 +1178,7 @@ function parseModifiers(section: string[], item: ParsedItem) {
     return "PARSER_SKIPPED";
   }
 
+  if (isHistoricJewel(item)) section = joinTimelessSeedLines(section);
   const recognizedLine = section.find(
     (line) =>
       line.endsWith(ENCHANT_LINE) ||

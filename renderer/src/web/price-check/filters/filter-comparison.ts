@@ -3,6 +3,7 @@ import { ItemCategory, type ParsedItem } from "@/parser";
 import { CLIENT_STRINGS } from "@/assets/data";
 import { IncursionRoom } from "@/parser/ParsedItem";
 import { isMapInfluenceId } from "@/parser/poe1-map";
+import { isTimelessSeedId } from "@/parser/timeless-jewel";
 import { FilterTag, INTERNAL_TRADE_IDS, ItemIsElementalModifier, type StatFilter } from "./interfaces";
 
 export function selectedFirst(filters: readonly StatFilter[]) {
@@ -33,7 +34,7 @@ export function modifierBoundsMode(filter: StatFilter) {
   if (!filter.roll || filter.oils || filter.tradeId.every(id => id.startsWith("{empty}") ||
     (id.startsWith("{empty_if_100}") && filter.roll?.value === 100))) return "presence";
   if (filter.tradeId[0]?.startsWith("item.map_")) return "min";
-  if (filter.statRef === "Only affects Passives in # Ring") return "exact";
+  if (filter.statRef === "Only affects Passives in # Ring" || filter.tradeId.some(isTimelessSeedId)) return "exact";
   return "range";
 }
 
@@ -81,6 +82,14 @@ function propertyLabel(text: string, values: readonly number[]) {
 export function modifierComparison(filter: StatFilter, item: ParsedItem, text = filter.text) {
   const id = filter.tradeId[0];
   const raw = text.trim();
+  if (id && isTimelessSeedId(id) && filter.roll) {
+    const figure = id.slice(id.lastIndexOf("_") + 1);
+    return {
+      label: "Jewel seed · " + figure[0].toUpperCase() + figure.slice(1),
+      onItem: String(filter.roll.value),
+      search: filter.disabled ? "Any" : searchBounds(filter.roll.min, filter.roll.min) || "Any",
+    };
+  }
   if (filter.tradeId.some(isMapInfluenceId)) {
     const influence = raw.replace(/^(?:Area is influenced by |Map is occupied by |Map contains )/i, "");
     return {

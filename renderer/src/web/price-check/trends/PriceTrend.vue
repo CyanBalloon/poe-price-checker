@@ -1,6 +1,6 @@
 <template>
   <section v-if="summary" class="summary-estimate" aria-label="Market estimate">
-    <div class="summary-estimate-label">{{ isValuableBasetype ? 'Base item estimate' : 'Market estimate' }}</div>
+    <div class="summary-estimate-label">{{ historicJewel ? 'Market estimate · all seeds' : isValuableBasetype ? 'Base item estimate' : 'Market estimate' }}</div>
     <template v-if="priceData">
       <div class="summary-estimate-value">
         <core-currency-img :currency="priceData.price.currency" />
@@ -38,6 +38,7 @@
           <span class="text-gray-400">{{ t(":base_item") }}</span>
         </template>
       </item-quick-price>
+      <span v-if="historicJewel" class="text-gray-400">All seeds</span>
       <button
         @click="openPriceSource"
         class="ui-button"
@@ -74,6 +75,7 @@ import { currencyLabel } from "@/web/ui/currency-icons";
 import CoreCurrencyImg from "@/web/ui/CoreCurrencyImg.vue";
 import ItemQuickPrice from "@/web/ui/ItemQuickPrice.vue";
 import { ParsedItem, ItemCategory } from "@/parser";
+import { isHistoricJewel } from "@/parser/timeless-jewel";
 import { artificialSlowdown } from "../trade/artificial-slowdown";
 import { ItemFilters } from "../filters/interfaces";
 
@@ -132,6 +134,7 @@ export default defineComponent({
 
     return {
       t,
+      historicJewel: computed(() => isHistoricJewel(props.item)),
       priceData,
       currencyLabel,
       summaryValue: computed(() => {

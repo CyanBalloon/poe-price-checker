@@ -5,6 +5,7 @@ import {
   itemIsModifiable,
 } from "@/parser";
 import { WEAPON, ARMOUR } from "@/parser/meta";
+import { isTimelessSeedId } from "@/parser/timeless-jewel";
 import {
   ModifierType,
   StatCalculated,
@@ -97,7 +98,7 @@ export function createExactStatFilters(
     searchInRange,
     filters: [],
     statsByType: statsByType.filter((calc) =>
-      keepByType.includes(calc.type) || hasTierOneAffix(calc.sources),
+      keepByType.includes(calc.type) || hasTierOneAffix(calc.sources) || calc.stat.trade.ids[calc.type]?.some(isTimelessSeedId),
     ),
   };
 
@@ -125,6 +126,7 @@ export function createExactStatFilters(
   for (const filter of ctx.filters) {
     // show all mods for exact
     filter.hidden = undefined;
+    if (filter.tradeId.some(isTimelessSeedId)) continue;
 
     if (item.category !== ItemCategory.Flask && filter.sources.length &&
         filter.sources.every(source => source.modifier.info.type === ModifierType.Crafted)) {
@@ -650,6 +652,14 @@ export function calculatedStatToFilter(
     ) {
       filter.tag = FilterTag.Corrupted;
     }
+  }
+
+  if (roll && filter.tradeId.some(isTimelessSeedId)) {
+    // Timeless seeds identify a passive tree layout. Adjacent values are different layouts.
+    const value = roll.value;
+    filter.roll = { value, min: value, max: value, default: { min: value, max: value }, dp: false, isNegated: false };
+    filter.disabled = false;
+    return filter;
   }
 
   if (roll && (!filter.option || roll.option !== roll.value)) {

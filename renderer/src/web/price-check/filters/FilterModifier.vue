@@ -8,6 +8,8 @@
         </span>
       </label>
       <span v-if="!searchable" class="criteria-value">Unavailable</span>
+      <filter-number-field v-else-if="seed && filter.roll" class="jewel-seed-value" :name="display.label + ' exact value'" prefix="="
+        :value="filter.roll.min" :item-value="display.onItem" :active="!filter.disabled" @edit="setSeed" />
       <filter-number-field v-else-if="inlineMinimum && filter.roll" :name="display.label + ' minimum'"
         :value="filter.roll.min" :step="filter.roll.dp ? .01 : 1" :unit="display.onItem.endsWith('%') ? '%' : ''"
         :item-value="display.onItem" :active="!filter.disabled" @edit="setMinimum" />
@@ -64,6 +66,7 @@ import { computed, ref } from "vue";
 import { useI18n } from "vue-i18n";
 import { itemIsModifiable, type ParsedItem } from "@/parser";
 import { isMapInfluenceId } from "@/parser/poe1-map";
+import { isTimelessSeedId } from "@/parser/timeless-jewel";
 import { FilterTag, type StatFilter } from "./interfaces";
 import { modifierBoundsMode, type displayModifier } from "./filter-comparison";
 import FilterNumberField from "./FilterNumberField.vue";
@@ -80,6 +83,7 @@ const { t } = useI18n();
 const id = computed(() => props.filter.tradeId[0]);
 const searchable = computed(() => Boolean(id.value));
 const influence = computed(() => props.filter.tradeId.some(isMapInfluenceId));
+const seed = computed(() => props.filter.tradeId.some(isTimelessSeedId));
 const room = computed(() => id.value?.startsWith("pseudo.pseudo_temple_"));
 const showQuality = computed(() => ["item.armour", "item.evasion_rating", "item.energy_shield", "item.total_dps", "item.physical_dps"].includes(id.value) && itemIsModifiable(props.item));
 const boundsMode = computed(() => modifierBoundsMode(props.filter));
@@ -97,6 +101,11 @@ const slider = computed({
 
 function setMinimum(value?: number) {
   props.filter.roll!.min = value;
+  props.filter.disabled = value == null;
+}
+function setSeed(value?: number) {
+  const roll = props.filter.roll!;
+  roll.min = roll.max = value ?? roll.value;
   props.filter.disabled = value == null;
 }
 function toggleFilter() { props.filter.disabled = !props.filter.disabled; }
