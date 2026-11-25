@@ -2,7 +2,7 @@
 
 **A free, open-source item price checker for Path of Exile 1 (PoE1) and Path of Exile 2 (PoE2).** Hover over an item and press **Ctrl+D** to compare its rolls with trade listings for your league. The price checker opens in its own Windows desktop window.
 
-[**Download for Windows x64**](https://github.com/CyanBalloon/poe-price-checker/releases/download/v1.1.15/poe-price-checker-setup-1.1.15.exe) · [Portable edition](https://github.com/CyanBalloon/poe-price-checker/releases/download/v1.1.15/poe-price-checker-1.1.15.exe) · [Website](https://poe2pricechecker.com/) · [v1.1.15 release notes](https://github.com/CyanBalloon/poe-price-checker/releases/tag/v1.1.15)
+[**Download for Windows x64**](https://github.com/CyanBalloon/poe-price-checker/releases/download/v1.1.17/poe-price-checker-setup-1.1.17.exe) · [Portable edition](https://github.com/CyanBalloon/poe-price-checker/releases/download/v1.1.17/poe-price-checker-1.1.17.exe) · [Website](https://poe2pricechecker.com/) · [v1.1.17 release notes](https://github.com/CyanBalloon/poe-price-checker/releases/tag/v1.1.17)
 
 [![Polaric Devastation in the Path of Exile 1 price checker, with Divine Orb and Chaos Orb values above its modifiers and trade listings](docs/public/images/poe1-price.webp)](docs/public/images/poe1-price.webp)
 
