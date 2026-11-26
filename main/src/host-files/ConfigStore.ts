@@ -12,12 +12,12 @@ export class ConfigStore {
   );
 
   constructor(server: ServerEvents) {
-    server.onEventAnyClient("CLIENT->MAIN::save-config", (cfg) => {
+    server.onEventAnyClient("CLIENT->MAIN::save-config", (cfg, sender) => {
       this.save(cfg.contents, cfg.isTemporary);
       server.sendEventTo("broadcast", {
         name: "MAIN->CLIENT::config-changed",
         payload: { contents: cfg.contents },
-      });
+      }, sender);
     });
   }
 

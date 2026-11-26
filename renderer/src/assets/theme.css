@@ -151,7 +151,7 @@ html {
   font-size: 0.9rem;
 }
 
-.trade-app img:not(.app-logo), img.item-art, img.currency-art {
+.trade-app img:not(.app-logo, .settings-illustration), img.item-art, img.currency-art {
   width: auto !important;
   height: auto !important;
   max-width: none !important;

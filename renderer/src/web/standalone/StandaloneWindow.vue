@@ -53,6 +53,7 @@
         'trade-main--welcome': activeTab === 'price-check' && showWelcome,
         'trade-main--price-check': activeTab === 'price-check' && hasActivePriceCheck,
         'trade-main--item-search': activeTab === 'search',
+        'trade-main--settings': activeTab === 'settings',
       }">
         <section v-show="activeTab === 'price-check'" class="trade-view trade-price" :class="{ 'trade-price--welcome': showWelcome }" aria-label="Price Check">
           <div v-if="showWelcome" class="watch-welcome">
@@ -102,6 +103,9 @@
           <component :is="settingsComponent" :config="settingsWidgetConfig">
             <template #rates>
               <div class="market-rates">
+                <span v-if="!divineQuote && !(gameMode === 'poe1' ? annulInChaos : annulToExalt)" class="rate-status">
+                  {{ isNinjaLoading ? 'Loading rates…' : 'Rates unavailable' }}
+                </span>
                 <span v-if="divineQuote" class="trade-rate" :title="divineQuote.currency + ' per Divine Orb'">
                   <img :src="currencyIcon('divine')" alt="1 Divine Orb" />
                   <span aria-hidden="true">≈</span>
@@ -127,8 +131,9 @@
             </template>
             <template #application>
               <div ref="applicationUpdates" class="application-actions" role="group" aria-label="Application updates" tabindex="-1">
-                <span>PoE Price Checker v{{ version }}</span>
-                <span role="status">{{ updateControl.status }}</span>
+                <img class="settings-illustration" src="/icon.png" width="40" height="40" alt="" />
+                <div><strong>PoE Price Checker</strong><span class="app-version">v{{ version }}</span>
+                  <small role="status">{{ updateControl.status }}</small></div>
                 <button v-if="updateControl.action" type="button" class="ui-button" @click="runUpdate">{{ updateControl.label }}</button>
               </div>
             </template>

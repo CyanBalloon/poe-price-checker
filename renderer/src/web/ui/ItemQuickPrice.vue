@@ -7,6 +7,7 @@
           :item-name="itemBase?.refName"
           :namespace="itemBase?.namespace"
           :influences="influences"
+          :parsed-item="parsedItem"
           overflow-hidden 
         />
         <item-influence-symbols :influences="influences" />
@@ -50,7 +51,7 @@
 </template>
 
 <script lang="ts">
-import type { ItemInfluence } from "@/parser";
+import type { ItemInfluence, ParsedItem } from "@/parser";
 import ItemInfluenceSymbols from "./ItemInfluenceSymbols.vue";
 import { defineComponent, computed, PropType } from "vue";
 import { displayRounding, usePoeninja, formatChaosOrDivineAmount } from "../background/Prices";
@@ -84,6 +85,7 @@ export default defineComponent({
       default: false,
     },
     influences: Array as PropType<readonly ItemInfluence[]>,
+    parsedItem: Object as PropType<ParsedItem>,
     itemImg: {
       type: String,
       default: undefined,

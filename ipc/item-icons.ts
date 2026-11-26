@@ -23,6 +23,8 @@ interface GeneratedItemArt {
   elder?: boolean;
   searing?: boolean;
   tangled?: boolean;
+  synthesised?: boolean;
+  relic?: number | boolean;
 }
 
 function generatedItemArt(url?: string): GeneratedItemArt | undefined {
@@ -43,11 +45,40 @@ export function iconHasInfluenceBackdrop(url: string) {
   return Object.values(itemIconBackdropFlags(url)).some(Boolean);
 }
 
+export function catalogueInventoryFlags(url?: string) {
+  const art = generatedItemArt(url);
+  return {
+    synthesised: art?.synthesised === true,
+    viscera: (art?.f ?? url ?? "").includes("2DItems/Viscera/"),
+  };
+}
+
+export function listingFoilVariation(url: string) {
+  const value = generatedItemArt(url)?.relic;
+  return typeof value === "number" ? value : undefined;
+}
+
+export function inventoryGridSize(url: string) {
+  const art = generatedItemArt(url);
+  return art?.w && art.h ? { width: art.w, height: art.h } : undefined;
+}
+
+// Supplemental Viscera entries identify the GGG sprite through a catalogue mirror.
+// Request the original inventory pixels through the same restricted CDN route as equipment.
+export function visceraSpriteUrl(icon: string) {
+  const match = /^https:\/\/cdn\.poedb\.tw\/image\/Art\/(2DItems\/Viscera\/[\w/.-]+)\.webp$/.exec(icon);
+  if (!match) return;
+  const path = "/image/Art/" + match[1] + ".png";
+  if (fullItemArtPath.test(path)) return "https://web.poecdn.com" + path;
+}
+
 // GGG's public art endpoint also exposes the undecorated sprite for inherently influenced uniques.
 export function plainItemIconUrl(signed: string) {
   const art = generatedItemArt(signed);
   if (typeof art?.f !== "string" || (art.realm ?? "poe1") !== "poe1") return;
-  const segments = art.f.split("/");
+  // This public generated descriptor uses an old name for the Spectral Shield Throw sprite.
+  const filename = art.f === "2DItems/Gems/Thrown Shield" ? "2DItems/Gems/ThrownShield" : art.f;
+  const segments = filename.split("/");
   if (segments[0] !== "2DItems" || segments.length < 2 ||
       segments.some(part => !part || part === "." || part === ".." || part.includes("\\"))) return;
   const url = new URL("https://web.poecdn.com/image/Art/" + segments.map(encodeURIComponent).join("/") + ".png");
@@ -56,6 +87,21 @@ export function plainItemIconUrl(signed: string) {
   url.searchParams.set("scale", String(art.scale ?? 1));
   return url.href;
 }
+
+// The unscaled, undecorated CDN resource has the original client texture dimensions.
+export function conquerorSprite(icon: string) {
+  const plain = plainItemIconUrl(icon) ?? icon;
+  let url: URL;
+  try { url = new URL(plain); } catch { return; }
+  if (url.origin !== "https://web.poecdn.com" || !fullItemArtPath.test(url.pathname)) return;
+  try {
+    const key = decodeURIComponent(url.pathname.slice("/image/Art/".length, -4)).toLowerCase();
+    return { key, path: url.pathname };
+  } catch { return; }
+}
+
+// Only public, full-resolution item sprites can be read through the image proxy.
+export const fullItemArtPath = /^\/image\/Art\/2DItems\/(?:[\w%.'()-]+\/)*[\w%.'()-]+\.png$/;
 
 // GGG can render different influence backgrounds around the same inventory sprite.
 export function sameItemIconArt(first: string, second: string) {

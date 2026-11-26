@@ -3,7 +3,7 @@
     v-if="icon"
     :class="[$style['icon-container'], { [$style['socketed-art']]: isPoe1 && socketLayout.length }]"
   >
-    <ui-item-img :icon="icon" :base-icon="baseIcon" :influences="influences" />
+    <ui-item-img :icon="icon" :base-icon="baseIcon" :influences="influences" :inventory="inventory" />
     <div
       v-if="socketLayout.length"
       class="absolute inset-0 flex items-center justify-center pointer-events-none"
@@ -37,6 +37,7 @@
 <script lang="ts">
 import { computed, defineComponent, shallowRef, watch, type PropType } from "vue";
 import type { ItemInfluence } from "@/parser";
+import type { InventoryFlags } from "@/parser/inventory-effects";
 import { AppConfig } from "@/web/Config";
 import type { DisplayItem } from "@/web/price-check/trade/pathofexile-trade";
 import UiItemImg from "./UiItemImg.vue";
@@ -77,6 +78,7 @@ export default defineComponent({
     },
     baseIcon: String,
     influences: Array as PropType<readonly ItemInfluence[]>,
+    inventory: Object as PropType<InventoryFlags>,
     itemWidth: {
       type: Number,
       default: 1,

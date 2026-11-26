@@ -4,7 +4,7 @@
       <div class="checked-summary-main">
         <div class="checked-identity" :data-rarity="item.rarity">
           <div class="checked-art">
-            <ui-item-img :icon="item.info.icon" :item-name="item.info.refName" :namespace="item.info.namespace" :influences="item.influences" alt="" />
+            <ui-item-img :icon="item.info.icon" :item-name="item.info.refName" :namespace="item.info.namespace" :influences="item.influences" :parsed-item="item" alt="" />
             <item-influence-symbols :influences="item.influences" />
           </div>
           <div class="checked-identity-text">

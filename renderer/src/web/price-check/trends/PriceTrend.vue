@@ -33,6 +33,7 @@
         :item-img="item.info.icon"
         :item-base="item.info"
         :influences="item.influences"
+        :parsed-item="item"
       >
         <template #item v-if="isValuableBasetype">
           <span class="text-gray-400">{{ t(":base_item") }}</span>
@@ -59,6 +60,7 @@
       :item-img="item.info.icon"
       :item-base="item.info"
       :influences="item.influences"
+      :parsed-item="item"
     />
   </div>
 </template>

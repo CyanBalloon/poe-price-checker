@@ -1,0 +1,19 @@
+The local effects worker reads PoE1 inventory data from the player's installed game.
+Its Windows x64 shader tools are from LunarG Vulkan SDK 1.4.363.0.
+
+glslangValidator.exe  SHA-256 ed87aea16947b16e5d235f9c75c3275df29cdfa6ef4f44e4d65a0e0c6d6c38af
+spirv-cross.exe       SHA-256 6702f1d74b2aaff02cff452f7c96bddb947b8d93fee24af6af0df2692c2e0ea9
+https://vulkan.lunarg.com/sdk/home
+https://github.com/KhronosGroup/glslang
+https://github.com/KhronosGroup/SPIRV-Cross
+https://github.com/KhronosGroup/SPIRV-Tools
+
+The separately built JavaScript archive worker includes ooz-wasm 2.0.0
+(GPL-3.0-or-later), pathofexile-dat 16.0.1 (MIT), tex-decoder (MIT), bireader (MIT) and
+pngjs (MIT). The worker's corresponding application source and build
+instructions are in main/src/local-effects and main/build/local-effects.mjs.
+https://github.com/SnosMe/ooz-wasm
+https://github.com/SnosMe/poe-dat-viewer
+https://github.com/hearhellacopters/tex-decoder
+https://github.com/hearhellacopters/bireader
+https://github.com/pngjs/pngjs

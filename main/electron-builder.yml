@@ -8,7 +8,7 @@ files:
   - "package.json"
   - from: "dist"
     to: "."
-    filter: ["main.js", "vision.js", "clicker.exe"]
+    filter: ["main.js", "vision.js", "clicker.exe", "effects-preload.js"]
   - from: "../renderer/dist"
     to: "."
   - "!node_modules/uiohook-napi/build${/*}"
@@ -27,6 +27,8 @@ afterAllArtifactBuild: ./build/portable-manifest.cjs
 win:
   icon: "../renderer/public/windows-icon.ico"
   extraResources:
+    - from: dist/local-effects
+      to: local-effects
     - from: dist/portable-updater.exe
       to: portable-updater.exe
     - from: build/portable-update.yml

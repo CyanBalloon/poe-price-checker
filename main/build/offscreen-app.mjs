@@ -7,14 +7,14 @@ import { _electron as electron } from "playwright-core";
 
 const switchName = "poe-offscreen-test";
 
-export async function withOffscreenApp(executablePath, run) {
+export async function withOffscreenApp(executablePath, run, existingProfile) {
   const directory = path.dirname(path.resolve(executablePath));
   const resources = process.platform === "darwin" ? path.join(directory, "..", "Resources") : path.join(directory, "resources");
   // Older packages ignore the switch and immediately focus their normal window.
   const main = asar.extractFile(path.join(resources, "app.asar"), "main.js");
   if (!main.includes(switchName)) throw new Error("This build predates offscreen testing. Rebuild the unpacked app to run this check.");
 
-  const profile = await mkdtemp(path.join(os.tmpdir(), "poe-offscreen-"));
+  const profile = existingProfile ?? await mkdtemp(path.join(os.tmpdir(), "poe-offscreen-"));
   const env = { ...process.env };
   delete env.ELECTRON_RUN_AS_NODE;
   let app;
@@ -35,7 +35,7 @@ export async function withOffscreenApp(executablePath, run) {
     try {
       await app?.close();
     } finally {
-      await rm(profile, { recursive: true, force: true, maxRetries: 4, retryDelay: 250 });
+      if (!existingProfile) await rm(profile, { recursive: true, force: true, maxRetries: 4, retryDelay: 250 });
     }
   }
 }

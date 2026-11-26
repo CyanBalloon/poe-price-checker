@@ -88,8 +88,13 @@ export interface ParsedItem {
   sentinelCharge?: number;
   isSynthesised?: boolean;
   isFractured?: boolean;
+  memoryStrands?: number;
+  isVestigial?: boolean;
   isVeiled?: boolean;
   isFoil?: boolean;
+  foilVariation?: number;
+  isForeseeing?: boolean;
+  scourgeTier?: number | "max";
   isFoulborn?: boolean;
   statsByType: StatCalculated[];
   newMods: ParsedModifier[];

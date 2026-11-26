@@ -161,6 +161,7 @@ export const defaultConfigMock = (overrides: Partial<Config> = {}) => {
     autoUpdater: true,
     destroyHotkeyEnabled: false,
     autoClickerEnabled: false,
+    poe1ItemAnimations: true,
   };
 
   mockConfig = { ...defaultConfig, ...overrides };

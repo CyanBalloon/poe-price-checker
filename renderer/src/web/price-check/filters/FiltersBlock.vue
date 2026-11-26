@@ -135,7 +135,9 @@ watch(() => current.value.rows.map(row => row.key).join("/"), async () => {
   const focused = document.activeElement;
   if (current.value.id !== "all" || !(focused instanceof HTMLElement) || !paneBody.value?.contains(focused)) return;
   await nextTick();
-  if (focused.isConnected && document.activeElement === document.body) focused.focus({ preventScroll: true });
+  if (document.hasFocus() && focused.isConnected && document.activeElement === document.body) {
+    focused.focus({ preventScroll: true });
+  }
 });
 
 const otherActive = computed(() => sections.value.filter(section => section.id !== current.value.id && section.id !== "all").flatMap(section => section.active));

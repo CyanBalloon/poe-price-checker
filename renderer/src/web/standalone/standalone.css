@@ -117,13 +117,17 @@
 }
 .trade-main--price-check { --scene: var(--price-check-art); }
 .trade-main--item-search { --scene: var(--item-search-art); }
-.trade-main:is(.trade-main--price-check, .trade-main--item-search) {
+.trade-main:is(.trade-main--price-check, .trade-main--item-search, .trade-main--settings) {
   background-image: linear-gradient(110deg, rgb(20 22 26 / 88%), rgb(20 22 26 / 82%) 60%, rgb(20 22 26 / 76%)), var(--scene);
   background-position: center 58%;
   background-size: cover;
   background-repeat: no-repeat;
 }
 .trade-view { width: min(100%, 84rem); margin: 0 auto; padding: clamp(1.15rem, 3vw, 3rem); }
+.trade-main.trade-main--settings {
+  --scene: url("/images/settings/atlas-observatory.webp");
+  background-image: linear-gradient(105deg, rgb(19 21 25 / 93%) 0%, rgb(19 21 25 / 87%) 48%, rgb(19 21 25 / 71%) 100%), var(--scene);
+}
 .trade-price { display: grid; gap: 1.5rem; }
 .price-composer { width: min(100%, 45rem); margin-inline: auto; }
 .trade-price--welcome {
@@ -150,11 +154,18 @@
 .price-composer textarea { width: 100%; display: block; margin: 0.6rem 0; padding: 1rem; min-height: 7rem; resize: vertical; border-radius: 0.45rem; background: var(--surface); color: var(--ink); }
 .price-composer-footer { color: var(--quiet); font-size: 0.8rem; }
 .trade-alert { margin: 0.75rem 1.5rem 0; }
-.market-rates, .application-actions, .trade-rate { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem; }
-.market-rates, .application-actions { gap: 0.8rem 1.4rem; min-height: 3rem; }
+.market-rates, .trade-rate { display: flex; flex-wrap: wrap; align-items: center; gap: 0.4rem; }
+.market-rates { column-gap: .8rem; min-height: 2.5rem; }
 .trade-rate { color: var(--muted); font-variant-numeric: tabular-nums; }
 .trade-rate strong { color: var(--ink); }
-.application-actions { color: var(--muted); }
+.rate-status, .application-actions small { color: var(--muted); font-size: .82rem; }
+.application-actions { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: .7rem;
+  padding: .5rem 0 .85rem; margin-bottom: .15rem; border-bottom: 1px solid var(--line); }
+.application-actions img { width: 2.5rem; height: 2.5rem; object-fit: contain; }
+.application-actions strong { color: var(--ink); font-weight: 600; }
+.app-version { margin-left: .45rem; color: var(--muted); font-size: .82rem; white-space: nowrap; }
+.application-actions small { display: block; margin-top: .12rem; line-height: 1.35; }
+@media (max-width: 30rem) { .application-actions { grid-template-columns: auto 1fr; } .application-actions .ui-button { grid-column: 2; justify-self: start; } }
 @media (max-width: 68rem) {
   .trade-toolbar {
     padding-right: 0;

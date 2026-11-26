@@ -28,6 +28,21 @@ The installer, portable executable, installer blockmap and update manifest are i
 
 Run `npm run check:toolbar --prefix main -- "dist/win-unpacked/PoE Price Checker.exe" dist/toolbar-previews` before publishing a toolbar change. The check renders the packaged app offscreen with a temporary profile, checks the logo and title at five window widths in both games, and saves screenshots for visual review. Use `withOffscreenApp` from `main/build/offscreen-app.mjs` for other packaged UI checks so they leave desktop focus, hotkeys, and the running app alone.
 
+## Local PoE1 item effects
+
+The Windows app detects the standalone game archive or a Steam library. For a custom installation, choose the game folder under **Settings → Appearance → PoE 1 item animations**. The switch defaults to on. Turning it off immediately uses static item art and preserves the cache. The worker opens the game files read-only and translates effects in memory using the tools listed in `main/build/effect-tools/NOTICE.txt`.
+
+The app saves finished preview frames under `local-item-effects` in the Electron user profile. Each installation has a random AES-256-GCM key wrapped by Windows DPAPI. The 64 MiB frame cache is tied to the game and app versions. Cached frames can display while live rendering starts or supply the still image for reduced motion.
+
+The worker also saves an encrypted index for each PoE1 installation. It contains bundle locations and file lookup metadata. On later launches the worker checks the game archive's file identity, size and timestamps before reusing the index. Patching or replacing the standalone archive or Steam bundle index triggers a rebuild on the next use. Updating the checker alone preserves the index.
+
+```powershell
+npm run check:effect-cache --prefix main
+npm run check:local-effects --prefix main -- "dist/win-unpacked/PoE Price Checker.exe"
+```
+
+The second check uses an installed copy of PoE1 and runs the packaged app twice offscreen with a temporary profile.
+
 ## Preview the project site
 
 ```powershell

@@ -1,6 +1,7 @@
 import path from "path";
 import { BrowserWindow, dialog, shell, Menu, app, screen } from "electron";
 import fs from "fs";
+import { trustEffectsWindow } from "../local-effects/service";
 import { appIconPath } from "../app-icon";
 
 import type { ServerEvents } from "../server";
@@ -17,6 +18,7 @@ export function createStandaloneWindow(options: Electron.BrowserWindowConstructo
     }),
     ...options,
     webPreferences: {
+      preload: path.join(__dirname, "effects-preload.js"),
       allowRunningInsecureContent: false,
       webviewTag: true,
       spellcheck: false,
@@ -86,8 +88,9 @@ export class AppWindow {
       x: isStandalone ? windowState.x : undefined,
       y: isStandalone ? windowState.y : undefined,
       skipTaskbar: false,
-      show: true,
+      show: false,
     });
+    this.window.once("ready-to-show", () => this.showWindow());
 
     if (isStandalone) {
       let isQuitting = false;
@@ -164,6 +167,7 @@ export class AppWindow {
       return;
     }
 
+    trustEffectsWindow(this.window, url);
     this.window.loadURL(url);
     if (process.env.VITE_DEV_SERVER_URL && !rendererUrl) {
       this.window.webContents.openDevTools({ mode: "detach", activate: false });
@@ -175,20 +179,9 @@ export class AppWindow {
   }
 
   showWindow() {
-    if (this.window) {
-      if (this.window.isMinimized()) {
-        this.window.restore();
-      }
-      this.window.setAlwaysOnTop(true);
-      this.window.show();
-      this.window.focus();
-      app.focus();
-      setTimeout(() => {
-        this.window?.setAlwaysOnTop(false);
-      }, 500);
-
-      this.poeWindow.emit("focus-overlay");
-    }
+    // Windows can display the checker without taking the game's keyboard focus.
+    if (process.platform === "win32") this.window?.showInactive();
+    else this.window?.show();
   }
 
   private handleExtraCommands = (

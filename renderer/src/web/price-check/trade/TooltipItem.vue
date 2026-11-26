@@ -5,6 +5,7 @@
         :icon="result.displayItem.icon.url"
         :base-icon="result.displayItem.icon.baseUrl"
         :influences="result.displayItem.influences"
+        :inventory="result.displayItem.inventory"
         :item-width="result.displayItem.icon.w"
         :sockets="result.displayItem.sockets"
       />

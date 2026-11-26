@@ -2,7 +2,7 @@
 
 **A free, open-source item price checker for Path of Exile 1 (PoE1) and Path of Exile 2 (PoE2).** Hover over an item and press **Ctrl+D** to compare its rolls with trade listings for your league. The price checker opens in its own Windows desktop window.
 
-[**Download for Windows x64**](https://github.com/CyanBalloon/poe-price-checker/releases/download/v1.1.17/poe-price-checker-setup-1.1.17.exe) · [Portable edition](https://github.com/CyanBalloon/poe-price-checker/releases/download/v1.1.17/poe-price-checker-1.1.17.exe) · [Website](https://poe2pricechecker.com/) · [v1.1.17 release notes](https://github.com/CyanBalloon/poe-price-checker/releases/tag/v1.1.17)
+[**Download for Windows x64**](https://github.com/CyanBalloon/poe-price-checker/releases/download/v1.1.18/poe-price-checker-setup-1.1.18.exe) · [Portable edition](https://github.com/CyanBalloon/poe-price-checker/releases/download/v1.1.18/poe-price-checker-1.1.18.exe) · [Website](https://poe2pricechecker.com/) · [v1.1.18 release notes](https://github.com/CyanBalloon/poe-price-checker/releases/tag/v1.1.18)
 
 [![Polaric Devastation in the Path of Exile 1 price checker, with Divine Orb and Chaos Orb values above its modifiers and trade listings](docs/public/images/poe1-price.webp)](docs/public/images/poe1-price.webp)
 
@@ -35,6 +35,8 @@ Each game remembers its own league. **Price Check** shows the selected count for
 All three screenshots were captured from the packaged Windows build. Select one to open it at full size.
 
 ## Language and settings
+
+On Windows, PoE1 item previews can show inventory effects from your installed game. **Settings → Appearance → PoE 1 item animations** is on by default. Use **Choose folder** for a custom game install. The first preview builds a local index that later launches reuse until the game files change.
 
 On Windows, the **Auto-clicker** switch is under **Settings → Shortcuts**. It starts off for fresh installs and upgrades from v1.1.0. Enabling it requires confirming a warning about the Path of Exile Terms of Use.
 

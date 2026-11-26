@@ -19,6 +19,7 @@ import { GameLogWatcher } from "./host-files/GameLogWatcher";
 import { HttpProxy } from "./proxy";
 import { installExtension, VUEJS_DEVTOOLS } from "electron-devtools-installer";
 import { FileWriter } from "./host-files/FileWriter";
+import { registerLocalEffects, trustEffectsWindow } from "./local-effects/service";
 import { startDevRenderer } from "./dev-renderer";
 
 const offscreenTest = app.commandLine.hasSwitch("poe-offscreen-test");
@@ -41,7 +42,9 @@ if (offscreenTest) {
   app.exit();
 }
 
-app.disableHardwareAcceleration();
+// Keep translated game programs in memory instead of Chromium’s on-disk GPU shader cache.
+if (process.platform === "win32") app.commandLine.appendSwitch("disable-gpu-shader-disk-cache");
+else app.disableHardwareAcceleration();
 
 app.enableSandbox();
 let tray: AppTray;
@@ -82,6 +85,7 @@ let tray: AppTray;
   }
 
   app.on("ready", async () => {
+    registerLocalEffects();
     const logger = new Logger(eventPipe);
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const _httpProxy = new HttpProxy(server, logger);
@@ -95,7 +99,9 @@ let tray: AppTray;
         });
         win.webContents.setWindowOpenHandler(() => ({ action: "deny" }));
         app.once("before-quit", () => { if (!win.isDestroyed()) win.destroy(); });
-        await win.loadURL(`http://localhost:${port}/index.html?mode=standalone`);
+        const url = `http://localhost:${port}/index.html?mode=standalone`;
+        trustEffectsWindow(win, url);
+        await win.loadURL(url);
       } catch (error) {
         console.error("Could not start offscreen UI test", error);
         app.exit(1);
@@ -241,7 +247,6 @@ let tray: AppTray;
         // TODO: move up (currently crashes)
         logger.write(`info ${os.type()} ${os.release} / v${app.getVersion()}`);
         appWindow.loadAppPage(port, rendererUrl);
-        appWindow.showWindow();
         tray.serverPort = port;
       },
       // fixes(linux): window is black instead of transparent

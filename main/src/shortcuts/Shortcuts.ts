@@ -73,7 +73,7 @@ export class Shortcuts {
     if (process.platform === "win32") {
       const clickerPath = path.join(__dirname, "clicker.exe").replace("app.asar", "app.asar.unpacked");
       try {
-        this.clickerProcess = child_process.spawn(clickerPath, [], { stdio: ["pipe", "pipe", "ignore"] });
+        this.clickerProcess = child_process.spawn(clickerPath, [], { stdio: ["pipe", "pipe", "ignore"], windowsHide: true });
         
         this.clickerProcess.stdout.on("data", (data: Buffer) => {
           const lines = data.toString().split("\n");
@@ -163,12 +163,6 @@ export class Shortcuts {
         // We don't focus the game anymore since it's fully standalone
       } else {
         // ...
-      }
-    });
-
-    this.poeWindow.on("focus-overlay", () => {
-      if (this.clickerProcess && this.clickerProcess.stdin.writable) {
-        this.clickerProcess.stdin.write("focus-overlay\n");
       }
     });
 
@@ -358,9 +352,6 @@ export class Shortcuts {
                     activeGame,
                   },
                 });
-                if (action.target === "price-check") {
-                  this.appWindow.showWindow();
-                }
               })
               .catch(() => {});
 

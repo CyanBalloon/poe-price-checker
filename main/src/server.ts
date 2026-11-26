@@ -79,7 +79,7 @@ const evBus = new EventEmitter();
 
 export function onEventAnyClient<Name extends IpcEvent["name"]>(
   name: Name,
-  cb: (payload: IpcEventPayload<Name>) => void,
+  cb: (payload: IpcEventPayload<Name>, sender?: WebSocket) => void,
 ) {
   evBus.on(name, cb);
 }
@@ -87,11 +87,12 @@ export function onEventAnyClient<Name extends IpcEvent["name"]>(
 export function sendEventTo(
   target: "last-active" | "any" | "broadcast",
   event: IpcEvent,
+  except?: WebSocket,
 ) {
   const msg = JSON.stringify(event);
   if (target === "broadcast") {
     for (const client of websocketServer.clients) {
-      client.send(msg);
+      if (client !== except) client.send(msg);
     }
   } else {
     lastActiveClient.send(msg);
@@ -131,7 +132,7 @@ export async function startServer(
       // eslint-disable-next-line @typescript-eslint/no-base-to-string
       const event = JSON.parse(bytes.toString("utf-8")) as IpcEvent;
 
-      evBus.emit(event.name, event.payload);
+      evBus.emit(event.name, event.payload, socket);
     });
     socket.on("close", () => {
       const clients = websocketServer.clients;

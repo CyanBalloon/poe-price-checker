@@ -1,5 +1,6 @@
 import child_process from 'child_process'
 import electron from 'electron'
+import { buildLocalEffects } from './local-effects.mjs'
 import esbuild from 'esbuild'
 import { once } from 'node:events'
 import fs from 'fs'
@@ -24,6 +25,8 @@ if (process.platform === 'win32') {
     ], { stdio: 'inherit' })
   }
 }
+
+await buildLocalEffects(mainDir)
 
 const electronRunner = (() => {
   let handle = null

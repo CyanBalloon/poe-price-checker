@@ -157,10 +157,11 @@ export interface Config {
   autoUpdater: boolean;
   destroyHotkeyEnabled: boolean;
   autoClickerEnabled: boolean;
+  poe1ItemAnimations: boolean;
 }
 
 export const defaultConfig = (): Config => ({
-  configVersion: 34,
+  configVersion: 35,
   restoreClipboard: false,
   showAttachNotification: true,
   commands: [
@@ -233,6 +234,7 @@ export const defaultConfig = (): Config => ({
   readClientLog: false, // default to false, opt-in only
   destroyHotkeyEnabled: false,
   autoClickerEnabled: false,
+  poe1ItemAnimations: true,
 });
 
 function upgradeConfig(_config: Config): Config {
@@ -648,6 +650,10 @@ function upgradeConfig(_config: Config): Config {
 
   if ((config as any).theme === "pastel") {
     config.theme = "default";
+  }
+  if (config.configVersion < 35) {
+    config.poe1ItemAnimations ??= true;
+    config.configVersion = 35;
   }
   /* eslint-enable */
 

@@ -227,6 +227,12 @@ export interface TranslationDict {
   VEILED_MODS: string[];
   INCURSION_MODS: string[];
   FOIL_UNIQUE: string;
+  FOIL_VARIANT?: RegExp;
+  FOIL_COLOURS?: string[];
+  FORESEEING_ITEM?: string;
+  FORESEEING_DESCRIPTION?: string;
+  SCOURGED_TIER?: RegExp;
+  SCOURGED_MAXED?: string;
   UNMODIFIABLE: string;
   REQUIREMENTS: string;
   REQUIRES: string;
@@ -260,6 +266,8 @@ export interface TranslationDict {
   GRANTS_SKILL: string;
   RELOAD_SPEED: string;
   FRACTURED_ITEM: string;
+  MEMORY_STRANDS?: string;
+  VESTIGIAL_NAME?: RegExp;
   SANCTIFIED: string;
   HYPHEN: string;
   LOG_LEVEL_UP: RegExp;

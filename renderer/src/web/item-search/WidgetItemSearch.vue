@@ -64,7 +64,7 @@
             :data-name="item.info.refName" :data-namespace="item.info.namespace" class="item-search-row" tabindex="-1">
             <div class="item-search-art">
               <ui-item-img :icon="item.info.icon || '%NOT_FOUND%'" :item-name="item.info.refName"
-                :namespace="item.info.namespace" :influences="item.rawItem?.influences" />
+                :namespace="item.info.namespace" :influences="item.rawItem?.influences" :parsed-item="item.rawItem" />
             </div>
             <div class="item-search-copy">
               <strong :class="{ 'item-search-unique': isUnique(item) }">{{ item.info.name }}</strong>
@@ -419,8 +419,10 @@ onMounted(() => {
     if (!parsedItem) return;
     selectItem(exchangeItem(parsedItem) ?? parsedItem.info, { rawItem: parsedItem });
     if (parsedItem.isUnidentified && parsedItem.info.unique) {
-      nextTick(() => selectedRows.value.find(row => row.dataset.namespace === "UNIQUE" &&
-        row.dataset.name === parsedItem.info.refName)?.focus());
+      nextTick(() => {
+        if (document.hasFocus()) selectedRows.value.find(row => row.dataset.namespace === "UNIQUE" &&
+          row.dataset.name === parsedItem.info.refName)?.focus();
+      });
     }
   };
   window.addEventListener("add-search-item", handleAddSearchItem);

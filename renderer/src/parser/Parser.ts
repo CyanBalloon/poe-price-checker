@@ -64,7 +64,7 @@ const parsers: Array<ParserFn | { virtual: VirtualParserFn }> = [
   { virtual: parseSuperior },
   { virtual: parseExceptional },
   { virtual: parseRuneforged },
-  parseSynthesised,
+  { virtual: normalizeItemStateName },
   { virtual: parseMapTierPoe1 },
   parseCategoryByHelpText,
   { virtual: normalizeName },
@@ -133,7 +133,7 @@ export function parseClipboard(clipboard: string): Result<ParsedItem, string> {
     const parsed = parseNamePlate(sections[0]);
     if (!parsed.isOk()) return parsed;
 
-    sections = extractInfluences(parsed.value, sections.slice(1));
+    sections = extractItemMarkers(parsed.value, sections.slice(1));
     parsed.value.rawText = clipboard;
 
     performance.mark("parse-start-parsers");
@@ -217,8 +217,6 @@ function normalizeName(item: ParserState) {
       item.name = "Metamorph Liver";
     }
   }
-
-
 }
 
 function findInDatabase(item: ParserState) {
@@ -546,11 +544,37 @@ function parseNamePlate(section: string[]) {
   return ok(item);
 }
 
-function extractInfluences(item: ParsedItem, sections: string[][]) {
-  // The final influence lines can share the last affix's section or have their own separator.
+function extractItemMarkers(item: ParsedItem, sections: string[][]) {
+  // Item markers can share a section with an affix or a group of ordinary properties.
   const markers = new Map(itemInfluences.map(({ marker, value }) => [_$[marker], value] as const));
   return sections.map(section => section.filter(line => {
-    const influence = markers.get(line.trim());
+    const text = line.trim();
+    if (text === _$.FORESEEING_ITEM || text === _$.FORESEEING_DESCRIPTION) {
+      item.isForeseeing = true;
+      return false;
+    }
+    const scourgeTier = _$.SCOURGED_TIER?.exec(text);
+    if (scourgeTier || text === _$.SCOURGED_MAXED) {
+      item.scourgeTier = scourgeTier ? Number(scourgeTier[1]) : "max";
+      return false;
+    }
+    if (_$.VESTIGIAL_IMPLICIT && text.startsWith("{ " + _$.VESTIGIAL_IMPLICIT)) item.isVestigial = true;
+    if (text === _$.FRACTURED_ITEM) {
+      item.isFractured = true;
+      return false;
+    }
+    if (text === _$.SECTION_SYNTHESISED) {
+      item.isSynthesised = true;
+      return false;
+    }
+    if (_$.MEMORY_STRANDS && text.startsWith(_$.MEMORY_STRANDS)) {
+      const match = /^(\d+)(?:\s*\/\s*\d+)?(?:\s+\([^)]*\))?$/.exec(text.slice(_$.MEMORY_STRANDS.length).trim());
+      if (match) {
+        item.memoryStrands = Number(match[1]);
+        return false;
+      }
+    }
+    const influence = markers.get(text);
     if (!influence) return true;
     if (!item.influences.includes(influence)) item.influences.push(influence);
     return false;
@@ -579,8 +603,11 @@ function parseFoil(section: string[], item: ParsedItem) {
   if (item.rarity !== ItemRarity.Unique) {
     return "PARSER_SKIPPED";
   }
-  if (section[0] === _$.FOIL_UNIQUE) {
+  const colour = _$.FOIL_VARIANT?.exec(section[0])?.[1];
+  if (section[0] === _$.FOIL_UNIQUE || colour) {
     item.isFoil = true;
+    const variation = colour ? _$.FOIL_COLOURS?.indexOf(colour) : 0;
+    if (variation != null && variation >= 0) item.foilVariation = variation;
     return "SECTION_PARSED";
   }
   return "SECTION_SKIPPED";
@@ -1417,21 +1444,18 @@ function parseSentinelCharge(section: string[], item: ParsedItem) {
   return "SECTION_SKIPPED";
 }
 
-function parseSynthesised(section: string[], item: ParserState) {
-  performance.mark("parseSynthesised");
-  if (section.length === 1) {
-    if (section[0] === _$.SECTION_SYNTHESISED) {
-      item.isSynthesised = true;
-      if (item.baseType) {
-        item.baseType = _$REF.ITEM_SYNTHESISED.exec(item.baseType)![1];
-      } else {
-        item.name = _$REF.ITEM_SYNTHESISED.exec(item.name)![1];
-      }
-      return "SECTION_PARSED";
-    }
+function normalizeItemStateName(item: ParserState) {
+  const key = item.baseType ? "baseType" : "name";
+  const name = item[key]!;
+  const vestigial = _$.VESTIGIAL_NAME?.exec(name);
+  const synthesis = _$.ITEM_SYNTHESISED?.exec(name);
+  if (vestigial) {
+    item.isVestigial = true;
+    item[key] = vestigial[1];
+  } else if (synthesis) {
+    item.isSynthesised = true;
+    item[key] = synthesis[1];
   }
-
-  return "SECTION_SKIPPED";
 }
 
 function parseSuperior(item: ParserState) {

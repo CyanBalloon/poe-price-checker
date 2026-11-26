@@ -1,8 +1,9 @@
-import { sameItemIconArt } from "@ipc/item-icons";
+import { iconHasInfluenceBackdrop, sameItemIconArt } from "@ipc/item-icons";
 import { AppConfig } from "@/web/Config";
 import { getCategoryToTradeId } from "./trade-constants";
 import { ItemCategory, ParsedItem, ItemInfluence, ItemRarity } from "@/parser";
 import { readListingInfluences, type ListingInfluences } from "@/parser/item-influences";
+import { listingInventory, type InventoryFlags } from "@/parser/inventory-effects";
 import {
   ItemFilters,
   StatFilter,
@@ -380,9 +381,9 @@ export type TradeModLine = string | { description: string; hash?: string };
 
 interface FetchResult {
   id: string;
-  item: ListingInfluences & {
-    w: 2;
-    h: 3;
+  item: ListingInfluences & InventoryFlags & {
+    w: number;
+    h: number;
     icon: string;
     sockets: Array<{
       group: number;
@@ -404,6 +405,7 @@ interface FetchResult {
     baseType: string;
     rarity: ItemRarity;
     frameType?: DisplayFrameType;
+    frameTypeId?: string;
     ilvl?: number;
     identified: boolean;
     unidentifiedTier?: number;
@@ -472,6 +474,9 @@ export enum DisplayFrameType {
   Magic = 1,
   Rare = 2,
   Unique = 3,
+  Gem = 4,
+  Foil = 9,
+  SupporterFoil = 10,
   RunicMagic = 12,
   RunicRare = 13,
   RunicUnique = 14,
@@ -480,6 +485,7 @@ export enum DisplayFrameType {
 export interface DisplayItem {
   title: string[];
   influences?: ItemInfluence[];
+  inventory?: InventoryFlags;
   mapTier?: number;
   atlasDrops?: string;
   rarity: ItemRarity;
@@ -1578,10 +1584,14 @@ function parseFetchResult(result: FetchResult): PricingResult["displayItem"] {
 
   const mapTier = _$.MAP_TIER instanceof RegExp
     ? _$.MAP_TIER.exec(result.item.baseType ?? result.item.typeLine)?.[1] : undefined;
-  const influences = AppConfig().game === "poe1" ? readListingInfluences(result.item) : undefined;
+  const poe1 = AppConfig().game === "poe1";
+  const influences = poe1 ? readListingInfluences(result.item) : undefined;
+  const gemName = poe1 && (result.item.frameTypeId === "Gem" || result.item.frameType === DisplayFrameType.Gem)
+    ? ITEM_BY_TRANSLATED("GEM", result.item.typeLine)?.[0]?.refName ?? result.item.typeLine : undefined;
   const displayItem: PricingResult["displayItem"] = {
     title,
     influences,
+    inventory: poe1 ? listingInventory(result.item, gemName) : undefined,
     mapTier: mapTier ? Number(mapTier) : undefined,
     atlasDrops: mapTier ? result.item.properties?.find(prop => prop.type === TradePropType.Poe1AtlasDrops)?.values[0]?.[0] : undefined,
     rarity: result.item.rarity ?? ({
@@ -1589,6 +1599,8 @@ function parseFetchResult(result: FetchResult): PricingResult["displayItem"] {
       [DisplayFrameType.Magic]: ItemRarity.Magic,
       [DisplayFrameType.Rare]: ItemRarity.Rare,
       [DisplayFrameType.Unique]: ItemRarity.Unique,
+      [DisplayFrameType.Foil]: ItemRarity.Unique,
+      [DisplayFrameType.SupporterFoil]: ItemRarity.Unique,
     } as Partial<Record<DisplayFrameType, ItemRarity>>)[result.item.frameType ?? DisplayFrameType.Normal] ?? ItemRarity.Normal,
     frameType: result.item.frameType,
     nameBlock: mapTier ? result.item.properties?.map(({ name, values }) => ({
@@ -1603,7 +1615,7 @@ function parseFetchResult(result: FetchResult): PricingResult["displayItem"] {
     itemTags,
     icon: {
       url: result.item.icon,
-      baseUrl: influences?.includes(ItemInfluence.Hunter) && influences.length > 1
+      baseUrl: influences?.length && iconHasInfluenceBackdrop(result.item.icon)
         ? listingSilhouette(result.item) : undefined,
       w: result.item.w,
       h: result.item.h,

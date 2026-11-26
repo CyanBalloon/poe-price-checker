@@ -4,7 +4,6 @@ import { OverlayController, AttachEvent } from "electron-overlay-window";
 
 export interface GameWindow {
   on(event: "active-change", listener: (isActive: boolean) => void): this;
-  on(event: "focus-overlay", listener: () => void): this;
 }
 export class GameWindow extends EventEmitter {
   private _isActive = false;
