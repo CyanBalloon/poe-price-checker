@@ -342,6 +342,9 @@ export class Shortcuts {
             this.clipboard
               .readItemText()
               .then((clipboardText) => {
+                if (action.target === "price-check") {
+                  this.appWindow.focusWindow();
+                }
                 this.server.sendEventTo("broadcast", {
                   name: "MAIN->CLIENT::item-text",
                   payload: {
@@ -360,6 +363,7 @@ export class Shortcuts {
                 ? entry.shortcut.split(" + ").filter((key) => isModKey(key))
                 : undefined,
               this.gameConfig.showModsKey,
+              action.target === "price-check",
             );
           } else if (
             entry.action.type === "ocr-text" &&
@@ -471,15 +475,23 @@ export class Shortcuts {
 function pressKeysToCopyItemText(
   pressedModKeys: string[] = [],
   showModsKey: string,
+  isPriceCheck: boolean,
 ) {
   let keys = mergeTwoHotkeys("Ctrl + C", showModsKey).split(" + ");
   keys = keys.filter((key) => key !== "C");
   if (process.platform !== "darwin") {
     keys = keys.filter((key) => !pressedModKeys.includes(key));
   }
+  const keyCodes = keys.map((key) => UiohookKey[key as UiohookKeyT]);
 
-  for (const key of keys) {
-    uIOhook.keyToggle(UiohookKey[key as UiohookKeyT], "down");
+  if (process.platform === "win32" && isPriceCheck) {
+    // Release the simulated modifiers with the copy chord to avoid flashing advanced descriptions.
+    uIOhook.keyTap(UiohookKey.C, keyCodes);
+    return;
+  }
+
+  for (const key of keyCodes) {
+    uIOhook.keyToggle(key, "down");
   }
 
   // finally press `C` to copy text
@@ -488,9 +500,8 @@ function pressKeysToCopyItemText(
   // Timeout to enforce release of keys
   // Game was dropping the release inputs for some reason
   setTimeout(() => {
-    keys.reverse();
-    for (const key of keys) {
-      uIOhook.keyToggle(UiohookKey[key as UiohookKeyT], "up");
+    for (const key of keyCodes.reverse()) {
+      uIOhook.keyToggle(key, "up");
     }
   }, 10);
 }

@@ -70,7 +70,7 @@
               <strong :class="{ 'item-search-unique': isUnique(item) }">{{ item.info.name }}</strong>
               <template v-if="item.info.viscera">
                 <small>Viscera · {{ item.info.viscera.slot }}</small>
-                <select v-if="item.implicits.length > 1" class="ui-select viscera-select" :aria-label="'Implicit modifier for ' + item.info.name"
+                <select v-if="item.implicits.length > 1" class="viscera-select" :aria-label="'Implicit modifier for ' + item.info.name"
                   :value="item.implicit?.variant || ''" @change="selectImplicit(item.info, $event)">
                   <option value="" disabled>Choose an implicit modifier</option>
                   <option v-for="implicit in item.implicits" :key="implicit.variant" :value="implicit.variant">{{ implicit.text }}</option>

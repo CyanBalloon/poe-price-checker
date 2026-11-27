@@ -55,7 +55,7 @@ html {
   opacity: 0.5;
 }
 
-.trade-app :is(.ui-button, .ui-icon-button, .ui-select) {
+.trade-app :is(.ui-button, .ui-icon-button) {
   min-height: 2.25rem;
   border: 0;
   border-radius: 0.4rem;
@@ -78,15 +78,121 @@ html {
   padding: 0;
 }
 
-.trade-app .ui-select {
-  padding: 0.35rem 0.65rem;
-  background: var(--surface);
-}
-
-.trade-app :is(.ui-button, .ui-icon-button, .ui-select):enabled:hover {
+.trade-app :is(.ui-button, .ui-icon-button):enabled:hover {
   background: var(--hover);
   border-color: var(--line-strong);
   color: var(--ink);
+}
+
+/* The game selector is the default for all single-choice dropdowns. */
+:root select:where(:not([multiple], [size])) {
+  min-width: 0;
+  max-width: 100%;
+  min-height: 2.5rem;
+  padding: 0 0.6rem;
+  border: 0;
+  border-radius: 0.55rem;
+  background: transparent;
+  color: var(--ink, #f1f2f3);
+  font-size: 0.9375rem;
+  line-height: 1.2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  cursor: pointer;
+}
+
+:root select:where(:not([multiple], [size])):enabled:hover {
+  background: var(--raised, #252930);
+}
+
+:root select:where(:not([multiple], [size])):disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+@supports selector(::picker(select)) {
+  select:where(:not([multiple], [size])),
+  select:where(:not([multiple], [size]))::picker(select) {
+    appearance: base-select;
+  }
+
+  :root select:where(:not([multiple], [size])) {
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  :root select:where(:not([multiple], [size])):open {
+    background: var(--raised, #252930);
+  }
+
+  select:where(:not([multiple], [size]))::picker-icon {
+    content: "";
+    flex: none;
+    width: 0.43rem;
+    height: 0.43rem;
+    margin-block-start: -0.18rem;
+    border: solid var(--quiet, #949ca7);
+    border-width: 0 1.5px 1.5px 0;
+    transform: rotate(45deg);
+  }
+
+  select:where(:not([multiple], [size])):open::picker-icon {
+    transform: translateY(0.18rem) rotate(225deg);
+  }
+
+  select:where(:not([multiple], [size]))::picker(select) {
+    margin-block: 0.4rem;
+    padding: 0.32rem;
+    min-width: min(calc(100vw - 1rem), max(anchor-size(width), 10rem));
+    max-width: calc(100vw - 1rem);
+    max-height: min(21rem, 65vh);
+    overflow: auto;
+    border: 1px solid var(--line-strong, #484e59);
+    border-radius: 0.75rem;
+    background: var(--raised, #252930);
+    color: var(--ink, #f1f2f3);
+    box-shadow: 0 0.6rem 1.75rem #0006;
+  }
+
+  select:where(:not([multiple], [size])) option {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1.25rem;
+    min-height: 2.5rem;
+    padding: 0.45rem 0.7rem;
+    border-radius: 0.45rem;
+    color: var(--muted, #b9bec6);
+    font-size: 0.94rem;
+    white-space: normal;
+    overflow-wrap: anywhere;
+    cursor: pointer;
+  }
+
+  select:where(:not([multiple], [size])) option:checked,
+  select:where(:not([multiple], [size])) option::checkmark {
+    color: var(--accent, #83d9ef);
+  }
+
+  select:where(:not([multiple], [size])) option::checkmark {
+    order: 1;
+    margin-inline-start: auto;
+  }
+
+  select:where(:not([multiple], [size])) option:enabled:is(:hover, :focus-visible) {
+    background: var(--hover, #2d3239);
+    color: var(--ink, #f1f2f3);
+    outline: none;
+  }
+
+  select:where(:not([multiple], [size])) option:disabled {
+    cursor: not-allowed;
+  }
+
+  select:where(:not([multiple], [size])) option:disabled[value=""] {
+    display: none;
+  }
 }
 
 .trade-app .ui-button--primary {

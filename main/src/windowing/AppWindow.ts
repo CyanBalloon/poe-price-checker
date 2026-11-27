@@ -184,6 +184,14 @@ export class AppWindow {
     else this.window?.show();
   }
 
+  focusWindow() {
+    const window = this.window;
+    if (!window || window.isFocused()) return;
+
+    if (window.isMinimized()) window.restore();
+    window.show();
+  }
+
   private handleExtraCommands = (
     event: Electron.Event,
     input: Electron.Input,

@@ -42,6 +42,15 @@ await withOffscreenApp(executable, async ({ page, window: nativeWindow }) => {
   await game.selectOption("poe1");
   await settings.click();
   assert.equal(await page.locator(".trade-settings h2").first().textContent(), "Application");
+  const github = page.locator(".settings-application").getByRole("link", { name: "GitHub", exact: true });
+  await nativeWindow.evaluate(win => {
+    win.webContents.setWindowOpenHandler(({ url }) => {
+      win.settingsLinkUrl = url;
+      return { action: "deny" };
+    });
+  });
+  await github.click();
+  assert.equal(await nativeWindow.evaluate(win => win.settingsLinkUrl), "https://github.com/CyanBalloon/poe-price-checker");
   assert.equal(await animations.getAttribute("aria-checked"), "true");
   await checkBackground();
   const info = page.getByRole("button", { name: "About PoE 1 item animations" });
@@ -53,7 +62,10 @@ await withOffscreenApp(executable, async ({ page, window: nativeWindow }) => {
   await tips.waitFor();
   await info.press("Escape");
   await tips.waitFor({ state: "hidden" });
-  for (const width of [520, 1280]) {
+  events.send(JSON.stringify({ name: "MAIN->CLIENT::updater-state", payload: { state: "initial" } }));
+  const checkUpdates = page.getByRole("button", { name: "Check for updates" });
+  await checkUpdates.waitFor();
+  for (const width of [460, 520, 1280]) {
     await nativeWindow.evaluate((win, w) => win.setContentSize(w, 1000), width);
     await page.waitForFunction(w => Math.abs(innerWidth - w) <= 2, width);
     const overflow = await page.locator(".trade-main").evaluate(main => {
@@ -66,12 +78,10 @@ await withOffscreenApp(executable, async ({ page, window: nativeWindow }) => {
       const { x, y } = node.getBoundingClientRect();
       return { x, y };
     }));
-    if (width === 520) assert(sections[1].y > sections[0].y && sections[1].x === sections[0].x);
+    if (width < 1280) assert(sections[1].y > sections[0].y && sections[1].x === sections[0].x);
     else assert(sections[1].x > sections[0].x && sections[1].y === sections[0].y);
   }
   if (screenshot) {
-    events.send(JSON.stringify({ name: "MAIN->CLIENT::updater-state", payload: { state: "initial" } }));
-    await page.getByRole("button", { name: "Check for updates" }).waitFor();
     await page.getByRole("heading", { name: "Settings", exact: true }).click();
     await page.locator(".trade-main").evaluate(el => el.scrollTo(0, 0));
     await page.evaluate(() => document.fonts.ready);
@@ -126,6 +136,6 @@ await withOffscreenApp(executable, async ({ page, window: nativeWindow }) => {
   await settings.click();
   assert.equal(await animations.getAttribute("aria-checked"), "true");
   await checkBackground();
-  console.log("Settings passed layout, tooltip, fixed Atlas background, persistence, migration, static art and game switching." +
+  console.log("Settings passed layout, GitHub link, tooltip, fixed Atlas background, persistence, migration, static art and game switching." +
     (hasGame ? " Confirmed the installed game powered a live shader after re-enabling." : ""));
 });

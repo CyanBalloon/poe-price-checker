@@ -4,8 +4,8 @@
       {{ name }}
     </button>
     <select
-      :class="$style.dropdown"
       v-model="selected"
+      :aria-label="name"
       @focus="onFocus"
       @change="onChange"
       :disabled="filter.disabled"
@@ -79,10 +79,4 @@ export default defineComponent({
   }
 }
 
-.dropdown {
-  @apply bg-gray-900;
-  @apply text-gray-300;
-  @apply rounded;
-  @apply focus:outline-none focus:ring-2 focus:ring-indigo-500;
-}
 </style>

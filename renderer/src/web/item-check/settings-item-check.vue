@@ -18,7 +18,7 @@
     </div>
     <div class="flex">
       <label class="flex-1">{{ t("item.find_same_price") }}</label>
-      <select v-model="samePricedType" class="p-1 rounded bg-gray-700 w-32">
+      <select v-model="samePricedType">
         <option value="price">{{ t("item.price") }}</option>
         <option value="both">{{ t("item.price_and_item") }}</option>
       </select>

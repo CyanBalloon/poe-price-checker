@@ -3,7 +3,7 @@
     <div>
       <div class="mb-4">
         <div class="flex-1 mb-1">{{ t(":show_tips_frequency") }}</div>
-        <select v-model="tipsFrequency" class="p-1 rounded bg-gray-700 w-24">
+        <select v-model="tipsFrequency">
           <option :value="1">{{ t(":tip_frequency_1") }}</option>
           <option :value="2">{{ t(":tip_frequency_2") }}</option>
           <option :value="3">{{ t(":tip_frequency_3") }}</option>

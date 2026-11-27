@@ -70,6 +70,7 @@ describe("POE1 Parser", () => {
   } as const;
 
   it.each([
+    ['{ Rare-only Prefix Modifier "Stout" (Tier: 1) }', '+56(55-69) to maximum Life', 'explicit.stat_3299347043', 56, "Prefix"],
     ['{ Rare-only Suffix Modifier (Tier: 1) }', '+23(20-24)% to Item Rarity', 'explicit.stat_3917489142', 23, "Suffix"],
     ['{ Suffix Modifier "of Rarity" (Tier: 1) }', '23(20-24)% increased Rarity of Items found', 'explicit.stat_3917489142', 23, "Suffix"],
     ['{ Suffix Modifier "of Rarity" (Tier: 1) }', '+23(20-24)% to Item Rarity from Slain Rare or Unique Enemies', 'explicit.stat_2161689853', 23, "Suffix"],
@@ -88,10 +89,49 @@ describe("POE1 Parser", () => {
     expect(filter).toBeDefined();
     expect(filter?.roll?.value).toBe(value);
     if (groupName === "Suffix") expect(filter?.disabled).toBe(false);
+    if (header.startsWith("{ Rare-only")) expect(filter?.sources[0].modifier.info.isRareOnly).toBe(true);
 
     for (const stat of stats) stat.disabled = stat !== filter;
     const query = createTradeRequest(filters, stats, item).query;
     expect(query.stats[0].filters).toContainEqual(expect.objectContaining({ id, disabled: false }));
+  });
+
+  it("keeps the copied Rare-only Mirage suffix active in a PoE1 map search", () => {
+    const item = parseClipboard(`Item Class: Maps
+Rarity: Rare
+Steel Course
+Map (Tier 16)
+--------
+Atlas Drops: +46% (augmented)
+Item Rarity: +28% (augmented)
+Monster Pack Size: +18% (augmented)
+--------
+Item Level: 83
+--------
+Monster Level: 83
+--------
+{ Prefix Modifier "Ceremonial" (Tier: 1) }
+Area contains many Totems — Unscalable Value
+{ Prefix Modifier "Multifarious" (Tier: 1) }
+Area has increased monster variety — Unscalable Value
+{ Rare-only Suffix Modifier "of Zarokh" (Tier: 1) }
+Area contains a Mirage
+{ Suffix Modifier "of Giants" (Tier: 1) }
+Monsters have 100% increased Area of Effect
+--------
+Travel to a Map of this tier or lower by using this in a personal Map Device. Maps can only be used once. `)._unsafeUnwrap();
+    expect(item.unknownModifiers).toEqual([]);
+    const { presets: [{ filters, stats }] } = createPresets(item, {
+      ...options, searchStatRange: 10, defaultAllSelected: false, includeSourceModifiers: true,
+    });
+    const suffixes = groupModifierFilters(stats, item.rarity).find(group => group.label === "Suffix")?.filters;
+    const id = "explicit.stat_2436559047";
+    const mirage = suffixes?.find(filter => filter.tradeId.includes(id));
+    expect(mirage).toMatchObject({ disabled: false, roll: undefined });
+    expect(mirage?.sources[0].modifier.info).toMatchObject({ name: "of Zarokh", tier: 1, generation: "suffix", isRareOnly: true });
+    expect(stats.filter(filter => !filter.disabled).map(filter => filter.tradeId)).toEqual([[id]]);
+    expect(createTradeRequest(filters, stats, item).query.stats[0].filters)
+      .toContainEqual(expect.objectContaining({ id, disabled: false }));
   });
 
   it("searches a PoE1 imbued gem with its built-in support", () => {
@@ -302,17 +342,17 @@ Corrupted`)._unsafeUnwrap();
       ...options, searchStatRange: 0, defaultAllSelected: false,
     });
     const implicit = groupModifierFilters(stats, item.rarity).find(group => group.label === "Implicit")?.filters[0];
-    expect(implicit).toMatchObject({ tradeId: [id], disabled: true, roll: { value } });
-    const defaultQuery = createTradeRequest(filters, stats, item).query;
-    expect(defaultQuery.stats[0].filters).toContainEqual(expect.objectContaining({ id, disabled: true }));
-    implicit!.disabled = false;
+    expect(implicit).toMatchObject({ tradeId: [id], disabled: false, roll: { value } });
     const query = createTradeRequest(filters, stats, item).query;
     expect(query.type).toBe(base);
     expect(query.term).toBe(name === base ? undefined : name);
     expect(query.stats[0].filters).toContainEqual(expect.objectContaining({ id, disabled: false }));
+    implicit!.disabled = true;
+    expect(createTradeRequest(filters, stats, item).query.stats[0].filters)
+      .toContainEqual(expect.objectContaining({ id, disabled: true }));
   });
 
-  it("recognizes every bundled Viscera and its implicit options with plain clipboard text", () => {
+  it("recognizes and selects every bundled Viscera implicit with plain clipboard text", () => {
     const catalogue = [...itemCatalogue.value.entries.values()].filter(item => item.viscera);
     expect(new Set(catalogue.map(item => item.viscera!.base)).size).toBe(164);
     expect(catalogue).toHaveLength(426);
@@ -325,6 +365,14 @@ Corrupted`)._unsafeUnwrap();
           item.statsByType.some(stat => stat.type !== "implicit" || !stat.stat.trade.ids.implicit?.length) ||
           getDetailsId(item)?.variant !== implicit.variant) {
           failures.push(entry.name + " / " + rolled);
+          continue;
+        }
+        const { presets: [{ stats }] } = createPresets(item, {
+          ...options, searchStatRange: 10, defaultAllSelected: false, includeSourceModifiers: true,
+        });
+        const searchableIds = new Set(stats.filter(filter => !filter.disabled).flatMap(filter => filter.tradeId));
+        if (item.statsByType.some(stat => !stat.stat.trade.ids.implicit!.some(id => searchableIds.has(id)))) {
+          failures.push(entry.name + " / " + rolled + " is missing a selected implicit");
         }
       }
     }

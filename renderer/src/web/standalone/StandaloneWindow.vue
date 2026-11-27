@@ -130,11 +130,17 @@
               </div>
             </template>
             <template #application>
-              <div ref="applicationUpdates" class="application-actions" role="group" aria-label="Application updates" tabindex="-1">
+              <div ref="applicationUpdates" class="application-actions" role="group" aria-label="Application links and updates" tabindex="-1">
                 <img class="settings-illustration" src="/icon.png" width="40" height="40" alt="" />
                 <div><strong>PoE Price Checker</strong><span class="app-version">v{{ version }}</span>
                   <small role="status">{{ updateControl.status }}</small></div>
-                <button v-if="updateControl.action" type="button" class="ui-button" @click="runUpdate">{{ updateControl.label }}</button>
+                <div class="application-buttons">
+                  <a href="https://github.com/CyanBalloon/poe-price-checker" class="ui-button" target="_blank" rel="noopener noreferrer">
+                    <i class="fa-brands fa-github" aria-hidden="true"></i>
+                    GitHub
+                  </a>
+                  <button v-if="updateControl.action" type="button" class="ui-button" @click="runUpdate">{{ updateControl.label }}</button>
+                </div>
               </div>
             </template>
           </component>

@@ -65,8 +65,7 @@
 .criteria-target.is-active, .filter-number-field.is-active { color: var(--criteria-ink); border-color: #8599a48f; }
 .criteria-target i { flex: none; font-size: .6rem; color: var(--criteria-quiet); }
 .criteria-target[aria-expanded="true"] i { transform: rotate(180deg); }
-.criteria-board select.criteria-target { display: block; color-scheme: dark; }
-.criteria-board option { background: var(--raised, #262c30); color: var(--criteria-ink); }
+.criteria-board select.criteria-target { min-height: 2rem; max-width: 56%; font-size: .87rem; }
 .filter-number-fields { display: flex; flex-wrap: wrap; justify-content: end; gap: .25rem; max-width: 55%; }
 .filter-number-field { display: inline-flex; flex: none; align-items: center; gap: .15rem; padding: .12rem .15rem .12rem .35rem; font-size: .96rem; }
 .filter-number-field input { width: 4.3ch; min-width: 0; padding: 0; border: 0; background: transparent; color: inherit; font: inherit; text-align: right; }

@@ -20,7 +20,7 @@
         <div class="settings-rows">
           <label class="settings-row">
             <strong>Theme</strong>
-            <select v-model="theme" class="ui-select">
+            <select v-model="theme">
               <option value="default">Graphite</option>
               <option value="dark-fantasy">Ember</option>
             </select>
@@ -34,7 +34,7 @@
         <div class="settings-rows">
           <label class="settings-row">
             <span><strong>Game language</strong><small>Match your copied item text.</small></span>
-            <select v-model="language" class="ui-select">
+            <select v-model="language">
               <option value="en">English</option>
               <option value="ru">Русский</option>
               <option value="cmn-Hant">正體中文</option>
@@ -50,7 +50,7 @@
           <div v-if="isPoe1" class="settings-row"><strong>Base currency</strong><span>Chaos Orb</span></div>
           <label v-else-if="preferredCurrency" class="settings-row">
             <span><strong>Preferred currency</strong><small>Use this currency for market estimates when available.</small></span>
-            <select v-model="preferredCurrency" class="ui-select">
+            <select v-model="preferredCurrency">
               <option value="chaos">Chaos Orb</option>
               <option value="exalted">Exalted Orb</option>
             </select>

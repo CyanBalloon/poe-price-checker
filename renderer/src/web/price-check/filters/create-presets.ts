@@ -40,7 +40,8 @@ export function createPresets(
     if (item.category === ItemCategory.Map && AppConfig()?.game === "poe1") {
       const stats = item.statsByType.map(calc => {
         const filter = calculatedStatToFilter(calc, opts.searchStatRange, item);
-        filter.disabled = !(opts.defaultAllSelected || filter.tradeId.some(isMapInfluenceId));
+        filter.disabled = !(opts.defaultAllSelected || filter.tradeId.some(isMapInfluenceId) ||
+          calc.sources.some(source => source.modifier.info.isRareOnly));
         return filter;
       }).filter(filter => filter.tradeId.length);
       const id = "filters.preset_exact";
@@ -135,7 +136,7 @@ export function createPresets(
         stat.disabled = true;
       }
     }
-  } else if (!opts.defaultAllSelected) {
+  } else if (!opts.defaultAllSelected && item.category !== ItemCategory.Viscera) {
     for (const preset of result.presets) {
       const implicits = groupModifierFilters(preset.stats, item.rarity).find(group => group.label === "Implicit");
       for (const stat of implicits?.filters ?? []) {

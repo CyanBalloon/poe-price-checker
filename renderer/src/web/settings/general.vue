@@ -2,7 +2,7 @@
   <div class="max-w-md p-2">
     <div class="mb-4">
       <div class="flex-1 mb-1">{{ t(":language") }}</div>
-      <select v-model="language" class="p-1 rounded bg-gray-700 w-24">
+      <select v-model="language">
         <option value="en">English</option>
         <option value="ru">Русский</option>
         <option value="cmn-Hant">正體中文</option>
@@ -16,14 +16,14 @@
     </div>
     <div class="mb-4">
       <div class="flex-1 mb-1">{{ t(":theme") || 'Theme' }}</div>
-      <select v-model="theme" class="p-1 rounded bg-gray-700 w-32">
+      <select v-model="theme">
         <option value="default">Default</option>
         <option value="dark-fantasy">Dark Fantasy</option>
       </select>
     </div>
     <div class="mb-4" v-if="language !== 'en'">
       <div class="flex-1 mb-1">{{ t(":preferred_trade_site") }}</div>
-      <select v-model="preferredTradeSite" class="p-1 rounded bg-gray-700 w-24">
+      <select v-model="preferredTradeSite">
         <option value="default">{{ tradeUrl }}</option>
         <option value="www">www.pathofexile.com</option>
       </select>

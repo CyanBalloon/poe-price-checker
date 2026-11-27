@@ -22,6 +22,7 @@ export interface ModifierInfo {
   type: ModifierType;
   generation?: "suffix" | "prefix" | "corrupted" | "eldritch" | "mutated";
   isFoulborn?: true;
+  isRareOnly?: true;
   influence?: ItemInfluence.SearingExarch | ItemInfluence.EaterOfWorlds;
   name?: string;
   tier?: number;
@@ -42,6 +43,7 @@ export function parseModInfoLine(
 
   let generation: ModifierInfo["generation"];
   let isFoulborn: ModifierInfo["isFoulborn"];
+  let isRareOnly: ModifierInfo["isRareOnly"];
   let name: ModifierInfo["name"];
   let tier: ModifierInfo["tier"];
   let rank: ModifierInfo["rank"];
@@ -98,7 +100,21 @@ export function parseModInfoLine(
       type = ModifierType.Crafted;
     }
 
-    switch (match.groups!.type) {
+    let label = match.groups!.type;
+    const { RARE_ONLY_PREFIX, RARE_ONLY_SUFFIX, PREFIX_MODIFIER, SUFFIX_MODIFIER } = _$;
+    if (RARE_ONLY_PREFIX && RARE_ONLY_PREFIX === RARE_ONLY_SUFFIX) {
+      // Some languages use one qualifier for both affix types.
+      const unqualified = label.replace(RARE_ONLY_PREFIX, "").trim();
+      if (unqualified !== label && (!unqualified || unqualified === PREFIX_MODIFIER || unqualified === SUFFIX_MODIFIER)) {
+        isRareOnly = true;
+        label = unqualified;
+      }
+    } else if (label === RARE_ONLY_PREFIX || label === RARE_ONLY_SUFFIX) {
+      isRareOnly = true;
+      label = label === RARE_ONLY_PREFIX ? PREFIX_MODIFIER : SUFFIX_MODIFIER;
+    }
+
+    switch (label) {
       case _$.CRAFTED_PREFIX:
         type = ModifierType.Crafted;
         generation = "prefix";
@@ -128,11 +144,6 @@ export function parseModInfoLine(
       case _$.VAAL_UNIQUE_MODIFIER:
         generation = "mutated";
     }
-    if (_$.RARE_ONLY_PREFIX !== _$.RARE_ONLY_SUFFIX) {
-      if (match.groups!.type === _$.RARE_ONLY_PREFIX) generation = "prefix";
-      if (match.groups!.type === _$.RARE_ONLY_SUFFIX) generation = "suffix";
-    }
-
     name = match.groups!.name || undefined;
     tier = Number(match.groups!.tier) || undefined;
     rank = Number(match.groups!.rank) || undefined;
@@ -157,7 +168,7 @@ export function parseModInfoLine(
       : undefined;
   }
 
-  return { type, generation, isFoulborn, name, tier, rank, tags, rollIncr, ...(influence && { influence }) };
+  return { type, generation, isFoulborn, name, tier, rank, tags, rollIncr, ...(isRareOnly && { isRareOnly }), ...(influence && { influence }) };
 }
 
 export function isModInfoLine(line: string): boolean {

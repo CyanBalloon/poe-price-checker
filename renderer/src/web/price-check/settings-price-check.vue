@@ -142,7 +142,6 @@
     <div class="mb-4">
       <select
         v-model="autoFillEmptyRuneSockets"
-        class="p-1 rounded bg-gray-700 w-24"
       >
         <!-- This is true since it will be assigned to "disabled" in the code -->
         <option :value="false">No</option>
